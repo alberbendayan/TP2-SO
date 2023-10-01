@@ -1,0 +1,19 @@
+# Binary Files
+*.bin
+*.sys
+*.elf
+
+# The images
+*.img
+*.qcow2
+*.vmdk
+
+# Object files
+*.o
+
+# gdb
+.gdb_history
+
+# Clangd files
+.cache/
+compile_commands.json

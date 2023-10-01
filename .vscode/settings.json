@@ -1,0 +1,28 @@
+{
+    "files.associations": {
+        "lib.h": "c",
+        "string.h": "c",
+        "moduleloader.h": "c",
+        "modulePacker.h": "c",
+        "stdint.h": "c",
+        "naiveconsole.h": "c",
+        "keyboard.h": "c",
+        "videodriver.h": "c",
+        "idtloader.h": "c",
+        "font.h": "c",
+        "shell.h": "c",
+        "stdlib.h": "c",
+        "video.h": "c",
+        "text.h": "c",
+        "syscalls.h": "c",
+        "libasm.h": "c",
+        "pong.h": "c",
+        "cstdio": "c",
+        "*.tcc": "c",
+        "chrono": "c",
+        "string_view": "c",
+        "functional": "c",
+        "rtc.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled",
+}
