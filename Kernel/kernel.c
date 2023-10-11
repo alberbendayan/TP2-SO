@@ -11,6 +11,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <memoryManagement.h>
 
 #define BLACK 0x000000
 #define WHITE 0xffffff
@@ -25,8 +26,9 @@ extern uint8_t end_of_kernel_bin;
 extern uint8_t end_of_kernel;
 
 static const uint64_t page_size = 0x1000;
-static void* const sample_code_module_addr = (void*)0x400000;
+static void* const sample_code_module_addr = (void*)0x400000;	
 static void* const sample_data_module_addr = (void*)0x500000;
+static void* const heap_address = (void*)0x800000;
 
 void
 clear_bss(void* bss_addr, uint64_t bss_size)
@@ -58,6 +60,7 @@ main()
 {
 	idt_loader();
 
+	mmInit(heap_address,0x1000000);
 	// print intro wallpaper and loading message
 	vd_wallpaper(2);
 
