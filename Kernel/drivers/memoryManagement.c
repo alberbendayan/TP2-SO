@@ -1,36 +1,26 @@
 #include <memoryManagement.h>
+#include <MemoryManagementTAD.h>
 
 void *mem_start;
 unsigned int mem_size;
 
-/*typedef struct memory_manager_CDT {
-	char *nextAddress;
-} memory_manager_CDT;*/
+static memory_managment_ADT memory_manager;
 
-void mmInit(void *init_address, unsigned int size){
-	mem_start = init_address;
-	mem_size = size;
+void mm_init(void *mem_for_mm, unsigned int start){
+	memory_manager=create_mm(mem_for_mm, start);
 }
 
-void *mmMalloc(uint64_t size){
-	
+void *mm_malloc(uint64_t mem_to_alloc_size){
+	return mem_alloc(memory_manager, mem_to_alloc_size);
 }
 
-void mmFree(void *ptr){}
-
-void fillMemInfo(char *buffer){}
-
-/*MemoryManagerADT createMemoryManager(void *const restrict memoryForMemoryManager, void *const restrict managedMemory) {
-	MemoryManagerADT memoryManager = (MemoryManagerADT) memoryForMemoryManager;
-	memoryManager->nextAddress = managedMemory;
-	
-	return memoryManager;
+void mm_free(void *mem_block){
+	free_mem(memory_manager,mem_block);
 }
 
-void *allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate) {
-	char *allocation = memoryManager->nextAddress;
+void mem_status(unsigned int* status){
+	status[0] = heapSize();
+	status[1] = heapLeft(memory_manager);
+	status[2] = usedHeap(memory_manager);
+}
 
-	memoryManager->nextAddress += memoryToAllocate;
-
-	return (void *) allocation;
-}*/
