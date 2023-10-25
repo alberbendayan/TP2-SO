@@ -62,5 +62,51 @@ static void insert_into_free_list(memory_managment_ADT memory_manager,
 }
 
 void *mem_alloc(memory_managment_ADT const memory_manager, unsigned int mem_to_allocate){
-  return;
+  
+  mem_block *current_block;
+  void *blockToReturn = NULL;
+
+  if (mem_to_allocate == 0) {
+    return NULL;
+  }
+  mem_to_allocate += STRUCT_SIZE;
+
+  // alineamos los bytes
+  if ((mem_to_allocate & MASK_BYTE_ALIGMENT) != 0) {
+    mem_to_allocate += (BYTE_ALIGMENT - (mem_to_allocate & MASK_BYTE_ALIGMENT));
+  }
+
+  if (mem_to_allocate < TOTAL_HEAP_SIZE) {
+    mem_block *previous_block = &memory_manager->start;
+    current_block = memory_manager->start.next_mem_block;
+
+    while ((current_block->block_size < mem_to_allocate) &&
+           (current_block->next_mem_block != NULL)) {
+      previous_block = current_block;
+      current_block = current_block->next_mem_block;
+    }
+    if (current_block == &memory_manager->end) {
+      return NULL;
+    }
+
+    blockToReturn =
+        (void *)(((uint8_t *)previous_block->next_mem_block) + STRUCT_SIZE);
+
+    previous_block->next_mem_block = current_block->next_mem_block;
+
+    if ((current_block->block_size - mem_to_allocate) > MINIMUM_BLOCK_SIZE) {
+      mem_block *newBlock = (void *)(((uint8_t *)current_block) + mem_to_allocate);
+
+      newBlock->block_size = current_block->block_size - mem_to_allocate;
+      current_block->block_size = mem_to_allocate;
+
+      insert_into_free_list(memory_manager, newBlock);
+    }
+
+    memory_manager->free_bytes_remaining -= current_block->block_size;
+  }
+
+  return blockToReturn;
+
+
 }
