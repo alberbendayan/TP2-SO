@@ -27,11 +27,11 @@ unsigned int used_heap(memory_managment_ADT memory_manager) {
   return TOTAL_HEAP_SIZE - heap_left(memory_manager);
 }
 
-memory_managment_ADT create_MM(
-    void *const restrict mem_for_MM,
+memory_managment_ADT create_mm(
+    void *const restrict mem_for_mm,
     void *const restrict start) {
   memory_managment_ADT memory_managment =
-      (memory_managment_ADT)mem_for_MM;
+      (memory_managment_ADT)mem_for_mm;
   memory_managment->free_bytes_remaining = TOTAL_HEAP_SIZE;
 
   mem_block *starting_block = (void *)start;
