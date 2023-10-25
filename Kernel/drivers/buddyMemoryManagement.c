@@ -20,6 +20,8 @@ typedef struct memory_managment_CDT
 	unsigned int free_bytes_remaining;
 } memory_managment_CDT;
 
+static const uint16_t STRUCT_SIZE = ((sizeof(mem_block) + (BYTE_ALIGMENT - 1)) & ~MASK_BYTE_ALIGMENT);
+
 unsigned int
 heap_size()
 {
@@ -41,24 +43,24 @@ used_heap(memory_managment_ADT memory_manager)
 memory_managment_ADT
 create_MM(void* const restrict mem_for_memory_managment, void* const restrict managed_mem)
 {
-	memory_managment_ADT memoryManagment = (memory_managment_ADT)mem_for_memory_managment;
-	memoryManagment->free_bytes_remaining = TOTAL_HEAP_SIZE;
+	memory_managment_ADT mm = (memory_managment_ADT)mem_for_memory_managment;
+	mm->free_bytes_remaining = TOTAL_HEAP_SIZE;
 
-	mem_block* startingBlock = (void*)managed_mem;
+	mem_block* start = (void*)managed_mem;
 
-	memoryManagment->start.next_mem_block = (void*)startingBlock;
-	memoryManagment->start.size = (unsigned int)0;
+	mm->start.next_mem_block = (void*)start;
+	mm->start.size = (unsigned int)0;
 
-	memoryManagment->end.next_mem_block = NULL;
-	memoryManagment->end.size = TOTAL_HEAP_SIZE;
+	mm->end.next_mem_block = NULL;
+	mm->end.size = TOTAL_HEAP_SIZE;
 
-	startingBlock->size = TOTAL_HEAP_SIZE;
-	startingBlock->next_mem_block = &memoryManagment->end;
+	start->size = TOTAL_HEAP_SIZE;
+	start->next_mem_block = &mm->end;
 
-	startingBlock->free = 1;
-	startingBlock->history = 0;
+	start->free = 1;
+	start->history = 0;
 
-	return memoryManagment;
+	return mm;
 }
 
 static int
@@ -72,38 +74,38 @@ insert_block_as_free(memory_managment_ADT mm, mem_block* block_insert, unsigned 
 	}
 
 	mem_block* buddy = NULL;
-	int auxMerge = 0;
+	int aux = 0;
 
 	if (merge) {
-		if ((block_insert->history & 0x1) != 0) {  
+		if ((block_insert->history & 0x1) != 0) {
 			buddy = (mem_block*)((uint64_t)block_insert - block_insert->blockSize);
-			
-            if (buddy->free && buddy->size == block_insert->size) {
+
+			if (buddy->free && buddy->size == block_insert->size) {
 				buddy->size *= 2;
-				auxMerge = 1;
+				aux = 1;
 				block_insert = buddy;
 			}
-            
+
 		} else {
 			buddy = (mem_block*)((uint64_t)block_insert + block_insert->blockSize);
-			
-            if (buddy->free && buddy->size == block_insert->size) {
+
+			if (buddy->free && buddy->size == block_insert->size) {
 				block_insert->size *= 2;
-				auxMerge = 1;
+				aux = 1;
 			}
 		}
 	}
 
-	if (auxMerge == 1) {
+	if (aux == 1) {
 		block_insert->history = block_insert->history >> 1;
 		remove_block_as_free(mm, buddy);
 		return insert_block_as_free(mm, block_insert, 1);
 	}
 
 	mem_block* iter = &mm->start;
-	int blockSize = block_insert->size;
+	int size = block_insert->size;
 
-	while (iter->next_mem_block->size < blockSize) {
+	while (iter->next_mem_block->size < size) {
 		iter = iter->next_mem_block;
 	}
 
@@ -113,26 +115,85 @@ insert_block_as_free(memory_managment_ADT mm, mem_block* block_insert, unsigned 
 	return block_insert->size;
 }
 
-static void remove_block_as_free(memory_managment_ADT mm, mem_block* block_delete) {
-  mem_block *iter = &mm->start;
+static void
+remove_block_as_free(memory_managment_ADT mm, mem_block* block_delete)
+{
+	mem_block* iter = &mm->start;
 
-  while (iter != NULL && iter->next_mem_block != block_delete) {
-    iter = iter->next_mem_block;
-  }
-  if (iter != NULL) {
-    iter->next_mem_block = iter->next_mem_block->next_mem_block;
-  }
+	while (iter != NULL && iter->next_mem_block != block_delete) {
+		iter = iter->next_mem_block;
+	}
+	if (iter != NULL) {
+		iter->next_mem_block = iter->next_mem_block->next_mem_block;
+	}
 }
 
-
 void*
-mem_alloc(memory_managment_ADT const memory_manager, unsigned int mem_to_allocate)
+mem_alloc(memory_managment_ADT const mm, unsigned int mem_to_allocate)
 {
+	mem_block *current, *previous;
+	void* ret = NULL;
+
+	if (mem_to_allocate == 0) {
+		return NULL;
+	}
+	// Increase size so that it can contain a MemBlock
+	mem_to_allocate += STRUCT_SIZE;
+
+	// Byte aligment
+	if ((mem_to_allocate & MASK_BYTE_ALIGMENT) != 0) {
+		mem_to_allocate += (BYTE_ALIGMENT - (mem_to_allocate & MASK_BYTE_ALIGMENT));
+	}
+
+	if (mem_to_allocate > TOTAL_HEAP_SIZE) {
+		return NULL;
+	}
+
+	previous = &mm->start;
+	current = mm->start.next_mem_block;
+
+	while ((current->size < mem_to_allocate) && (current->next_mem_block != NULL)) {
+		previous = current;
+		current = current->next_mem_block;
+	}
+
+	if (current == &mm->end) {
+		return NULL;
+	}
+	ret = (void*)(((uint8_t*)previous->next_mem_block) + STRUCT_SIZE);
+
+	previous->next_mem_block = current->next_mem_block;
+
+	while (current->size / 2 >= MINIMUM_BLOCK_SIZE && current->size / 2 >= mem_to_allocate) {
+		current->size /= 2;
+		current->history = current->history << 1;
+		mem_block* new = (void*)(((uint64_t)current) + current->size);
+		new->size = current->size;
+		new->free = 1;
+		new->history = current->history | 0x1;  // marco el bloque derecho
+		insertBlockIntoFreeList(mm, new, 0);
+	}
+
+	mm->free_bytes_remaining -= current->size;
+	current->free = 0;
+
+	return ret;
 }
 
 void
-free_mem(memory_managment_ADT const memory_manager, void* block)
+free_mem(memory_managment_ADT const mm, void* block)
 {
+	uint8_t* mem_free = ((uint8_t*)block);
+	mem_block* block_free;
+
+	mem_free -= STRUCT_SIZE;
+
+	block_free = (void*)mem_free;
+
+	unsigned int aux = block_free->size;
+
+	insertBlockIntoFreeList(mm, ((mem_block*)block_free), 1);
+	mm->free_bytes_remaining += aux;
 }
 
 // #endif
