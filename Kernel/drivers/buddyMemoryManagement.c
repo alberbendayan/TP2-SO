@@ -183,6 +183,9 @@ mem_alloc(memory_managment_ADT const mm, unsigned int mem_to_allocate)
 void
 free_mem(memory_managment_ADT const mm, void* block)
 {
+	if (block == NULL) {
+		return;
+	}
 	uint8_t* mem_free = ((uint8_t*)block);
 	mem_block* block_free;
 
