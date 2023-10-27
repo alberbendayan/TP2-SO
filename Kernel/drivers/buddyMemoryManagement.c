@@ -1,6 +1,6 @@
-// #ifdef BUDDY
+#ifdef BUDDY
 
-#include <MemoryManagementTAD.h>
+#include <memoryManagementTAD.h>
 #include <stdint.h>
 
 #define MINIMUM_BLOCK_SIZE 512
@@ -42,7 +42,7 @@ used_heap(memory_managment_ADT memory_manager)
 }
 // muy parecido a la otra implementacion, solo le agrego el history y free
 memory_managment_ADT
-create_MM(void* const restrict mem_for_memory_managment, void* const restrict managed_mem)
+create_mm(void* const restrict mem_for_memory_managment, void* const restrict managed_mem)
 {
 	memory_managment_ADT mm = (memory_managment_ADT)mem_for_memory_managment;
 	mm->free_bytes_remaining = TOTAL_HEAP_SIZE;
@@ -199,5 +199,4 @@ free_mem(memory_managment_ADT const mm, void* block)
 	insertBlockIntoFreeList(mm, ((mem_block*)block_free), 1);
 	mm->free_bytes_remaining += aux;
 }
-
-// #endif
+#endif

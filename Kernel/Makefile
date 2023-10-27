@@ -28,7 +28,7 @@ $(KERNEL): $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_ID
 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJ) $(STATICLIBS) $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_LIBASM) $(OBJECTS_LIBC)
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include $(MM) -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

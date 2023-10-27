@@ -1,5 +1,5 @@
 #include <memoryManagement.h>
-#include <MemoryManagementTAD.h>
+#include <memoryManagementTAD.h>
 
 void *mem_start;
 unsigned int mem_size;
@@ -19,8 +19,8 @@ void mm_free(void *mem_block){
 }
 
 void mem_status(unsigned int* status){
-	status[0] = heapSize();
-	status[1] = heapLeft(memory_manager);
-	status[2] = usedHeap(memory_manager);
+	status[0] = heap_size();
+	status[1] = heap_left(memory_manager);
+	status[2] = used_heap(memory_manager);
 }
 

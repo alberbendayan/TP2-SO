@@ -1,3 +1,6 @@
+#MM=BUDDY
+MM=LINEAR
+
 all:  bootloader kernel userland image
 
 debug: all
@@ -8,7 +11,7 @@ bootloader:
 	cd Bootloader; make all
 
 kernel:
-	cd Kernel; make all
+	cd Kernel; make all MM=-D$(MM)
 
 userland:
 	cd Userland; make all

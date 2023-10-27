@@ -1,3 +1,4 @@
+#ifdef LINEAR
 #include <memoryManagementTAD.h>
 
 typedef struct mem_block {
@@ -111,3 +112,4 @@ void *mem_alloc(memory_managment_ADT const memory_manager, unsigned int mem_to_a
 
 
 }
+#endif
