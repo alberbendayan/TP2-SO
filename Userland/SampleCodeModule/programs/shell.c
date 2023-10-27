@@ -79,11 +79,14 @@ load_commands()
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
+
+	// hacer los tests aca
 }
 
 static void
 load_command(uint32_t (*fn)(), char* name, char* desc)
 {
+	
 	if (commands_len >= MAX_COMMANDS)
 		return;
 	commands[commands_len].fn = fn;
