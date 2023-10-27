@@ -6,7 +6,7 @@
 #define HEAPSIZE (1024 * 1024 * 128) /*128MB*/
 #define NULL ((void *)0)
 
-void mm_init(void *init_address, unsigned int size);
+void mm_init(void *init_address, void* const restrict size);
 
 void *mm_malloc(uint64_t size);
 

@@ -112,4 +112,20 @@ void *mem_alloc(memory_managment_ADT const memory_manager, unsigned int mem_to_a
 
 
 }
+
+void free_mem(memory_managment_ADT const memory_manager, void *block) {
+  if (block == NULL) {
+    return;
+  }
+
+  uint8_t *mem_to_free = ((uint8_t *)block);
+  mem_block *block_to_free;
+
+  mem_to_free -= STRUCT_SIZE;
+
+  block_to_free = (void *)mem_to_free;
+
+  insert_into_free_list(memory_manager, ((mem_block *)block_to_free));
+  memory_manager->free_bytes_remaining += block_to_free->block_size;
+}
 #endif
