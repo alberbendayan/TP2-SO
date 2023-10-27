@@ -16,6 +16,7 @@ static const uint16_t STRUCT_SIZE =
 
 #define MINIMUM_BLOCK_SIZE ((unsigned int)(STRUCT_SIZE * 2))
 
+static void insert_into_free_list(memory_managment_ADT memory_manager,mem_block *block_to_insert);
 
 unsigned int heap_size() { return TOTAL_HEAP_SIZE; }
 

@@ -10,7 +10,6 @@
 typedef struct memory_managment_CDT *memory_managment_ADT;
 
 memory_managment_ADT create_mm(void *const restrict mem_for_mm, void *const restrict start);
-static void insert_into_free_list(memory_managment_ADT memory_manager,mem_block *block_to_insert);
 void *mem_alloc(memory_managment_ADT const memory_manager, unsigned int mem_to_allocate);
 void free_mem(memory_managment_ADT const memory_manager, void *block);
 unsigned int heap_size();

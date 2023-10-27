@@ -10,7 +10,7 @@ typedef struct mem_block
 	unsigned char free;
 	int history;
 	struct mem_block* next_mem_block;
-	unsigned int size;
+	unsigned int block_size;
 } mem_block;
 
 typedef struct memory_managment_CDT
@@ -21,6 +21,7 @@ typedef struct memory_managment_CDT
 } memory_managment_CDT;
 
 static const uint16_t STRUCT_SIZE = ((sizeof(mem_block) + (BYTE_ALIGMENT - 1)) & ~MASK_BYTE_ALIGMENT);
+static void remove_block_as_free(memory_managment_ADT mm, mem_block* block_delete);
 
 unsigned int
 heap_size()
@@ -49,12 +50,12 @@ create_MM(void* const restrict mem_for_memory_managment, void* const restrict ma
 	mem_block* start = (void*)managed_mem;
 
 	mm->start.next_mem_block = (void*)start;
-	mm->start.size = (unsigned int)0;
+	mm->start.block_size = (unsigned int)0;
 
 	mm->end.next_mem_block = NULL;
-	mm->end.size = TOTAL_HEAP_SIZE;
+	mm->end.block_size = TOTAL_HEAP_SIZE;
 
-	start->size = TOTAL_HEAP_SIZE;
+	start->block_size = TOTAL_HEAP_SIZE;
 	start->next_mem_block = &mm->end;
 
 	start->free = 1;
@@ -66,11 +67,11 @@ create_MM(void* const restrict mem_for_memory_managment, void* const restrict ma
 static int
 insert_block_as_free(memory_managment_ADT mm, mem_block* block_insert, unsigned char merge)
 {
-	if (block_insert->size == TOTAL_HEAP_SIZE) {
+	if (block_insert->block_size == TOTAL_HEAP_SIZE) {
 		mm->start.next_mem_block = block_insert;
 		block_insert->next_mem_block = &mm->end;
 		block_insert->free = 1;
-		return block_insert->size;
+		return block_insert->block_size;
 	}
 
 	mem_block* buddy = NULL;
@@ -78,19 +79,19 @@ insert_block_as_free(memory_managment_ADT mm, mem_block* block_insert, unsigned 
 
 	if (merge) {
 		if ((block_insert->history & 0x1) != 0) {
-			buddy = (mem_block*)((uint64_t)block_insert - block_insert->blockSize);
+			buddy = (mem_block*)((uint64_t)block_insert - block_insert->block_size);
 
-			if (buddy->free && buddy->size == block_insert->size) {
-				buddy->size *= 2;
+			if (buddy->free && buddy->block_size == block_insert->block_size) {
+				buddy->block_size *= 2;
 				aux = 1;
 				block_insert = buddy;
 			}
 
 		} else {
-			buddy = (mem_block*)((uint64_t)block_insert + block_insert->blockSize);
+			buddy = (mem_block*)((uint64_t)block_insert + block_insert->block_size);
 
-			if (buddy->free && buddy->size == block_insert->size) {
-				block_insert->size *= 2;
+			if (buddy->free && buddy->block_size == block_insert->block_size) {
+				block_insert->block_size *= 2;
 				aux = 1;
 			}
 		}
@@ -103,16 +104,16 @@ insert_block_as_free(memory_managment_ADT mm, mem_block* block_insert, unsigned 
 	}
 
 	mem_block* iter = &mm->start;
-	int size = block_insert->size;
+	int size = block_insert->block_size;
 
-	while (iter->next_mem_block->size < size) {
+	while (iter->next_mem_block->block_size < size) {
 		iter = iter->next_mem_block;
 	}
 
 	block_insert->next_mem_block = iter->next_mem_block;
 	iter->next_mem_block = block_insert;
 	block_insert->free = 1;
-	return block_insert->size;
+	return block_insert->block_size;
 }
 
 static void
@@ -152,7 +153,7 @@ mem_alloc(memory_managment_ADT const mm, unsigned int mem_to_allocate)
 	previous = &mm->start;
 	current = mm->start.next_mem_block;
 
-	while ((current->size < mem_to_allocate) && (current->next_mem_block != NULL)) {
+	while ((current->block_size < mem_to_allocate) && (current->next_mem_block != NULL)) {
 		previous = current;
 		current = current->next_mem_block;
 	}
@@ -164,17 +165,17 @@ mem_alloc(memory_managment_ADT const mm, unsigned int mem_to_allocate)
 
 	previous->next_mem_block = current->next_mem_block;
 
-	while (current->size / 2 >= MINIMUM_BLOCK_SIZE && current->size / 2 >= mem_to_allocate) {
-		current->size /= 2;
+	while (current->block_size / 2 >= MINIMUM_BLOCK_SIZE && current->block_size / 2 >= mem_to_allocate) {
+		current->block_size /= 2;
 		current->history = current->history << 1;
-		mem_block* new = (void*)(((uint64_t)current) + current->size);
-		new->size = current->size;
+		mem_block* new = (void*)(((uint64_t)current) + current->block_size);
+		new->block_size = current->block_size;
 		new->free = 1;
 		new->history = current->history | 0x1;  // marco el bloque derecho
 		insertBlockIntoFreeList(mm, new, 0);
 	}
 
-	mm->free_bytes_remaining -= current->size;
+	mm->free_bytes_remaining -= current->block_size;
 	current->free = 0;
 
 	return ret;
@@ -193,7 +194,7 @@ free_mem(memory_managment_ADT const mm, void* block)
 
 	block_free = (void*)mem_free;
 
-	unsigned int aux = block_free->size;
+	unsigned int aux = block_free->block_size;
 
 	insertBlockIntoFreeList(mm, ((mem_block*)block_free), 1);
 	mm->free_bytes_remaining += aux;
