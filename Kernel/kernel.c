@@ -62,7 +62,13 @@ main()
 {
 	idt_loader();
 
-	mm_init(heap_address,heap_address);
+	mm_init(mm_struct_address,heap_address);
+
+
+	
+
+
+
 	// print intro wallpaper and loading message
 	vd_wallpaper(2);
 
