@@ -162,3 +162,46 @@ hex_to_uint(char* code)
 
 	return ret;
 }
+
+
+void intToArray(int num, char *result) {
+    if (num == 0) {
+        result[0] = '0';
+        result[1] = '\0';
+        return;
+    }
+
+    int i = 0;
+    int isNegative = 0;
+
+    if (num < 0) {
+        isNegative = 1;
+        num = -num;
+    }
+
+    while (num > 0) {
+        int digit = num % 10;
+        result[i] = '0' + digit;
+        num /= 10;
+        i++;
+    }
+
+    if (isNegative) {
+        result[i] = '-';
+        i++;
+    }
+
+    result[i] = '\0';
+
+    // Invertir el resultado
+    int start = 0;
+    int end = i - 1;
+
+    while (start < end) {
+        char temp = result[start];
+        result[start] = result[end];
+        result[end] = temp;
+        start++;
+        end--;
+    }
+}

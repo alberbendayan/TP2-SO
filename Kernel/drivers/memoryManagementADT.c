@@ -1,5 +1,5 @@
 #ifdef LINEAR
-#include <memoryManagementTAD.h>
+#include <memoryManagementADT.h>
 
 typedef struct mem_block {
   struct mem_block *next_mem_block;

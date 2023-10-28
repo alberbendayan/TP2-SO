@@ -1,20 +1,20 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <defs.h>
-#include <linkedList.h>
+#include <linkedListADT.h>
 #include <memoryManagement.h>
 #include <stdlib.h>
 
 
-typedef struct Linked_list_CDT {
-    Node *first;
-    Node *last;
-    Node *current;
+typedef struct linked_list_CDT {
+    node *first;
+    node *last;
+    node *current;
     int len;
-} Linked_list_CDT;
+} linked_list_CDT;
 
-Linked_list_ADT create_linked_list_ADT() {
-    Linked_list_ADT list = (Linked_list_ADT) alloc_memory(sizeof(Linked_list_CDT));
+linked_list_ADT create_linked_list_ADT() {
+    linked_list_ADT list = (linked_list_ADT) mm_malloc(sizeof(linked_list_CDT));
     list->len = 0;
     list->first = NULL;
     list->last = NULL;
@@ -22,15 +22,15 @@ Linked_list_ADT create_linked_list_ADT() {
     return list;
 }
 
-Node *append_element(Linked_list_ADT list, void *data) {
+node *append_element(linked_list_ADT list, void *data) {
     if (list == NULL)
         return NULL;
-    Node *newNode = (Node *) alloc_memory(sizeof(Node));
+    node *newNode = (node *) mm_malloc(sizeof(node));
     newNode->data = data;
     return append_node(list, newNode);
 }
 
-Node *append_node(Linked_list_ADT list, Node *node) {
+node *append_node(linked_list_ADT list, node *node) {
     if (list == NULL)
         return NULL;
     node->next = NULL;
@@ -44,7 +44,7 @@ Node *append_node(Linked_list_ADT list, Node *node) {
     return node;
 }
 
-Node *prepend_node(Linked_list_ADT list, Node *node) {
+node *prepend_node(linked_list_ADT list, node *node) {
     if (list == NULL)
         return NULL;
     node->prev = NULL;
@@ -58,25 +58,25 @@ Node *prepend_node(Linked_list_ADT list, Node *node) {
     return node;
 }
 
-Node *get_first(Linked_list_ADT list) {
+node *get_first(linked_list_ADT list) {
     if (list == NULL)
         return NULL;
     return list->first;
 }
 
-int is_empty(Linked_list_ADT list) {
+int is_empty(linked_list_ADT list) {
     if (list == NULL)
         return -1;
     return !list->len;
 }
 
-int get_length(Linked_list_ADT list) {
+int get_length(linked_list_ADT list) {
     if (list == NULL)
         return -1;
     return list->len;
 }
 
-void *remove_node(Linked_list_ADT list, Node *node) {
+void *remove_node(linked_list_ADT list, node *node) {
     if (list == NULL || node == NULL)
         return NULL;
 
@@ -94,25 +94,23 @@ void *remove_node(Linked_list_ADT list, Node *node) {
     void *data = node->data;
     node->next = NULL;
     node->prev = NULL;
-    // free(node);
+    //mm_free(node);//?
     return data;
 }
 
-// Atención: Usar funciones de agregado/borrado cuando se itera sobre la lista
-// puede causar comportamiento indefinido.
-void begin(Linked_list_ADT list) {
+void begin(linked_list_ADT list) {
     if (list == NULL)
         return;
     list->current = list->first;
 }
 
-int has_next(Linked_list_ADT list) {
+int has_next(linked_list_ADT list) {
     if (list == NULL)
         return -1;
     return list->current != NULL;
 }
 
-void *next(Linked_list_ADT list) {
+void *next(linked_list_ADT list) {
     if (!has_next(list))
         return NULL;
     void *data = list->current->data;
@@ -120,17 +118,17 @@ void *next(Linked_list_ADT list) {
     return data;
 }
 
-void free_linked_list_ADT_deep(Linked_list_ADT list) {
-    Node *current = list->first;
-    Node *next;
+void free_linked_list_ADT_deep(linked_list_ADT list) {
+    node *current = list->first;
+    node *next;
     while (current != NULL) {
         next = current->next;
-        free(current);
+        mm_free(current);
         current = next;
     }
     free_linked_list_ADT(list);
 }
 
-void free_linked_list_ADT(Linked_list_ADT list) {
-    free(list);
+void free_linked_list_ADT(linked_list_ADT list) {
+    mm_free(list);
 }

@@ -8,6 +8,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <memoryManagement.h>
 
 #define REGS_SIZE 19
 
@@ -31,7 +32,11 @@ enum syscalls
 	SYS_SLEEP,
 	SYS_REGS,
 	SYS_RTC,
-	SYS_SOUND
+	SYS_SOUND,
+
+	// memory
+	SYS_MALLOC,
+	SYS_FREE
 };
 
 static uint8_t regs_flag = 0;
@@ -90,6 +95,14 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_SOUND: {
 			sd_play(rsi, rdx);
+		} break;
+
+		case SYS_MALLOC: {
+			return mm_malloc(rsi);
+		} break;
+
+		case SYS_FREE: {
+			mm_free(rsi);
 		} break;
 	}
 	return 0;
