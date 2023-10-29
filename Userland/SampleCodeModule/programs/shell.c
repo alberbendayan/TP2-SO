@@ -48,6 +48,7 @@ static uint32_t testzde();
 static uint32_t pong();
 static uint32_t setcolor();
 static uint32_t switchcolors();
+static uint32_t memstatus();
 
 uint32_t
 shell_init()
@@ -259,4 +260,11 @@ switchcolors()
 	color.fg = aux;
 	clear();
 	return 0;
+}
+
+static uint32_t
+memstatus()
+{
+	uint32_t status[3];
+	asm_state(status);
 }

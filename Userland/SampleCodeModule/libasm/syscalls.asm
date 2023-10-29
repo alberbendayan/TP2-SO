@@ -30,6 +30,14 @@ sys_regs         equ 10
 sys_rtc          equ 11
 sys_sound        equ 12
 
+; memory
+global asm_malloc
+global asm_free
+global asm_state
+sys_malloc      equ 13
+sys_free        equ 14
+sys_state       equ 15
+
 %macro syscall_handler 1
     push rbp
     mov rbp,rsp
@@ -79,3 +87,12 @@ asm_datetime:
 
 asm_sound:
     syscall_handler sys_sound
+
+asm_malloc:
+    syscall_handler sys_malloc
+
+asm_free:
+    syscall_handler sys_free
+
+asm_state:
+    syscall_handler sys_state

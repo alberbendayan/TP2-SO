@@ -36,7 +36,8 @@ enum syscalls
 
 	// memory
 	SYS_MALLOC,
-	SYS_FREE
+	SYS_FREE,
+	SYS_STATE
 };
 
 static uint8_t regs_flag = 0;

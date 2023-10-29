@@ -73,5 +73,18 @@ extern void asm_datetime(uint32_t color);
  * Emite un sonido con una cierta frecuencia durante cierto tiempo (en ticks).
  */
 extern void asm_sound(uint32_t freq, uint32_t duration);
+/*
+ * Malloc
+ */
+extern void* asm_malloc(uint64_t size);
 
+/*
+ * free
+ */
+extern void asm_free(void * mem_block);
+
+/*
+ * Estado de la memoria
+ */
+extern void asm_state(unsigned int * status);
 #endif
