@@ -77,3 +77,34 @@ static char **alloc_arguments(char **args) {
     new_args_array[argc] = NULL;
     return new_args_array;
 }
+void free_process(process *proc) {
+    free_linked_list_adt(proc->zombie_children);
+    free(proc->stack_base);
+    free(proc->name);
+    free(proc);
+}
+
+process_snapshot *load_snapshot(process_snapshot *snapshot, process *proc) {
+    snapshot->name = alloc_memory(strlen(proc->name));
+    strcpy(snapshot->name, proc->name);
+    snapshot->pid = proc->pid;
+    snapshot->parent_pid = proc->parent_pid;
+    snapshot->stack_base = proc->stack_base;
+    snapshot->priority = proc->priority;
+    snapshot->status = proc->status;
+    snapshot->foreground = proc->file_descriptors[STDIN] == STDIN;
+    snapshot->stack_pos = proc->stack_pos;
+    return snapshot;
+}
+
+int process_is_waiting(process *proc, uint16_t pid_to_wait) {
+    return proc->waiting_for_pid == pid_to_wait && proc->status == BLOCKED;
+}
+
+int get_zombies_snapshots(int process_index, process_snapshot ps_array[], process *next_process) {
+    linked_list_ADT zombie_children = next_process->zombie_children;
+    begin(zombie_children);
+    while (has_next(zombie_children))
+        load_snapshot(&ps_array[process_index++], next(zombie_children));
+    return process_index;
+}
