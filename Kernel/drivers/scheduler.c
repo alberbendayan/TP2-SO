@@ -33,3 +33,43 @@ scheduler_ADT create_scheduler() {
 	scheduler->kill_fg_process = 0;
 	return scheduler;
 }
+
+uint16_t create_process(main_function code, char **args, char *name, uint8_t priority, int16_t file_descriptors[], uint8_t unkillable) {
+	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	if (scheduler->qty_processes >= MAX_PROCESSES)
+		return -1;
+	process *proc = (process *) mm_malloc(sizeof(process));
+	init_process(proc, scheduler->next_unused_pid, scheduler->current_pid, code, args, name, priority, file_descriptors, unkillable);
+
+	node *process_node;
+	if (proc->pid != IDLE_PID)
+		process_node = append_element(scheduler->levels[proc->priority], (void *) proc);
+	else {
+		process_node = mm_malloc(sizeof(node));
+		process_node->data = (void *) proc;
+	}
+	scheduler->processes[proc->pid] = process_node;
+
+	while (scheduler->processes[scheduler->next_unused_pid] != NULL)
+		scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
+	
+	scheduler->qty_processes++;
+	return proc->pid;
+}
+
+uint16_t getpid() {
+	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	return scheduler->current_pid;
+}
+
+uint32_t process_is_alive(uint16_t pid) {
+	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	node *process_node = scheduler->processes[pid];
+	return process_node != NULL && ((process *) process_node->data)->status != ZOMBIE;
+}
+
+void yield() {
+	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	scheduler->remaining_quantum = 0;
+	// llamar al timertick pra q cambie de procesos
+}
