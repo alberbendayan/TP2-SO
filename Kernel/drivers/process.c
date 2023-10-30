@@ -61,7 +61,7 @@ static void close_file_descriptor(uint16_t pid, int16_t fd_value) {
 }
 
 static char **alloc_arguments(char **args) {
-    int argc = string_array_len(args), total_args_len = 0;
+    int argc = string_array_len(args), total_args_len = 0; // falta hacer bien esta func
     int args_len[argc];
     for (int i = 0; i < argc; i++) {
         args_len[i] = strlen(args[i]) + 1;
