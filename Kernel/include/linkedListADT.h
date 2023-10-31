@@ -20,7 +20,6 @@ void begin(linked_list_ADT list);
 int has_next(linked_list_ADT list);
 void *next(linked_list_ADT list);
 void free_linked_list_ADT_deep(linked_list_ADT list);
-void free_linked_list_ADT(linked_list_ADT list);
 int get_length(linked_list_ADT list);
 
 #endif

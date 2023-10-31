@@ -46,7 +46,7 @@ void init_process(process *proc, uint16_t pid, uint16_t parent_pid,
 static void assign_file_descriptor(process *proc, uint8_t fd_index, int16_t fd_value, uint8_t mode) {
     proc->file_descriptors[fd_index] = fd_value;
     if (fd_value >= BUILT_IN_DESCRIPTORS)
-        pipe_open_for_pid(proc->pid, fd_value, mode);
+        pipe_open_for_pid(proc->pid, fd_value, mode); // tenemos q hacer esta func cdo hagamos pipes (ya estan en el .h)
 }
 
 void close_file_descriptors(process *proc) {
@@ -57,7 +57,7 @@ void close_file_descriptors(process *proc) {
 
 static void close_file_descriptor(uint16_t pid, int16_t fd_value) {
     if (fd_value >= BUILT_IN_DESCRIPTORS)
-        pipe_close_for_pid(pid, fd_value);
+        pipe_close_for_pid(pid, fd_value); // tenemos q hacer esta func
 }
 
 static char **alloc_arguments(char **args) {
@@ -78,8 +78,9 @@ static char **alloc_arguments(char **args) {
     return new_args_array;
 }
 void free_process(process *proc) {
-    free_linked_list_adt(proc->zombie_children);
+    free_linked_list_ADT_deep(proc->zombie_children); // Esta bien esto? o hay que liberar toda la lista con el deep?
     mm_free(proc->stack_base);
+    mm_free(proc->argv); // faltaba
     mm_free(proc->name);
     mm_free(proc);
 }
