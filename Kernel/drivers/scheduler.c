@@ -23,6 +23,10 @@ typedef struct scheduler_CDT {
 	int8_t kill_fg_process;
 } scheduler_CDT;
 
+scheduler_ADT get_address() {
+	return (scheduler_ADT) SCHEDULER_ADDRESS;
+}
+
 scheduler_ADT create_scheduler() {
 	scheduler_ADT scheduler = (scheduler_ADT) SCHEDULER_ADDRESS;
 	for (int i = 0; i < MAX_PROCESSES; i++)
@@ -35,7 +39,7 @@ scheduler_ADT create_scheduler() {
 }
 
 uint16_t create_process(main_function code, char **args, char *name, uint8_t priority, int16_t file_descriptors[], uint8_t unkillable) {
-	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	scheduler_ADT scheduler = get_address();
 	if (scheduler->qty_processes >= MAX_PROCESSES)
 		return -1;
 	process *proc = (process *) mm_malloc(sizeof(process));
@@ -58,12 +62,12 @@ uint16_t create_process(main_function code, char **args, char *name, uint8_t pri
 }
 
 uint16_t getpid() {
-	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	scheduler_ADT scheduler = get_address();
 	return scheduler->current_pid;
 }
 
 uint32_t process_is_alive(uint16_t pid) {
-	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	scheduler_ADT scheduler = get_address();
 	node *process_node = scheduler->processes[pid];
 	return process_node != NULL && ((process *) process_node->data)->status != ZOMBIE;
 }
@@ -73,3 +77,4 @@ void yield() {
 	scheduler->remaining_quantum = 0;
 	// llamar al timertick pra q cambie de procesos
 }
+
