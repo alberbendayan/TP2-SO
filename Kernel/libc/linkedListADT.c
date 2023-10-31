@@ -25,9 +25,9 @@ linked_list_ADT create_linked_list_ADT() {
 node *append_element(linked_list_ADT list, void *data) {
     if (list == NULL)
         return NULL;
-    node *newNode = (node *) mm_malloc(sizeof(node));
-    newNode->data = data;
-    return append_node(list, newNode);
+    node *new_node = (node *) mm_malloc(sizeof(node));
+    new_node->data = data;
+    return append_node(list, new_node);
 }
 
 node *append_node(linked_list_ADT list, node *node) {
@@ -126,9 +126,5 @@ void free_linked_list_ADT_deep(linked_list_ADT list) {
         mm_free(current);
         current = next;
     }
-    free_linked_list_ADT(list);
-}
-
-void free_linked_list_ADT(linked_list_ADT list) {
     mm_free(list);
 }
