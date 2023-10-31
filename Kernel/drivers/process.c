@@ -27,9 +27,9 @@ void init_process(process *proc, uint16_t pid, uint16_t parent_pid,
     proc->pid = pid;
     proc->parent_pid = parent_pid;
     proc->waiting_for_pid = 0;
-    proc->stack_base = alloc_memory(STACK_SIZE);
+    proc->stack_base = mm_malloc(STACK_SIZE);
     proc->argv = alloc_arguments(args);
-    proc->name = alloc_memory(strlen(name) + 1);
+    proc->name = mm_malloc(strlen(name) + 1);
     strcpy(proc->name, name);
     proc->priority = priority;
     void *stack_end = (void *) ((uint64_t) proc->stack_base + STACK_SIZE);
@@ -67,7 +67,7 @@ static char **alloc_arguments(char **args) {
         args_len[i] = strlen(args[i]) + 1;
         total_args_len += args_len[i];
     }
-    char **new_args_array = (char **) alloc_memory(total_args_len + sizeof(char **) * (argc + 1));
+    char **new_args_array = (char **) mm_malloc(total_args_len + sizeof(char **) * (argc + 1));
     char *char_position = (char *) new_args_array + (sizeof(char **) * (argc + 1));
     for (int i = 0; i < argc; i++) {
         new_args_array[i] = char_position;
@@ -79,13 +79,13 @@ static char **alloc_arguments(char **args) {
 }
 void free_process(process *proc) {
     free_linked_list_adt(proc->zombie_children);
-    free(proc->stack_base);
-    free(proc->name);
-    free(proc);
+    mm_free(proc->stack_base);
+    mm_free(proc->name);
+    mm_free(proc);
 }
 
 process_snapshot *load_snapshot(process_snapshot *snapshot, process *proc) {
-    snapshot->name = alloc_memory(strlen(proc->name));
+    snapshot->name = mm_malloc(strlen(proc->name));
     strcpy(snapshot->name, proc->name);
     snapshot->pid = proc->pid;
     snapshot->parent_pid = proc->parent_pid;
