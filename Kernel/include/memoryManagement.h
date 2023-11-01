@@ -12,6 +12,6 @@ void *mm_malloc(uint64_t size);
 
 void mm_free(void *ptr);
 
-void mem_status(unsigned int *status);
+void mm_status(unsigned int *status);
 
 #endif

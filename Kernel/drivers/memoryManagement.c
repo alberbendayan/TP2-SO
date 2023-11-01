@@ -18,7 +18,7 @@ void mm_free(void *mem_block){
 	return free_mem(memory_manager,mem_block);
 }
 
-void mem_status(unsigned int* status){
+void mm_status(unsigned int* status){
 	status[0] = heap_size();
 	status[1] = heap_left(memory_manager);
 	status[2] = used_heap(memory_manager);

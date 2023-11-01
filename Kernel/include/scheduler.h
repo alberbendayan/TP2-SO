@@ -9,7 +9,7 @@ scheduler_ADT createScheduler();
 
 uint16_t create_process(main_function code, char **args, char *name, uint8_t priority, int16_t file_descriptors[], uint8_t unkillable);
 
-uint16_t getpid();
+uint16_t get_pid();
 
 uint32_t process_is_alive(uint16_t pid);
 

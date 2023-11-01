@@ -82,7 +82,7 @@ create_process(main_function code,
 }
 
 uint16_t
-getpid()
+get_pid()
 {
 	scheduler_ADT scheduler = get_address();
 	return scheduler->current_pid;

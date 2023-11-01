@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#define PIPE_SIZE (4096)
+#define PIPE_SIZE 4096
 
-typedef struct pipe_manager_CDT *pipe_manager_ADT;
+typedef struct pipe_CDT *pipe_ADT;
 
-pipe_manager_ADT create_pipe_manager();
+pipe_ADT create_pipe_manager();
 
 // open
 int8_t pipe_open(uint16_t id, uint8_t mode);
