@@ -11,14 +11,21 @@
 
 #define STACK_SIZE (4096)
 
+static int array_len(char **array);
 static char **alloc_arguments();
 static void assign_file_descriptor(process *proc, uint8_t fd_index, int16_t fd_value, uint8_t mode);
 static void close_file_descriptor(uint16_t pid, int16_t fd_value);
 
+
+static int array_len(char **array) {
+	int len = 0;
+	while (*(array++) != 0)
+		len++;
+	return len;
+}
+
 void process_wrapper(main_function code, char **args) {
-    int len = string_array_len(args);
-    int ret_value = code(len, args);
-    kill_current_process(ret_value);
+    kill_current_process(code(array_len(args), args));
 }
 
 void init_process(process *proc, uint16_t pid, uint16_t parent_pid,
@@ -50,9 +57,9 @@ static void assign_file_descriptor(process *proc, uint8_t fd_index, int16_t fd_v
 }
 
 void close_file_descriptors(process *proc) {
-    close_file_descriptor(proc->pid, proc->file_descriptors[STDIN]);
-    close_file_descriptor(proc->pid, proc->file_descriptors[STDOUT]);
-    close_file_descriptor(proc->pid, proc->file_descriptors[STDERR]);
+    close_file_descriptor(proc->pid, proc->file_descriptors[STDIN]); // esta en el .h
+    close_file_descriptor(proc->pid, proc->file_descriptors[STDOUT]); // esta en el .h
+    close_file_descriptor(proc->pid, proc->file_descriptors[STDERR]); // esta en el .h
 }
 
 static void close_file_descriptor(uint16_t pid, int16_t fd_value) {
@@ -61,7 +68,7 @@ static void close_file_descriptor(uint16_t pid, int16_t fd_value) {
 }
 
 static char **alloc_arguments(char **args) {
-    int argc = string_array_len(args), total_args_len = 0; // falta hacer bien esta func
+    int argc = array_len(args), total_args_len = 0; // falta hacer bien esta func
     int args_len[argc];
     for (int i = 0; i < argc; i++) {
         args_len[i] = strlen(args[i]) + 1;
@@ -77,6 +84,7 @@ static char **alloc_arguments(char **args) {
     new_args_array[argc] = NULL;
     return new_args_array;
 }
+
 void free_process(process *proc) {
     free_linked_list_ADT_deep(proc->zombie_children); // Esta bien esto? o hay que liberar toda la lista con el deep?
     mm_free(proc->stack_base);

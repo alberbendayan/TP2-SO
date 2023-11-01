@@ -53,12 +53,6 @@ typedef struct process_snapshot
 	uint8_t foreground;
 } process_snapshot;
 
-typedef struct process_snapshot_list
-{
-	uint16_t length;
-	process_snapshot* snapshot_list;
-} process_snapshot_list;
-
 void init_process(process* proc,
                   uint16_t pid,
                   uint16_t parent_pid,
