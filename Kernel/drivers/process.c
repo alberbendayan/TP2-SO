@@ -1,5 +1,6 @@
 #include <defs.h>
 #include <interrupts.h>
+#include <linkedListADT.h>
 #include <memoryManagement.h>
 #include <process.h>
 #include <stdlib.h>
@@ -45,12 +46,12 @@ init_process(process* proc,
 	proc->stack_base = mm_malloc(STACK_SIZE);
 	proc->argv = alloc_arguments(args);
 	proc->name = mm_malloc(strlen(name) + 1);
-	strcpy(proc->name, name);
+	memcpy(proc->name, name, strlen(name) + 1);
 	proc->priority = priority;
 	void* stack_end = (void*)((uint64_t)proc->stack_base + STACK_SIZE);
 	proc->stack_pos = _initialize_stack_frame(&process_wrapper, code, stack_end, (void*)proc->argv);
 	proc->status = READY;
-	proc->zombie_children = create_linked_list_adt();
+	proc->zombie_children = create_linked_list_ADT();
 	proc->unkillable = unkillable;
 
 	assign_file_descriptor(proc, STDIN, file_descriptors[STDIN], READ);
@@ -116,8 +117,8 @@ free_process(process* proc)
 process_snapshot*
 load_snapshot(process_snapshot* snapshot, process* proc)
 {
-	snapshot->name = mm_malloc(strlen(proc->name));
-	strcpy(snapshot->name, proc->name);
+	snapshot->name = mm_malloc(strlen(proc->name) + 1);
+	memcpy(snapshot->name, proc->name, strlen(proc->name) + 1);
 	snapshot->pid = proc->pid;
 	snapshot->parent_pid = proc->parent_pid;
 	snapshot->stack_base = proc->stack_base;

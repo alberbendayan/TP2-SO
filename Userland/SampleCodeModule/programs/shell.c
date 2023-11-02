@@ -86,6 +86,7 @@ load_commands()
 
 static void
 load_command(uint32_t (*fn)(), char* name, char* desc)
+//load_command(, char* name, char* desc)
 {
 	
 	if (commands_len >= MAX_COMMANDS)

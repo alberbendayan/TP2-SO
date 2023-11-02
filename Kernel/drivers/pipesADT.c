@@ -28,6 +28,8 @@ typedef struct pipe_CDT
 	uint16_t qty;
 } pipe_CDT;
 
+static pipe* initialize_pipe();
+
 pipe_ADT
 create_pipe_manager()
 {
@@ -64,7 +66,7 @@ get_last_free_pipe()
 	while (pipe_adt->pipes[pipe_adt->last_free] != NULL) {
 		pipe_adt->last_free = (pipe_adt->last_free + MAX_PIPES - 1) % MAX_PIPES;
 	}
-	pipe* my_pipe = create_pipe();
+	pipe* my_pipe = initialize_pipe();
 	pipe_adt->pipes[pipe_adt->last_free] = my_pipe;
 	pipe_adt->qty++;
 	return pipe_adt->last_free + BUILT_IN_DESCRIPTORS;
@@ -201,7 +203,7 @@ read_pipe(uint16_t id, char* destination_buffer, uint64_t len)
 			set_status((uint16_t)my_pipe->output_pid, BLOCKED);
 			yield();
 		}
-		
+
 		while ((my_pipe->size > 0 || (int)my_pipe->buffer[my_pipe->start_position] == -1) && read_bytes < len) {
 			destination_buffer[read_bytes] = my_pipe->buffer[my_pipe->start_position];
 			if ((int)destination_buffer[read_bytes++] == -1) {

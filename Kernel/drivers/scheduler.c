@@ -158,7 +158,7 @@ set_status(uint16_t pid, uint8_t new_status)
 	} else if (old_status == BLOCKED) {
 		remove_node(scheduler->levels[BLOCKED_INDEX], my_node);
 		proc->priority = MAX_PRIORITY;
-		prependNode(scheduler->levels[proc->priority], my_node);
+		prepend_node(scheduler->levels[proc->priority], my_node);
 		scheduler->remaining_quantum = 0;
 	}
 

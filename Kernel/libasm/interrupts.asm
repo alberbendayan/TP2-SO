@@ -20,6 +20,7 @@ extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
 extern save_registers
+extern scheduler
 section .text
 
 ; constantes
@@ -144,9 +145,25 @@ asm_pic_slave_mask:
     pop rbp
     retn
 
+
 ; 8254 Timer (Timer Tick)
+
 asm_irq00_handler:
-    irq_handler 0
+   push_state_full
+
+   mov rdi,0 ; pasaje de parametro
+   call irq_dispatcher
+
+   mov rdi,rsp
+   call scheduler
+   mov rsp,rax
+
+   ; signal pic EOI (End of Interrupt)
+   mov al,20h
+   out 20h,al
+
+   pop_state_full
+   iretq
 
 ; Keyboard interrupt. IRQ 0x01, INT 0x21
 asm_irq01_handler:
