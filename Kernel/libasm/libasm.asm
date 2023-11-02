@@ -7,6 +7,7 @@ global asm_getbp
 global asm_printreg
 global asm_sound
 global asm_nosound
+global asm_timertick
 
 extern exc_printreg
 
@@ -111,4 +112,8 @@ asm_nosound:
     out 61h,al
 
     leave
+    ret
+
+asm_timertick:
+    int 0x20
     ret

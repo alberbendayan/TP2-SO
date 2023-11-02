@@ -3,6 +3,7 @@
 #include <scheduler.h>
 #include <stdlib.h>
 #include <video.h>
+#include <libasm.h>
 
 #define QTY_READY_LEVELS 5
 #define MAX_PRIORITY 4
@@ -101,7 +102,7 @@ yield()
 {
 	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
 	scheduler->remaining_quantum = 0;
-	// llamar al timertick pra q cambie de procesos
+	asm_timertick();
 }
 
 uint32_t

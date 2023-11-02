@@ -52,4 +52,9 @@ extern void asm_sound(uint32_t freq);
  */
 extern void asm_nosound();
 
+/*
+ * Genera una interrupcion del timertick
+ */
+extern void asm_timertick();
+
 #endif
