@@ -19,4 +19,6 @@ int8_t pipe_close_for_pid(uint16_t pid, uint16_t id);
 int64_t read_pipe(uint16_t id, char *destination_buffer, uint64_t len);
 int64_t write_pipe(uint16_t pid, uint16_t id, char *source_buffer, uint64_t len);
 
+int16_t get_last_free_pipe();
+
 #endif

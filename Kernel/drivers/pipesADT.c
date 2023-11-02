@@ -54,6 +54,22 @@ pipe_close(uint16_t id)
 	return pipe_close_for_pid(pid, id);
 }
 
+int16_t
+get_last_free_pipe()
+{
+	pipe_ADT pipe_adt = PIPE_ADDRESS;
+	if (pipe_adt->qty >= MAX_PIPES) {
+		return -1;
+	}
+	while (pipe_adt->pipes[pipe_adt->last_free] != NULL) {
+		pipe_adt->last_free = (pipe_adt->last_free + MAX_PIPES - 1) % MAX_PIPES;
+	}
+	pipe* my_pipe = create_pipe();
+	pipe_adt->pipes[pipe_adt->last_free] = my_pipe;
+	pipe_adt->qty++;
+	return pipe_adt->last_free + BUILT_IN_DESCRIPTORS;
+}
+
 static pipe*
 initialize_pipe()
 {
@@ -136,7 +152,7 @@ pipe_close_for_pid(uint16_t pid, uint16_t id)
 static pipe*
 get_pipe_by_id(pipe_ADT pipe_adt, uint16_t id)
 {
-	int16_t index = (int16_t)id - BUILT_IN_DESCRIPTORS;
+	int16_t index = (int16_t)id;  // mismo comentario de la resta
 	if (index < 0 || index >= MAX_PIPES) {
 		return NULL;
 	}
@@ -157,9 +173,6 @@ write_pipe(uint16_t pid, uint16_t id, char* source_buffer, uint64_t len)
 		if (my_pipe->size >= PIPE_SIZE) {
 			set_status((uint16_t)my_pipe->input_pid, BLOCKED);
 			yield();
-		}
-		if (my_pipe != get_pipe_by_id(pipe_adt, id)) {
-			return -1;
 		}
 		while (my_pipe->size < PIPE_SIZE && written_bytes < len) {
 			my_pipe->buffer[(((my_pipe)->start_position + (my_pipe)->size) % PIPE_SIZE)] = source_buffer[written_bytes];
