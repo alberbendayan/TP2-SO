@@ -105,6 +105,10 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_FREE: {
 			mm_free(rsi);
 		} break;
+
+		case SYS_STATE: {
+			mm_status(rsi);
+		}
 	}
 	return 0;
 }
