@@ -119,8 +119,8 @@ set_priority(uint16_t pid, uint8_t new_priority)
 		return -1;
 
 	if (proc->status == READY || proc->status == RUNNING) {
-		removeNode(scheduler->levels[proc->priority], n);
-		scheduler->processes[proc->pid] = appendNode(scheduler->levels[new_priority], n);
+		remove_node(scheduler->levels[proc->priority], n);
+		scheduler->processes[proc->pid] = append_node(scheduler->levels[new_priority], n);
 	}
 
 	proc->priority = new_priority;
@@ -152,10 +152,10 @@ set_status(uint16_t pid, uint8_t new_status)
 		return new_status;
 
 	if (new_status == BLOCKED) {
-		removeNode(scheduler->levels[proc->priority], my_node);
-		appendNode(scheduler->levels[BLOCKED_INDEX], my_node);
+		remove_node(scheduler->levels[proc->priority], my_node);
+		append_node(scheduler->levels[BLOCKED_INDEX], my_node);
 	} else if (old_status == BLOCKED) {
-		removeNode(scheduler->levels[BLOCKED_INDEX], my_node);
+		remove_node(scheduler->levels[BLOCKED_INDEX], my_node);
 		proc->priority = MAX_PRIORITY;
 		prependNode(scheduler->levels[proc->priority], my_node);
 		scheduler->remaining_quantum = 0;
@@ -191,7 +191,7 @@ kill_current_process(int32_t ret_value)
 }
 
 int32_t
-killProcess(uint16_t pid, int32_t ret_value)
+kill_process(uint16_t pid, int32_t ret_value)
 {
 	scheduler_ADT scheduler = get_address();
 	node* process_to_kill_node = scheduler->processes[pid];
@@ -204,7 +204,7 @@ killProcess(uint16_t pid, int32_t ret_value)
 	closeFileDescriptors(process_to_kill);
 
 	uint8_t priorityIndex = process_to_kill->status != BLOCKED ? process_to_kill->priority : BLOCKED_INDEX;
-	removeNode(scheduler->levels[priorityIndex], process_to_kill_node);
+	remove_node(scheduler->levels[priorityIndex], process_to_kill_node);
 	process_to_kill->ret_value = ret_value;
 
 	process_to_kill->status = ZOMBIE;
@@ -217,7 +217,7 @@ killProcess(uint16_t pid, int32_t ret_value)
 	node* parent_node = scheduler->processes[process_to_kill->parent_pid];
 	if (parent_node != NULL && ((process*)parent_node->data)->status != ZOMBIE) {
 		process* parent = (process*)parent_node->data;
-		appendNode(parent->zombie_children, process_to_kill_node);
+		append_node(parent->zombie_children, process_to_kill_node);
 		if (processIsWaiting(parent, process_to_kill->pid))
 			setStatus(process_to_kill->parent_pid, READY);
 	} else {
@@ -229,7 +229,7 @@ killProcess(uint16_t pid, int32_t ret_value)
 }
 
 int8_t
-changeFD(uint16_t pid, uint8_t position, int16_t new_fd)
+change_FD(uint16_t pid, uint8_t position, int16_t new_fd)
 {
 	scheduler_ADT scheduler = get_address();
 	node* process_node = scheduler->processes[pid];

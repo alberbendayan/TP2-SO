@@ -5,7 +5,7 @@
 
 typedef struct scheduler_CDT *scheduler_ADT;
 
-scheduler_ADT createScheduler();
+scheduler_ADT create_scheduler();
 
 uint16_t create_process(main_function code, char **args, char *name, uint8_t priority, int16_t file_descriptors[], uint8_t unkillable);
 
@@ -23,6 +23,6 @@ void *schedule(void *prev_stack_pointer);
 
 int32_t kill_current_process(int32_t ret_value);
 
-int8_t changeFD(uint16_t pid, uint8_t position, int16_t new_fd);
+int8_t change_FD(uint16_t pid, uint8_t position, int16_t new_fd);
 
 #endif
