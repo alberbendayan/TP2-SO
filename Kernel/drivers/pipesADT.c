@@ -190,19 +190,22 @@ read_pipe(uint16_t id, char* destination_buffer, uint64_t len)
 {
 	pipe_ADT pipe_adt = PIPE_ADDRESS;
 	pipe* my_pipe = get_pipe_by_id(pipe_adt, id);
-	if (my_pipe == NULL || my_pipe->output_pid != get_pid() || len == 0)
+	if (my_pipe == NULL || my_pipe->output_pid != get_pid() || len == 0) {
 		return -1;
-	uint8_t eof_read = 0;
+	}
+	uint8_t flag_eof = 0;
 	uint64_t read_bytes = 0;
-	while (read_bytes < len && !eof_read) {
+	while (read_bytes < len && !flag_eof) {
+		
 		if (my_pipe->size == 0 && (int)my_pipe->buffer[my_pipe->start_position] != -1) {
 			set_status((uint16_t)my_pipe->output_pid, BLOCKED);
 			yield();
 		}
+		
 		while ((my_pipe->size > 0 || (int)my_pipe->buffer[my_pipe->start_position] == -1) && read_bytes < len) {
 			destination_buffer[read_bytes] = my_pipe->buffer[my_pipe->start_position];
 			if ((int)destination_buffer[read_bytes++] == -1) {
-				eof_read = 1;
+				flag_eof = 1;
 				break;
 			}
 			my_pipe->size--;
