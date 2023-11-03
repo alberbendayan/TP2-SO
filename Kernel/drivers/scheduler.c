@@ -178,10 +178,64 @@ get_process_status(uint16_t pid)
 	return ((process*)my_node->data)->status;
 }
 
+static uint16_t
+get_next(scheduler_ADT scheduler)
+{
+	process* my_process = NULL;
+	
+	for (int lvl = QTY_READY_LEVELS - 1; lvl >= 0 && my_process == NULL; lvl--) {
+		if (!is_empty(scheduler->levels[lvl])) {
+			my_process = (process*)(get_first(scheduler->levels[lvl]))->data;
+		}
+	}
+	
+	if (my_process == NULL) {
+		return IDLE_PID;
+	}
+	return my_process->pid;
+}
+
 void*
 schedule(void* prev_stack_pointer)
 {
-	scheduler_ADT scheduler = get_address();  // falta
+	static int flag_is_first = 1;
+	scheduler_ADT scheduler = get_address();
+
+	scheduler->remaining_quantum--;
+	if (!scheduler->qty_processes || scheduler->remaining_quantum > 0) {
+		return prev_stack_pointer;
+	}
+
+	process* current_process;
+	node* current_node = scheduler->processes[scheduler->current_pid];
+
+	if (current_node != NULL) {
+		current_process = (process*)current_node->data;
+		if (!flag_is_first) {
+			current_process->stack_pos = prev_stack_pointer;
+		} else {
+			flag_is_first = 0;
+		}
+		if (current_process->status == RUNNING) {
+			current_process->status = READY;
+		}
+		uint8_t new_priority =
+		    current_process->priority > 0 ? current_process->priority - 1 : current_process->priority;
+		set_priority(current_process->pid, new_priority);
+	}
+
+	scheduler->current_pid = get_next(scheduler);
+	current_process = scheduler->processes[scheduler->current_pid]->data;
+
+	if (scheduler->kill_fg_process && current_process->file_descriptors[STDIN] == STDIN) {
+		scheduler->kill_fg_process = 0;
+		if (kill_current_process(-1) != -1) {
+			asm_timertick();
+		}
+	}
+	scheduler->remaining_quantum = (MAX_PRIORITY - current_process->priority);
+	current_process->status = RUNNING;
+	return current_process->stack_pos;
 }
 
 int32_t
