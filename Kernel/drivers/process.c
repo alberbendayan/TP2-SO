@@ -49,7 +49,7 @@ init_process(process* proc,
 	memcpy(proc->name, name, strlen(name) + 1);
 	proc->priority = priority;
 	void* stack_end = (void*)((uint64_t)proc->stack_base + STACK_SIZE);
-	proc->stack_pos = _initialize_stack_frame(&process_wrapper, code, stack_end, (void*)proc->argv);
+	proc->stack_pos = asm_initialize_stack(&process_wrapper, code, stack_end, (void*)proc->argv);
 	proc->status = READY;
 	proc->zombie_children = create_linked_list_ADT();
 	proc->unkillable = unkillable;

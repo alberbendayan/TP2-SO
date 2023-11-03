@@ -1,6 +1,6 @@
 #ifdef BUDDY
 
-#include <memoryManagementTAD.h>
+#include <memoryManagementADT.h>
 #include <stdint.h>
 
 #define MINIMUM_BLOCK_SIZE 512

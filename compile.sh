@@ -6,7 +6,7 @@ print_error() {
 }
 
 command -v docker >/dev/null 2>&1 || print_error "please install docker first"
-container_name="tpe_arqui_2023"
+container_name="tpe_so_2023"
 
 DEBUG=false
 RUN=false

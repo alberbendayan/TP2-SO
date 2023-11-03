@@ -60,8 +60,9 @@ int
 main()
 {
 	idt_loader();
-
 	mm_init(mm_struct_address, heap_address);
+	
+	create_scheduler();
 
 	// print intro wallpaper and loading message
 	vd_wallpaper(2);

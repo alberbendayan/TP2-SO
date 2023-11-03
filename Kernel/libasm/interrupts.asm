@@ -16,11 +16,13 @@ global asm_syscall_handler
 global asm_exception00_handler
 global asm_exception06_handler
 
+global asm_initialize_stack
+
 extern irq_dispatcher
 extern exception_dispatcher
 extern syscall_dispatcher
 extern save_registers
-extern scheduler
+extern schedule
 section .text
 
 ; constantes
@@ -155,10 +157,9 @@ asm_irq00_handler:
    call irq_dispatcher
 
    mov rdi,rsp
-   call scheduler
+   call schedule
    mov rsp,rax
 
-   ; signal pic EOI (End of Interrupt)
    mov al,20h
    out 20h,al
 
@@ -192,3 +193,21 @@ asm_exception00_handler:
 ; Invalid Opcode Exception
 asm_exception06_handler:
    excepction_handler 6
+
+asm_initialize_stack:
+	mov r8, rsp 	; Preservar rsp
+	mov r9, rbp		; Preservar rbp
+	mov rsp, rdx 	; Carga sp del proceso
+	mov rbp, rdx
+	push 0x0
+	push rdx
+	push 0x202
+	push 0x8
+	push rdi
+	mov rdi, rsi 		; Primer argumento de wrapper, RIP
+	mov rsi, rcx		; Segundo argumento, args
+	push_state_full
+	mov rax, rsp
+	mov rsp, r8
+	mov rbp, r9
+	ret
