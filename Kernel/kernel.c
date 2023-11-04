@@ -63,19 +63,74 @@ main()
 	mm_init(mm_struct_address, heap_address);
 	
 	create_scheduler();
+	
 
 	// print intro wallpaper and loading message
 	vd_wallpaper(2);
 
 	// play some nice sound
-	ti_sleep(1 * 18);
+	/*ti_sleep(1 * 18);
 	sd_play(800, 0.1 * 18);
 	ti_sleep(0.2 * 18);
 	sd_play(800, 0.1 * 18);
 	ti_sleep(0.1 * 18);
 	sd_play(1000, 0.3 * 18);
-	ti_sleep(1 * 18);
+	ti_sleep(1 * 18);*/
 	tx_clear(BLACK);
+
+	// aca podemos testear si queremos
+	tx_put_word("Testeando\n",WHITE);
+	char c1[100],c2[100],c3[100];
+
+	char * p=mm_malloc(100000);
+	char * p1=mm_malloc(1000);
+	char * p2=mm_malloc(8050000);
+
+
+
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
+
+	tx_put_word("Version 2\n",WHITE);
+	mm_free(p1);
+
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
+
+	
+	tx_put_word("Version 3\n",WHITE);
+	char *p3=mm_malloc(10000000);
+
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
+
 
 	// set the restore point in case of exceptions
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());

@@ -17,10 +17,22 @@ void *mm_malloc(uint64_t mem_to_alloc_size){
 void mm_free(void *mem_block){
 	return free_mem(memory_manager,mem_block);
 }
-
-void mm_status(unsigned int* status){
-	status[0] = heap_size();
-	status[1] = heap_left(memory_manager);
-	status[2] = used_heap(memory_manager);
+uint64_t mm_heap_size(){
+	return heap_size();
 }
+
+uint64_t mm_heap_left(){
+	return heap_left(memory_manager);
+}
+
+uint64_t mm_used_heap(){
+	return used_heap(memory_manager);
+}
+void mm_status(unsigned int* status){
+	status[0] = mm_heap_size();
+	status[1] = mm_heap_left();
+	status[2] = mm_used_heap();
+}
+
+
 

@@ -172,7 +172,7 @@ mem_alloc(memory_managment_ADT const mm, unsigned int mem_to_allocate)
 		new->block_size = current->block_size;
 		new->free = 1;
 		new->history = current->history | 0x1;  // marco el bloque derecho
-		insertBlockIntoFreeList(mm, new, 0);
+		insert_block_as_free(mm, new, 0);
 	}
 
 	mm->free_bytes_remaining -= current->block_size;
@@ -196,7 +196,7 @@ free_mem(memory_managment_ADT const mm, void* block)
 
 	unsigned int aux = block_free->block_size;
 
-	insertBlockIntoFreeList(mm, ((mem_block*)block_free), 1);
+	insert_block_as_free(mm, ((mem_block*)block_free), 1);
 	mm->free_bytes_remaining += aux;
 }
 #endif

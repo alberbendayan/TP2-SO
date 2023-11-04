@@ -8,6 +8,7 @@ global asm_printreg
 global asm_sound
 global asm_nosound
 global asm_timertick
+global asm_idle
 
 extern exc_printreg
 
@@ -117,3 +118,8 @@ asm_nosound:
 asm_timertick:
     int 0x20
     ret
+
+asm_idle:
+    sti
+	hlt
+	ret

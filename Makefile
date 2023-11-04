@@ -1,5 +1,5 @@
-#MM=BUDDY
-MM=LINEAR
+MM=BUDDY
+#MM=LINEAR
 
 all:  bootloader kernel userland image
 
