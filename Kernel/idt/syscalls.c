@@ -127,15 +127,15 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_CREATE_PROCESS: {
-			create_process(rsi);  // falta cambiar esto x los vdds params
+			return create_process(rsi);
 		} break;
 
 		case SYS_KILL_PROCESS: {
-			kill_process(rsi, rdx);  
+			return kill_process(rsi, rdx);  
 		} break;
 
 		case SYS_KILL_CURRENT_PROCESS: {
-			kill_current_process(rsi); 
+			return kill_current_process(rsi); 
 		} break;
 	}
 	return 0;

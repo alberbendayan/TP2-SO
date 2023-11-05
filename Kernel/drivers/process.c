@@ -40,6 +40,13 @@ init_process(process* proc,
              int16_t file_descriptors[],
              uint8_t unkillable)
 {
+	tx_put_word("Entre al init_process de nombre:", 0xffff00);
+	tx_put_word(name,0xffff00);
+	tx_put_word("\n pid: ",0xffff00);
+	char c[20];
+	uint_to_base(pid,c,10);
+	tx_put_word(c, 0xffff00);
+	tx_put_word("\n", 0xffff00);
 	proc->pid = pid;
 	proc->parent_pid = parent_pid;
 	proc->waiting_for_pid = 0;
@@ -141,7 +148,7 @@ get_zombies_snapshots(int process_index, process_snapshot ps_array[], process* n
 	linked_list_ADT zombie_children = next_process->zombie_children;
 	begin(zombie_children);
 	while (has_next(zombie_children)) {
-		load_snapshot(&ps_array[process_index++], next(zombie_children));
+		load_snapshot(&ps_array[process_index++], (process*)next(zombie_children));
 	}
 	return process_index;
 }

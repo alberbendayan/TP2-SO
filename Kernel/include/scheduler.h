@@ -29,4 +29,6 @@ int32_t kill_process(uint16_t pid, int32_t ret_value);
 
 process_status get_process_status(uint16_t pid);
 
+void force_process (uint16_t pid);
+
 #endif

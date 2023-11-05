@@ -44,6 +44,7 @@ create_scheduler()
 	}
 	scheduler->next_unused_pid = 0;
 	scheduler->kill_fg_process = 0;
+	scheduler->qty_processes = 0;
 	return scheduler;
 }
 
@@ -55,6 +56,7 @@ create_process(process_initialization* data)
 		return -1;
 	}
 	process* proc = (process*)mm_malloc(sizeof(process));
+	tx_put_word("Entre al create_process, x llamar al init\n", 0xffff00);
 	init_process(proc,
 	             scheduler->next_unused_pid,
 	             scheduler->current_pid,
@@ -80,6 +82,17 @@ create_process(process_initialization* data)
 
 	scheduler->qty_processes++;
 	return proc->pid;
+}
+
+void
+force_process(uint16_t pid)
+{
+	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	process *p = scheduler->processes[pid];
+	tx_put_word("Voy a poner a correr el proceso: ", 0xffff00);
+	tx_put_word(p->name, 0xffff00);
+	scheduler ->current_pid = pid;
+	asm_move_rsp(p->stack_pos);
 }
 
 uint16_t

@@ -57,4 +57,8 @@ extern void asm_nosound();
  */
 extern void asm_timertick();
 
+/*
+ * mueve el rsp a una direccion arbitraria
+ */
+extern void asm_move_rsp(uint64_t rsp);
 #endif

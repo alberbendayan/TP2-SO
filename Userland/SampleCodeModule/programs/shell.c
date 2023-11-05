@@ -70,17 +70,17 @@ shell_init()
 static void
 load_commands()
 {
-	load_command(help, "help", "          Displays this help message");
-	load_command(datetime, "datetime", "      Prints the current datetime");
-	load_command(printreg, "printreg", "      Prints all the registers values saved in the last key press of 'Ctrl+r'");
-	load_command(pong, "pong", "          Pong (The Game)");
-	load_command(setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
-	load_command(switchcolors, "switchcolors", "  Inverts the background and foreground colors");
-	load_command(clear, "clear", "         Clears the screen");
-	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
-	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command(exit, "exit", "          Exits the shell");
-	load_command(memstatus, "memstatus", "     Memory status");
+	load_command((main_function) help, "help", "          Displays this help message");
+	load_command((main_function) datetime, "datetime", "      Prints the current datetime");
+	load_command((main_function) printreg, "printreg", "      Prints all the registers values saved in the last key press of 'Ctrl+r'");
+	load_command((main_function) pong, "pong", "          Pong (The Game)");
+	load_command((main_function) setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
+	load_command((main_function) switchcolors, "switchcolors", "  Inverts the background and foreground colors");
+	load_command((main_function) clear, "clear", "         Clears the screen");
+	load_command((main_function) testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
+	load_command((main_function) testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
+	load_command((main_function) exit, "exit", "          Exits the shell");
+	load_command((main_function) memstatus, "memstatus", "     Memory status");
 
 	// hacer los tests aca
 }

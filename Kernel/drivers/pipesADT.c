@@ -18,6 +18,7 @@ typedef struct pipe
 	uint16_t size;
 	int16_t input_pid;
 	int16_t output_pid;
+	uint8_t is_blocking;
 
 } pipe;
 
@@ -85,9 +86,11 @@ initialize_pipe()
 	my_pipe->size = 0;
 	my_pipe->input_pid = -1;
 	my_pipe->output_pid = -1;
+	my_pipe->is_blocking = 0;
 
-	for (int i = 0; i < PIPE_SIZE; i++)
+	for (int i = 0; i < PIPE_SIZE; i++) {
 		my_pipe->buffer[i] = 0;
+	}
 
 	return my_pipe;
 }
@@ -173,6 +176,7 @@ write_pipe(uint16_t pid, uint16_t id, char* source_buffer, uint64_t len)
 	while (written_bytes < len &&
 	       (int)my_pipe->buffer[((my_pipe)->start_position + (my_pipe)->size) % PIPE_SIZE] != -1) {
 		if (my_pipe->size >= PIPE_SIZE) {
+			my_pipe->is_blocking =  1;
 			set_status((uint16_t)my_pipe->input_pid, BLOCKED);
 			yield();
 		}
@@ -182,6 +186,10 @@ write_pipe(uint16_t pid, uint16_t id, char* source_buffer, uint64_t len)
 				break;
 			}
 			my_pipe->size++;
+		}
+		if (my_pipe->is_blocking) {
+			set_status((uint16_t) my_pipe->output_pid, READY);
+			my_pipe->is_blocking = 0;
 		}
 	}
 	return written_bytes;
@@ -198,8 +206,8 @@ read_pipe(uint16_t id, char* destination_buffer, uint64_t len)
 	uint8_t flag_eof = 0;
 	uint64_t read_bytes = 0;
 	while (read_bytes < len && !flag_eof) {
-		
 		if (my_pipe->size == 0 && (int)my_pipe->buffer[my_pipe->start_position] != -1) {
+			my_pipe->size = 1;
 			set_status((uint16_t)my_pipe->output_pid, BLOCKED);
 			yield();
 		}
@@ -212,6 +220,10 @@ read_pipe(uint16_t id, char* destination_buffer, uint64_t len)
 			}
 			my_pipe->size--;
 			my_pipe->start_position = (my_pipe->start_position + 1) % PIPE_SIZE;
+		}
+		if (my_pipe->is_blocking) {
+			set_status((uint16_t) my_pipe->input_pid, READY);
+			my_pipe->is_blocking = 0;
 		}
 	}
 	return read_bytes;

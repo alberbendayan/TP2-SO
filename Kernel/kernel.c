@@ -7,12 +7,13 @@
 #include <libc.h>
 #include <memoryManagement.h>
 #include <moduleLoader.h>
+#include <process.h>
+#include <scheduler.h>
 #include <sound.h>
 #include <stdint.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#include <scheduler.h>
 
 #define BLACK 0x000000
 #define WHITE 0xffffff
@@ -31,6 +32,8 @@ static void* const sample_code_module_addr = (void*)0x400000;
 static void* const sample_data_module_addr = (void*)0x500000;
 static void* const heap_address = (void*)0x600000;
 static void* const mm_struct_address = (void*)0x50000;
+
+int idle(int argc, char** argv);
 
 void
 clear_bss(void* bss_addr, uint64_t bss_size)
@@ -60,12 +63,44 @@ init_kernel_binary()
 int
 main()
 {
-	idt_loader();
 	mm_init(mm_struct_address, heap_address);
 	create_scheduler();
-	
+	create_pipe_manager();
+	idt_loader();
+
+	// creo el proceso idle
+	char* args_idle[3] = { "idle", "Hm?", NULL };
+	int16_t fd_idle[] = { DEV_NULL, DEV_NULL, STDERR };
+
+	process_initialization p_idle;
+
+	p_idle.args = args_idle;
+	p_idle.name = "idle";
+	p_idle.code = (main_function)&idle;
+	p_idle.file_descriptors = fd_idle;
+	p_idle.unkillable = 1;
+	p_idle.priority = 4;
+
+	int pid_idle = create_process(&p_idle);
+
+	int fd_shell[3] = { STDIN, STDOUT, STDERR };
+	char* args_shell[2] = { "shell", NULL };
+
+	process_initialization p_shell;
+
+	p_shell.args = args_shell;
+	p_shell.file_descriptors = fd_shell;
+	p_shell.name = "shell";
+	p_shell.unkillable = 1;
+	p_shell.priority = 4;
+	p_shell.code = (main_function)sample_code_module_addr;
+
+	uint16_t pid_shell = create_process(&p_shell);
+
+	force_process(pid_shell);	
 	// print intro wallpaper and loading message
-	vd_wallpaper(2);
+
+	// vd_wallpaper(2);
 
 	// play some nice sound
 	/*ti_sleep(1 * 18);
@@ -75,8 +110,8 @@ main()
 	ti_sleep(0.1 * 18);
 	sd_play(1000, 0.3 * 18);
 	ti_sleep(1 * 18);*/
-	
-	tx_clear(BLACK);
+
+	// tx_clear(BLACK);
 
 	// aca podemos testear si queremos
 	/*tx_put_word("Testeando\n",WHITE);
@@ -127,7 +162,7 @@ main()
 	tx_put_word(c3,WHITE);
 	tx_put_word("\n ",WHITE);
 
-	
+
 	tx_put_word("Version 3\n",WHITE);
 	char *p3=mm_malloc(10000000);
 
@@ -194,27 +229,20 @@ main()
 	tx_put_word(c3,WHITE);
 	tx_put_word("\n ",WHITE);*/
 
-	process_initialization p;
-	char**c={"./shell",NULL};
-	int fd[3]={STDIN,STDOUT,STDERR};
-	p.args=c;
-	p.file_descriptors= fd;
-	p.name="shell";
-	p.unkillable=0;
-	p.priority=5;
-
-	create_process(&p);
-	yield();
-	while (1)
-	{
-		/* code */
-	}
-	
-
 	// set the restore point in case of exceptions
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());
 
 	uint32_t status = ((EntryPoint)sample_code_module_addr)();
 	tx_put_word("Exit from Userland. Back in Kernel.", WHITE);
 	return status;
+}
+
+int
+idle(int argc, char** argv)
+{
+	while (1) {
+		asm_hlt();
+	}
+
+	return 0;
 }
