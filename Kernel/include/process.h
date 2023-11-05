@@ -54,6 +54,16 @@ typedef struct process_snapshot
 	uint8_t foreground;
 } process_snapshot;
 
+typedef struct process_initialization
+{
+	main_function code;
+	char** args;
+	char* name;
+	uint8_t priority;
+	int16_t* file_descriptors;
+	uint8_t unkillable;
+} process_initialization;
+
 void init_process(process* proc,
                   uint16_t pid,
                   uint16_t parent_pid,

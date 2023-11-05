@@ -48,12 +48,7 @@ create_scheduler()
 }
 
 uint16_t
-create_process(main_function code,
-               char** args,
-               char* name,
-               uint8_t priority,
-               int16_t file_descriptors[],
-               uint8_t unkillable)
+create_process(process_initialization* data)
 {
 	scheduler_ADT scheduler = get_address();
 	if (scheduler->qty_processes >= MAX_PROCESSES) {
@@ -63,12 +58,12 @@ create_process(main_function code,
 	init_process(proc,
 	             scheduler->next_unused_pid,
 	             scheduler->current_pid,
-	             code,
-	             args,
-	             name,
-	             priority,
-	             file_descriptors,
-	             unkillable);
+	             data->code,
+	             data->args,
+	             data->name,
+	             data->priority,
+	             data->file_descriptors,
+	             data->unkillable);
 
 	node* process_node;
 	if (proc->pid != IDLE_PID) {
@@ -182,13 +177,13 @@ static uint16_t
 get_next(scheduler_ADT scheduler)
 {
 	process* my_process = NULL;
-	
+
 	for (int lvl = QTY_READY_LEVELS - 1; lvl >= 0 && my_process == NULL; lvl--) {
 		if (!is_empty(scheduler->levels[lvl])) {
 			my_process = (process*)(get_first(scheduler->levels[lvl]))->data;
 		}
 	}
-	
+
 	if (my_process == NULL) {
 		return IDLE_PID;
 	}

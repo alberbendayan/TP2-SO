@@ -7,7 +7,7 @@ typedef struct scheduler_CDT *scheduler_ADT;
 
 scheduler_ADT create_scheduler();
 
-uint16_t create_process(main_function code, char **args, char *name, uint8_t priority, int16_t file_descriptors[], uint8_t unkillable);
+uint16_t create_process(process_initialization* data);
 
 uint16_t get_pid();
 

@@ -2,14 +2,14 @@
 #include <font.h>
 #include <keyboard.h>
 #include <libasm.h>
+#include <memoryManagement.h>
+#include <process.h>
 #include <rtc.h>
 #include <sound.h>
 #include <syscalls.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#include <memoryManagement.h>
-#include <process.h>
 
 #define REGS_SIZE 19
 
@@ -116,27 +116,27 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 
 		case SYS_TOTAL_HEAP: {
 			return mm_heap_size(rsi);
-		}break;
+		} break;
 
 		case SYS_FREE_HEAP: {
 			return mm_heap_left(rsi);
-		}break;
-		
+		} break;
+
 		case SYS_USED_HEAP: {
 			return mm_used_heap(rsi);
-		}break;
+		} break;
 
 		case SYS_CREATE_PROCESS: {
-			init_process(rsi,rdx,rcx,r8,r9,r9,r9,r9,r9); // falta cambiar esto x los vdds params
-		}break;
-		
+			create_process(rsi);  // falta cambiar esto x los vdds params
+		} break;
+
 		case SYS_KILL_PROCESS: {
-			kill_process(rsi,rdx); // falta cambiar esto x los vdds params
-		}break;
+			kill_process(rsi, rdx);  
+		} break;
 
 		case SYS_KILL_CURRENT_PROCESS: {
-			kill_current_process(rsi); // falta cambiar esto x los vdds params
-		}break;
+			kill_current_process(rsi); 
+		} break;
 	}
 	return 0;
 }
@@ -145,6 +145,7 @@ void
 save_registers(uint64_t* stack)
 {
 	regs_flag = 1;
-	for (int i = 0; i < REGS_SIZE; i++)
+	for (int i = 0; i < REGS_SIZE; i++) {
 		registers[i] = stack[i];
+	}
 }
