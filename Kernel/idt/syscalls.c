@@ -9,6 +9,7 @@
 #include <time.h>
 #include <video.h>
 #include <memoryManagement.h>
+#include <process.h>
 
 #define REGS_SIZE 19
 
@@ -37,7 +38,14 @@ enum syscalls
 	// memory
 	SYS_MALLOC,
 	SYS_FREE,
-	SYS_STATE
+	SYS_TOTAL_HEAP,
+	SYS_FREE_HEAP,
+	SYS_USED_HEAP,
+
+	// process
+	SYS_CREATE_PROCESS,
+	SYS_KILL_PROCESS,
+	SYS_KILL_CURRENT_PROCESS
 };
 
 static uint8_t regs_flag = 0;
@@ -106,9 +114,29 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			mm_free(rsi);
 		} break;
 
-		case SYS_STATE: {
-			mm_status(rsi);
-		}
+		case SYS_TOTAL_HEAP: {
+			return mm_heap_size(rsi);
+		}break;
+
+		case SYS_FREE_HEAP: {
+			return mm_heap_left(rsi);
+		}break;
+		
+		case SYS_USED_HEAP: {
+			return mm_used_heap(rsi);
+		}break;
+
+		case SYS_CREATE_PROCESS: {
+			init_process(rsi,rdx,rcx,r8,r9,r9,r9,r9,r9); // falta cambiar esto x los vdds params
+		}break;
+		
+		case SYS_KILL_PROCESS: {
+			kill_process(rsi,rdx); // falta cambiar esto x los vdds params
+		}break;
+
+		case SYS_KILL_CURRENT_PROCESS: {
+			kill_current_process(rsi); // falta cambiar esto x los vdds params
+		}break;
 	}
 	return 0;
 }

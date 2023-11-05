@@ -33,10 +33,23 @@ sys_sound        equ 12
 ; memory
 global asm_malloc
 global asm_free
-global asm_state
+global asm_total_heap
+global asm_free_heap
+global asm_used_heap
 sys_malloc      equ 13
 sys_free        equ 14
-sys_state       equ 15
+sys_total_heap  equ 15
+sys_free_heap   equ 16
+sys_used_heap   equ 17
+
+; process
+global asm_init_process
+global asm_kill_process
+global asm_kill_current_process
+sys_init_process            equ 18
+sys_kill_process            equ 19
+sys_kill_current_process    equ 20
+
 
 %macro syscall_handler 1
     push rbp
@@ -94,5 +107,20 @@ asm_malloc:
 asm_free:
     syscall_handler sys_free
 
-asm_state:
-    syscall_handler sys_state
+asm_total_heap:
+    syscall_handler sys_total_heap
+
+asm_free_heap:
+    syscall_handler sys_free_heap
+
+asm_used_heap:
+    syscall_handler sys_used_heap
+
+asm_init_process:
+    syscall_handler sys_init_process
+
+asm_kill_process:
+    syscall_handler sys_kill_process
+
+asm_kill_current_process:
+    syscall_handler sys_kill_current_process

@@ -12,6 +12,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <scheduler.h>
 
 #define BLACK 0x000000
 #define WHITE 0xffffff
@@ -61,10 +62,8 @@ main()
 {
 	idt_loader();
 	mm_init(mm_struct_address, heap_address);
-	
 	create_scheduler();
 	
-
 	// print intro wallpaper and loading message
 	vd_wallpaper(2);
 
@@ -76,17 +75,30 @@ main()
 	ti_sleep(0.1 * 18);
 	sd_play(1000, 0.3 * 18);
 	ti_sleep(1 * 18);*/
+	
 	tx_clear(BLACK);
 
 	// aca podemos testear si queremos
 	tx_put_word("Testeando\n",WHITE);
 	char c1[100],c2[100],c3[100];
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
 
 	char * p=mm_malloc(100000);
 	char * p1=mm_malloc(1000);
 	char * p2=mm_malloc(8050000);
 
 
+	tx_put_word("Version 1\n",WHITE);
 
 	uint_to_base(mm_heap_size(),c1,10);
 	uint_to_base(mm_heap_left(),c2,10);
@@ -131,6 +143,56 @@ main()
 	tx_put_word(c3,WHITE);
 	tx_put_word("\n ",WHITE);
 
+	tx_put_word("Version 4\n",WHITE);
+	char *p4=mm_malloc(10000000);
+
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
+
+
+	tx_put_word("Version 5\n",WHITE);
+	char *p5=mm_malloc(100000000);
+
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
+
+	tx_put_word("Version 6\n",WHITE);
+	mm_free(p);
+	mm_free(p2);
+	mm_free(p3);
+	mm_free(p4);
+	mm_free(p5);
+
+
+	uint_to_base(mm_heap_size(),c1,10);
+	uint_to_base(mm_heap_left(),c2,10);
+	uint_to_base(mm_used_heap(),c3,10);
+
+	tx_put_word("Heap size: ",WHITE);
+	tx_put_word(c1,WHITE);
+	tx_put_word("\n Heap left: ",WHITE);
+	tx_put_word(c2,WHITE);
+	tx_put_word("\n Used heap: ",WHITE);
+	tx_put_word(c3,WHITE);
+	tx_put_word("\n ",WHITE);
 
 	// set the restore point in case of exceptions
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());

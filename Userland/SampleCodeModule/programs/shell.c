@@ -80,6 +80,7 @@ load_commands()
 	load_command(testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command(testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command(exit, "exit", "          Exits the shell");
+	load_command(memstatus, "memstatus", "     Memory status");
 
 	// hacer los tests aca
 }
@@ -266,6 +267,17 @@ switchcolors()
 static uint32_t
 memstatus()
 {
-	uint32_t status[3];
-	asm_state(status);
+	char c1[32],c2[32],c3[32];
+	uint_to_base(asm_total_heap(),c1,10);
+	uint_to_base(asm_free_heap(),c2,10);
+	uint_to_base(asm_used_heap(),c2,10);
+	puts("Total heap: ", color.output);
+	puts(c1, color.output);
+	puts("\n", color.output);
+	puts("Free heap: ", color.output);
+	puts(c2, color.output);
+	puts("\n", color.output);
+	puts("Used heap: ", color.output);	
+	puts(c3, color.output);
+	puts("\n", color.output);
 }
