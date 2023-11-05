@@ -73,6 +73,7 @@ extern void asm_datetime(uint32_t color);
  * Emite un sonido con una cierta frecuencia durante cierto tiempo (en ticks).
  */
 extern void asm_sound(uint32_t freq, uint32_t duration);
+
 /*
  * Malloc
  */
@@ -84,7 +85,33 @@ extern void* asm_malloc(uint64_t size);
 extern void asm_free(void * mem_block);
 
 /*
- * Estado de la memoria
+ * Tamaño del heap
  */
-extern void asm_state(unsigned int * status);
+extern uint64_t asm_total_heap();
+
+/*
+ * Tamaño del heap sin usar
+ */
+extern uint64_t asm_free_heap();
+
+/*
+ * Tamaño del heap usado
+ */
+extern uint64_t asm_used_heap();
+
+/*
+ * Inicializa un proceso
+ */
+extern uint64_t asm_init_process();
+
+/*
+ * Acaba como un proceso
+ */
+extern uint64_t asm_kill_process(uint16_t pid,uint32_t ret_value);
+
+/*
+ * Acaba con el proceso en ejecución
+ */
+extern uint64_t asm_kill_current_process(uint32_t ret_value);
+
 #endif

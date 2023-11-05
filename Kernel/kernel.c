@@ -79,7 +79,7 @@ main()
 	tx_clear(BLACK);
 
 	// aca podemos testear si queremos
-	tx_put_word("Testeando\n",WHITE);
+	/*tx_put_word("Testeando\n",WHITE);
 	char c1[100],c2[100],c3[100];
 	uint_to_base(mm_heap_size(),c1,10);
 	uint_to_base(mm_heap_left(),c2,10);
@@ -192,7 +192,24 @@ main()
 	tx_put_word(c2,WHITE);
 	tx_put_word("\n Used heap: ",WHITE);
 	tx_put_word(c3,WHITE);
-	tx_put_word("\n ",WHITE);
+	tx_put_word("\n ",WHITE);*/
+
+	process_initialization p;
+	char**c={"./shell",NULL};
+	int fd[3]={STDIN,STDOUT,STDERR};
+	p.args=c;
+	p.file_descriptors= fd;
+	p.name="shell";
+	p.unkillable=0;
+	p.priority=5;
+
+	create_process(&p);
+	yield();
+	while (1)
+	{
+		/* code */
+	}
+	
 
 	// set the restore point in case of exceptions
 	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());

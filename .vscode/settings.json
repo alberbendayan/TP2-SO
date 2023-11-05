@@ -25,5 +25,5 @@
         "rtc.h": "c",
         "memorymanager.h": "c"
     },
-    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.errorSquiggles": "disabled",
 }
