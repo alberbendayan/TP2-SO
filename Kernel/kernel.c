@@ -28,7 +28,7 @@ extern uint8_t end_of_kernel_bin;
 extern uint8_t end_of_kernel;
 
 static const uint64_t page_size = 0x1000;
-static void* const sample_code_module_addr = (void*)0x400000;
+static void* const sample_code_module_addr = (void*)0x4000000; // hay q seguirlo hasta el asm_initialize_stack y ver donde se pierde
 static void* const sample_data_module_addr = (void*)0x500000;
 static void* const heap_address = (void*)0x600000;
 static void* const mm_struct_address = (void*)0x50000;
@@ -76,13 +76,15 @@ main()
 
 	p_idle.args = args_idle;
 	p_idle.name = "idle";
-	p_idle.code = (main_function)&idle;
+	p_idle.code = (main_function)idle;
 	p_idle.file_descriptors = fd_idle;
 	p_idle.unkillable = 1;
 	p_idle.priority = 4;
 
 	int pid_idle = create_process(&p_idle);
 
+	
+	// creo la shell
 	int fd_shell[3] = { STDIN, STDOUT, STDERR };
 	char* args_shell[2] = { "shell", NULL };
 
@@ -98,9 +100,10 @@ main()
 	uint16_t pid_shell = create_process(&p_shell);
 
 	force_process(pid_shell);	
+	
 	// print intro wallpaper and loading message
 
-	// vd_wallpaper(2);
+	// vd_wallpaper(2); 
 
 	// play some nice sound
 	/*ti_sleep(1 * 18);
@@ -227,21 +230,18 @@ main()
 	tx_put_word(c2,WHITE);
 	tx_put_word("\n Used heap: ",WHITE);
 	tx_put_word(c3,WHITE);
-	tx_put_word("\n ",WHITE);*/
+	tx_put_word("\n ",WHITE);*/ 
 
-	// set the restore point in case of exceptions
-	exc_set_restore_point((uint64_t)sample_code_module_addr, asm_getsp(), asm_getbp());
-
-	uint32_t status = ((EntryPoint)sample_code_module_addr)();
+	// set the restore point in case of exceptions 
 	tx_put_word("Exit from Userland. Back in Kernel.", WHITE);
-	return status;
+	return 0;
 }
 
 int
 idle(int argc, char** argv)
 {
 	while (1) {
-		asm_hlt();
+		asm_idle();
 	}
 
 	return 0;

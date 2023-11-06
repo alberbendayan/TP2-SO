@@ -149,7 +149,6 @@ asm_pic_slave_mask:
 
 
 ; 8254 Timer (Timer Tick)
-
 asm_irq00_handler:
    push_state_full
 
@@ -194,20 +193,3 @@ asm_exception00_handler:
 asm_exception06_handler:
    excepction_handler 6
 
-asm_initialize_stack:
-	mov r8, rsp 	; Preservar rsp
-	mov r9, rbp		; Preservar rbp
-	mov rsp, rdx 	; Carga sp del proceso
-	mov rbp, rdx
-	push 0x0
-	push rdx
-	push 0x202
-	push 0x8
-	push rdi
-	mov rdi, rsi 		; Primer argumento de wrapper, RIP
-	mov rsi, rcx		; Segundo argumento, args
-	push_state_full
-	mov rax, rsp
-	mov rsp, r8
-	mov rbp, r9
-	ret

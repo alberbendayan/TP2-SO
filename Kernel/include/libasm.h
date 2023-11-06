@@ -61,4 +61,8 @@ extern void asm_timertick();
  * mueve el rsp a una direccion arbitraria
  */
 extern void asm_move_rsp(uint64_t rsp);
+
+extern void asm_idle();
+
+extern void asm_initialize_stack();
 #endif

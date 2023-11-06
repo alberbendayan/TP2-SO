@@ -10,10 +10,33 @@ global asm_nosound
 global asm_timertick
 global asm_idle
 global asm_move_rsp
+global asm_initialize_stack
 
 extern exc_printreg
 
 section .text
+
+%macro push_state 0
+   push rbx
+   push rcx
+   push rdx
+   push rbp
+   push rdi
+   push rsi
+   push r8
+   push r9
+   push r10
+   push r11
+   push r12
+   push r13
+   push r14
+   push r15
+%endmacro
+
+%macro push_state_full 0
+   push rax
+   push_state
+%endmacro
 
 ; devuelve el fabricante del cpu
 asm_cpu_vendor:
@@ -121,7 +144,6 @@ asm_timertick:
     ret
 
 asm_idle:
-    sti
 	hlt
 	ret
 
@@ -141,5 +163,22 @@ asm_move_rsp:
     pop rdx
     pop rcx
     pop rbx
-    pop rax
     iretq
+
+asm_initialize_stack:
+	mov r8, rsp 	
+	mov r9, rbp		
+	mov rsp, rdx 	
+	mov rbp, rdx
+	push 0x0
+	push rdx
+	push 0x202
+	push 0x8
+	push rdi
+	mov rdi, rsi 		
+	mov rsi, rcx		
+	push_state_full
+	mov rax, rsp
+	mov rsp, r8
+	mov rbp, r9
+	ret

@@ -40,13 +40,6 @@ init_process(process* proc,
              int16_t file_descriptors[],
              uint8_t unkillable)
 {
-	tx_put_word("Entre al init_process de nombre:", 0xffff00);
-	tx_put_word(name,0xffff00);
-	tx_put_word("\n pid: ",0xffff00);
-	char c[20];
-	uint_to_base(pid,c,10);
-	tx_put_word(c, 0xffff00);
-	tx_put_word("\n", 0xffff00);
 	proc->pid = pid;
 	proc->parent_pid = parent_pid;
 	proc->waiting_for_pid = 0;
@@ -56,7 +49,7 @@ init_process(process* proc,
 	memcpy(proc->name, name, strlen(name) + 1);
 	proc->priority = priority;
 	void* stack_end = (void*)((uint64_t)proc->stack_base + STACK_SIZE);
-	proc->stack_pos = asm_initialize_stack(&process_wrapper, code, stack_end, (void*)proc->argv);
+	proc->stack_pos = asm_initialize_stack( process_wrapper, code, stack_end, (void*)proc->argv);
 	proc->status = READY;
 	proc->zombie_children = create_linked_list_ADT();
 	proc->unkillable = unkillable;
