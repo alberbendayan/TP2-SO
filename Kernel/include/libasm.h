@@ -6,6 +6,7 @@
 #define LIBASM_H
 
 #include <stdint.h>
+#include <process.h>
 
 /*
  * Devuelve la información del productor del procesador.
@@ -64,5 +65,5 @@ extern void asm_move_rsp(uint64_t rsp);
 
 extern void asm_idle();
 
-extern void asm_initialize_stack();
+extern void asm_initialize_stack(void (*f) (main_function code, char ** args),main_function,void*,void*);
 #endif
