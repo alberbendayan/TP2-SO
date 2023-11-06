@@ -29,7 +29,7 @@ extern uint8_t end_of_kernel;
 
 static const uint64_t page_size = 0x1000;
 static void* const sample_code_module_addr =
-    (void*)0x4000000;  // hay q seguirlo hasta el asm_initialize_stack y ver donde se pierde
+    (void*)0x400000;  // hay q seguirlo hasta el asm_initialize_stack y ver donde se pierde
 static void* const sample_data_module_addr = (void*)0x500000;
 static void* const heap_address = (void*)0x600000;
 static void* const mm_struct_address = (void*)0x50000;
@@ -64,13 +64,15 @@ init_kernel_binary()
 int
 main()
 {
+	asm_cli();
 	mm_init(mm_struct_address, heap_address);
+	idt_loader();
 	create_scheduler();
 	create_pipe_manager();
-	idt_loader();
+	
 
 	// creo el proceso idle
-	/*char* args_idle[3] = { "idle", "Hm?", NULL };
+	char* args_idle[3] = { "idle", "Hm?", NULL };
 	int16_t fd_idle[] = { DEV_NULL, DEV_NULL, STDERR };
 
 	process_initialization p_idle;
@@ -82,7 +84,7 @@ main()
 	p_idle.unkillable = 1;
 	p_idle.priority = 4;
 
-	int pid_idle = create_process(&p_idle);*/
+	int pid_idle = create_process(&p_idle);
 
 	// creo la shell
 	int fd_shell[3] = { STDIN, STDOUT, STDERR };
@@ -98,8 +100,8 @@ main()
 	p_shell.code = (main_function)sample_code_module_addr;
 
 	uint16_t pid_shell = create_process(&p_shell);
-
 	force_process(pid_shell);
+	asm_sti();
 
 	// print intro wallpaper and loading message
 

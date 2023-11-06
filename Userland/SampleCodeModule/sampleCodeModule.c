@@ -8,7 +8,6 @@
 int
 main()
 {
-	puts("Hola\n",WHITE);
 	uint32_t status = shell_init();
 	asm_show_cursor(0);
 	puts("\nShell finished executing.\n", WHITE);

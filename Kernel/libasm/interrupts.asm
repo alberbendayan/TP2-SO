@@ -160,7 +160,7 @@ asm_irq00_handler:
    mov rsp,rax
 
    mov al,20h
-   out 20h,al
+   out 20h,al ; libera las interrupciones
 
    pop_state_full
    iretq

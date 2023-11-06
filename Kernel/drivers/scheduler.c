@@ -25,7 +25,7 @@ typedef struct scheduler_CDT
 	int8_t kill_fg_process;
 } scheduler_CDT;
 
-scheduler_ADT
+static scheduler_ADT
 get_address()
 {
 	return (scheduler_ADT)SCHEDULER_ADDRESS;
@@ -55,9 +55,9 @@ get_process_by_pid(uint32_t pid)
 	for(int8_t i = 0;i<scheduler->qty_processes;i++){
 		process* proc = (process*)scheduler->processes[i]->data;
 		if(pid==proc->pid){
-			tx_put_word("devuelvo el proceso de nombre:", 0xffff00);
-			tx_put_word(proc->name, 0xffff00);
-			tx_put_word("\n", 0xffff00);	
+			// tx_put_word("devuelvo el proceso de nombre:", 0xffff00);
+			// tx_put_word(proc->name, 0xffff00);
+			// tx_put_word("\n", 0xffff00);	
 			return proc;
 		}
 	}
@@ -104,15 +104,12 @@ void
 force_process(uint16_t pid)
 {
 	
-	scheduler_ADT scheduler = SCHEDULER_ADDRESS;
+	scheduler_ADT scheduler = get_address();
 	process* p = get_process_by_pid(pid);
 	if(p==NULL){
-		tx_put_word("p es null \n", 0xffff00);
 		return;
 	}
 	p->status = READY;
-	tx_put_word("Voy a forzar a correr el proceso: ", 0xffff00);
-	tx_put_word(p->name, 0xffff00);
 	scheduler->current_pid = pid;
 	asm_move_rsp(p->stack_pos);
 }
@@ -263,6 +260,7 @@ schedule(void* prev_stack_pointer)
 			asm_timertick();
 		}
 	}
+	
 	scheduler->remaining_quantum = (MAX_PRIORITY - current_process->priority);
 	current_process->status = RUNNING;
 	return current_process->stack_pos;

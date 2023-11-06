@@ -145,6 +145,7 @@ asm_timertick:
     ret
 
 asm_idle:
+    sti
 	hlt
 	ret
 
