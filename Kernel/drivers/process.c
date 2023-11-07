@@ -117,6 +117,11 @@ free_process(process* proc)
 process_snapshot*
 load_snapshot(process_snapshot* snapshot, process* proc)
 {
+	// char aux[100];
+	// uint_to_base(strlen(proc->name),aux,10);
+	// tx_put_word(aux,0x00ff00);
+	// tx_put_word("\n",0x00ff00);
+	
 	snapshot->name = mm_malloc(strlen(proc->name) + 1);
 	memcpy(snapshot->name, proc->name, strlen(proc->name) + 1);
 	snapshot->pid = proc->pid;

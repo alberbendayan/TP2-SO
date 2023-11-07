@@ -159,7 +159,7 @@ get_snapshot_info(process_snapshot* snapshot,char* to_ret){
 		memcpy((to_ret + j), aux_pri, strlen(aux_pri));
 		j += strlen(aux_pri);
 
-		while (j < 40) {
+		while (j < 37) {
 			to_ret[j++] = ' ';
 		}
 
@@ -167,7 +167,7 @@ get_snapshot_info(process_snapshot* snapshot,char* to_ret){
 		memcpy((to_ret + j), aux_sp, strlen(aux_sp));
 		j += strlen(aux_sp);
 
-		while (j < 54) {
+		while (j < 51) {
 			to_ret[j++] = ' ';
 		}
 
@@ -179,16 +179,18 @@ get_snapshot_info(process_snapshot* snapshot,char* to_ret){
 			to_ret[j++] = ' ';
 		}
 
-		memcpy((to_ret + j),snapshot->foreground==1?"Si":"No",2);
-		j+=2;
+		memcpy((to_ret + j),snapshot->foreground==1?"Yes":"No ",3);
+		j+=3;
 		to_ret[j]='\0';
-		return to_ret;
 }
 char*
 get_snapshots_info(){
 	scheduler_ADT scheduler = get_address();
 	linked_list_ADT snapshots=get_all_proccesses_snapshot();
+	
 	char* to_ret=mm_malloc(scheduler->qty_processes*BUFFER_SIZE);
+	
+
 
 	char* header="  Name              ID      Priority      SP            BP      Foreground\n";
 	int len_header=strlen(header);
@@ -205,8 +207,10 @@ get_snapshots_info(){
 		memcpy(to_ret+i,str,len);
 		i+=len;
 		to_ret[i++]='\n';
+		mm_free(data->name);
 		mm_free(data);
 	}
+	free_linked_list_ADT_deep(snapshots);
 	to_ret[i]='\0';
 	return to_ret;
 }

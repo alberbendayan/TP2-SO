@@ -293,17 +293,8 @@ static uint32_t
 ps()
 {
 	char * string=asm_get_snapshots_info();
-	puts(string,color.fg); // 64-74
-
-		
-	// while (strings[i])
-	// {
-	// 	puts(strings[i],color.output);
-	// 	i++;
-	// }
-	
-	
-	
+	puts(string,color.fg);
+	asm_free(string);
 	
 	return 0;
 }
