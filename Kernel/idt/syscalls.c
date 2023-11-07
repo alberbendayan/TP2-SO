@@ -11,7 +11,7 @@
 #include <time.h>
 #include <video.h>
 
-#define REGS_SIZE 19
+#define REGS_SIZE 20
 
 enum syscalls
 {
@@ -46,7 +46,8 @@ enum syscalls
 	SYS_CREATE_PROCESS,
 	SYS_KILL_PROCESS,
 	SYS_KILL_CURRENT_PROCESS,
-	SYS_GET_ALL_PROCESESS
+	SYS_GET_ALL_PROCESESS_SNAPSHOTS,
+	SYS_GET_SNAPSHOTS_INFO
 };
 
 static uint8_t regs_flag = 0;
@@ -139,9 +140,12 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			return kill_current_process(rsi);
 		} break;
 
-		case SYS_GET_ALL_PROCESESS: {
-			return get_all_proccesses();
+		case SYS_GET_ALL_PROCESESS_SNAPSHOTS: {
+			return get_all_proccesses_snapshot();
 		} break;
+		case SYS_GET_SNAPSHOTS_INFO: {
+			return get_snapshots_info();
+		}break;
 	}
 	return 0;
 }

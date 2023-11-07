@@ -292,20 +292,9 @@ memstatus()
 static uint32_t
 ps()
 {
-	puts("  Name              ", color.fg);
-	puts("ID      ", color.fg); 
-	puts("Priority      ", color.fg);
-	puts("SP            ",color.fg); 
-	puts("BP      ",color.fg); 
-	puts("Foreground\n",color.fg); 
+	char * string=asm_get_snapshots_info();
+	puts(string,color.fg); // 64-74
 
-	char ** strings=asm_get_all_procesess();
-	
-	puts("Traje todos los procesos\n",color.fg); // 64-74
-
-	int i=0;
-	char * s = strings[0];
-	puts(s,color.fg);
 		
 	// while (strings[i])
 	// {
