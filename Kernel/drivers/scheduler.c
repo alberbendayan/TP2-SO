@@ -1,4 +1,5 @@
 #include <libasm.h>
+#include <libc.h>
 #include <linkedListADT.h>
 #include <memoryManagement.h>
 #include <scheduler.h>
@@ -13,6 +14,7 @@
 #define IDLE_PID 0
 #define QUANTUM_COEF 2
 #define SCHEDULER_ADDRESS 0x60000
+#define BUFFER_SIZE 75
 
 typedef struct scheduler_CDT
 {
@@ -52,12 +54,12 @@ static process*
 get_process_by_pid(uint32_t pid)
 {
 	scheduler_ADT scheduler = get_address();
-	for(int8_t i = 0;i<scheduler->qty_processes;i++){
+	for (int8_t i = 0; i < scheduler->qty_processes; i++) {
 		process* proc = (process*)scheduler->processes[i]->data;
-		if(pid==proc->pid){
+		if (pid == proc->pid) {
 			// tx_put_word("devuelvo el proceso de nombre:", 0xffff00);
 			// tx_put_word(proc->name, 0xffff00);
-			// tx_put_word("\n", 0xffff00);	
+			// tx_put_word("\n", 0xffff00);
 			return proc;
 		}
 	}
@@ -72,7 +74,7 @@ create_process(process_initialization* data)
 		return -1;
 	}
 	process* proc = (process*)mm_malloc(sizeof(process));
-	
+
 	init_process(proc,
 	             scheduler->next_unused_pid,
 	             scheduler->current_pid,
@@ -103,15 +105,84 @@ create_process(process_initialization* data)
 void
 force_process(uint16_t pid)
 {
-	
 	scheduler_ADT scheduler = get_address();
 	process* p = get_process_by_pid(pid);
-	if(p==NULL){
+	if (p == NULL) {
 		return;
 	}
 	p->status = READY;
 	scheduler->current_pid = pid;
 	asm_move_rsp(p->stack_pos);
+}
+
+char**
+get_all_proccesses()
+{
+	scheduler_ADT scheduler = get_address();
+	char to_ret[scheduler->qty_processes][BUFFER_SIZE];
+	process* aux;
+	int i;
+	int j = 0;
+
+	for (i = 0; i < scheduler->qty_processes; i++) {
+		aux = scheduler->processes[i]->data;
+		char aux_id[8];
+		char aux_pri[14];
+		char aux_sp[8];
+		char aux_bp[8];
+		char aux_fg[8];
+		// to_ret[i][0] = ' ';
+		// to_ret[i][1] = ' ';
+		
+		// tx_put_word(aux->name,0xffff00);
+		j += strlen(aux->name);
+		memcpy(to_ret[i], aux->name, j);
+
+		while (j < 21) {
+			to_ret[i][j++] = ' ';
+		}
+
+		uint_to_base(aux->pid, aux_id, 10);
+		memcpy((to_ret[i] + j), aux_id, strlen(aux_id));
+		j += strlen(aux_id);
+
+		while (j < 30) {
+			to_ret[i][j++] = ' ';
+		}
+
+		uint_to_base(aux->priority, aux_pri, 10);
+		memcpy((to_ret[i] + j), aux_pri, strlen(aux_pri));
+		j += strlen(aux_pri);
+
+		while (j < 40) {
+			to_ret[i][j++] = ' ';
+		}
+
+		uint_to_base(aux->stack_pos, aux_sp, 10);
+		memcpy((to_ret[i] + j), aux_sp, strlen(aux_sp));
+		j += strlen(aux_sp);
+
+		while (j < 54) {
+			to_ret[i][j++] = ' ';
+		}
+
+		uint_to_base(aux->stack_base, aux_bp, 10);
+		memcpy((to_ret[i] + j), aux_bp, strlen(aux_bp));
+		j += strlen(aux_sp);
+
+		while (j < 67) {
+			to_ret[i][j++] = ' ';
+		}
+
+
+		to_ret[i][j++]='0'; // falta hacer lo de fg
+
+		to_ret[i][j]='\n';
+
+		tx_put_word(to_ret[i], 0xffff00);
+		tx_put_word("\n", 0xffff00);
+	}
+	return to_ret;
 }
 
 uint16_t
@@ -238,11 +309,15 @@ schedule(void* prev_stack_pointer)
 
 	if (current_node != NULL) {
 		current_process = (process*)current_node->data;
-		if (!flag_is_first) {
-			current_process->stack_pos = prev_stack_pointer;
-		} else {
-			flag_is_first = 0;
-		}
+		current_process->stack_pos = prev_stack_pointer;
+
+		// if (!flag_is_first) {
+		// 	current_process->stack_pos = prev_stack_pointer;
+
+		// } else {
+		// 	flag_is_first = 0;
+		// }
+
 		if (current_process->status == RUNNING) {
 			current_process->status = READY;
 		}
@@ -260,7 +335,7 @@ schedule(void* prev_stack_pointer)
 			asm_timertick();
 		}
 	}
-	
+
 	scheduler->remaining_quantum = (MAX_PRIORITY - current_process->priority);
 	current_process->status = RUNNING;
 	return current_process->stack_pos;

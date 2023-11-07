@@ -46,9 +46,11 @@ sys_used_heap   equ 17
 global asm_init_process
 global asm_kill_process
 global asm_kill_current_process
+global asm_get_all_procesess
 sys_init_process            equ 18
 sys_kill_process            equ 19
 sys_kill_current_process    equ 20
+sys_get_all_procesess       equ 21
 
 
 %macro syscall_handler 1
@@ -124,3 +126,6 @@ asm_kill_process:
 
 asm_kill_current_process:
     syscall_handler sys_kill_current_process
+
+asm_get_all_procesess:
+    syscall_handler sys_get_all_procesess

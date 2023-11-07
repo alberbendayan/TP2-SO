@@ -83,7 +83,7 @@ extern void* asm_malloc(uint64_t size);
 /*
  * free
  */
-extern void asm_free(void * mem_block);
+extern void asm_free(void* mem_block);
 
 /*
  * Tamaño del heap
@@ -103,16 +103,17 @@ extern uint64_t asm_used_heap();
 /*
  * Inicializa un proceso
  */
-extern uint64_t asm_init_process(process_initialization * p);
+extern uint64_t asm_init_process(process_initialization* p);
 
 /*
  * Acaba con un proceso
  */
-extern uint64_t asm_kill_process(uint16_t pid,uint32_t ret_value);
+extern uint64_t asm_kill_process(uint16_t pid, uint32_t ret_value);
 
 /*
  * Acaba con el proceso en ejecución
  */
 extern uint64_t asm_kill_current_process(uint32_t ret_value);
 
+extern char** asm_get_all_procesess();
 #endif

@@ -31,4 +31,6 @@ process_status get_process_status(uint16_t pid);
 
 void force_process (uint16_t pid);
 
+char ** get_all_proccesses();
+
 #endif

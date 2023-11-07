@@ -72,14 +72,14 @@ main()
 	
 
 	// creo el proceso idle
-	char* args_idle[3] = { "idle", "Hm?", NULL };
+	char* args_idle[3] = { "idle", NULL };
 	int16_t fd_idle[] = { DEV_NULL, DEV_NULL, STDERR };
 
 	process_initialization p_idle;
 
 	p_idle.args = args_idle;
 	p_idle.name = "idle";
-	p_idle.code = (main_function)idle;
+	p_idle.code = &idle;
 	p_idle.file_descriptors = fd_idle;
 	p_idle.unkillable = 1;
 	p_idle.priority = 4;
@@ -100,6 +100,11 @@ main()
 	p_shell.code = (main_function)sample_code_module_addr;
 
 	uint16_t pid_shell = create_process(&p_shell);
+	
+	// uint16_t pid_shell1 = create_process(&p_shell);
+
+	// uint16_t pid_shell2 = create_process(&p_shell);
+
 	force_process(pid_shell);
 	asm_sti();
 

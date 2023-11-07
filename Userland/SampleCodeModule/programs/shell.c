@@ -49,6 +49,7 @@ static uint32_t pong();
 static uint32_t setcolor();
 static uint32_t switchcolors();
 static uint32_t memstatus();
+static uint32_t ps();
 
 uint32_t
 shell_init()
@@ -70,26 +71,29 @@ shell_init()
 static void
 load_commands()
 {
-	load_command((main_function) help, "help", "          Displays this help message");
-	load_command((main_function) datetime, "datetime", "      Prints the current datetime");
-	load_command((main_function) printreg, "printreg", "      Prints all the registers values saved in the last key press of 'Ctrl+r'");
-	load_command((main_function) pong, "pong", "          Pong (The Game)");
-	load_command((main_function) setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
-	load_command((main_function) switchcolors, "switchcolors", "  Inverts the background and foreground colors");
-	load_command((main_function) clear, "clear", "         Clears the screen");
-	load_command((main_function) testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
-	load_command((main_function) testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command((main_function) exit, "exit", "          Exits the shell");
-	load_command((main_function) memstatus, "memstatus", "     Memory status");
+	load_command((main_function)help, "help", "          Displays this help message");
+	load_command((main_function)datetime, "datetime", "      Prints the current datetime");
+	load_command((main_function)printreg,
+	             "printreg",
+	             "      Prints all the registers values saved in the last key press of 'Ctrl+r'");
+	load_command((main_function)pong, "pong", "          Pong (The Game)");
+	load_command(
+	    (main_function)setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
+	load_command((main_function)switchcolors, "switchcolors", "  Inverts the background and foreground colors");
+	load_command((main_function)clear, "clear", "         Clears the screen");
+	load_command((main_function)testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
+	load_command((main_function)testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
+	load_command((main_function)exit, "exit", "          Exits the shell");
+	load_command((main_function)memstatus, "mem", "           Memory status");
+	load_command((main_function)ps, "ps", "            Process status");
 
 	// hacer los tests aca
 }
 
 static void
 load_command(uint32_t (*fn)(), char* name, char* desc)
-//load_command(, char* name, char* desc)
+// load_command(, char* name, char* desc)
 {
-	
 	if (commands_len >= MAX_COMMANDS)
 		return;
 	commands[commands_len].fn = fn;
@@ -267,17 +271,50 @@ switchcolors()
 static uint32_t
 memstatus()
 {
-	char c1[32],c2[32],c3[32];
-	uint_to_base(asm_total_heap(),c1,10);
-	uint_to_base(asm_free_heap(),c2,10);
-	uint_to_base(asm_used_heap(),c2,10);
+	char c1[32], c2[32], c3[32];
+	uint_to_base(asm_total_heap(), c1, 10);
+	uint_to_base(asm_free_heap(), c2, 10);
+	uint_to_base(asm_used_heap(), c3, 10);
 	puts("Total heap: ", color.output);
 	puts(c1, color.output);
 	puts("\n", color.output);
 	puts("Free heap: ", color.output);
 	puts(c2, color.output);
 	puts("\n", color.output);
-	puts("Used heap: ", color.output);	
+	puts("Used heap: ", color.output);
 	puts(c3, color.output);
 	puts("\n", color.output);
+
+	return 0;
+}
+
+
+static uint32_t
+ps()
+{
+	puts("  Name              ", color.fg);
+	puts("ID      ", color.fg); 
+	puts("Priority      ", color.fg);
+	puts("SP            ",color.fg); 
+	puts("BP      ",color.fg); 
+	puts("Foreground\n",color.fg); 
+
+	char ** strings=asm_get_all_procesess();
+	
+	puts("Traje todos los procesos\n",color.fg); // 64-74
+
+	int i=0;
+	char * s = strings[0];
+	puts(s,color.fg);
+		
+	// while (strings[i])
+	// {
+	// 	puts(strings[i],color.output);
+	// 	i++;
+	// }
+	
+	
+	
+	
+	return 0;
 }
