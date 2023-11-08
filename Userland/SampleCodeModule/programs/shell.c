@@ -11,16 +11,18 @@
 #define PONG_FG 0xf5ebbc
 #define PONG_BG 0x151f42
 
+#define DEV_NULL -1
+
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+
+#define NULL (void*)0
 typedef struct
 {
 	uint32_t (*fn)();
 	char *name, *desc;
 } Command;
-
-typedef struct
-{
-	volatile uint32_t fg, bg, output, prompt, error;
-} Color;
 
 static Command commands[MAX_COMMANDS];
 static char* args[MAX_ARGS];
@@ -29,13 +31,12 @@ static uint32_t commands_len = 0;
 static uint32_t args_len = 0;
 static uint8_t running = 1;
 
-// colors
-static Color color = { .fg = 0xffffff, .bg = 0x000000, .output = 0xa0a0a0, .prompt = 0x00ff00, .error = 0xff0000 };
-
 static void load_commands();
 static void load_command(uint32_t (*fn)(), char* name, char* desc);
 static int32_t process_input(char* buff, uint32_t size);
 static void prompt(int32_t status);
+
+static uint32_t create_process(char** args, int* fd, char* name, int unkillable, int priority, void* code);
 
 // commands
 static uint32_t help();
@@ -54,7 +55,8 @@ static uint32_t pid();
 static uint32_t kill();
 static uint32_t block();
 static uint32_t unblock();
-static uint32_t setpriority();
+static uint32_t nice();
+static uint32_t loop();
 
 uint32_t
 shell_init()
@@ -81,7 +83,6 @@ load_commands()
 	load_command((main_function)printreg,
 	             "printreg",
 	             "         Prints all the registers values saved in the last key press of 'Ctrl+r'");
-	load_command((main_function)pong, "pong", "             Pong (The Game)");
 	load_command(
 	    (main_function)setcolor, "setcolor", "         Sets foreground, background, prompt, output or error colors");
 	load_command((main_function)switchcolors, "switchcolors", "     Inverts the background and foreground colors");
@@ -89,13 +90,14 @@ load_commands()
 	load_command((main_function)testioe, "testioe", "          Tests the 'Invalid Opcode Exception'");
 	load_command((main_function)testzde, "testzde", "          Tests the 'Zero Division Error Exception'");
 	load_command((main_function)exit, "exit", "             Exits the shell");
-	load_command((main_function)memstatus, "mem", "              Shows memory status");
-	load_command((main_function)ps, "ps", "               Shows status of all processes");
-	load_command((main_function)pid, "pid", "              Shows current process id");
+	load_command((main_function)memstatus, "mem", "              Displays memory status");
+	load_command((main_function)ps, "ps", "               Displays status of all processes");
+	load_command((main_function)pid, "pid", "              Displays current process id");
 	load_command((main_function)kill, "kill", "             Kill a process by id");
 	load_command((main_function)block, "block", "            Block a process by id");
 	load_command((main_function)unblock, "unblock", "          Unblock a process by id");
-	load_command((main_function)setpriority, "setpriority", "    Change process priority by id");
+	load_command((main_function)nice, "nice", "             Change process priority by id");
+	load_command((main_function)loop, "loop", "             Print current process id");
 
 	// hacer los tests aca
 }
@@ -132,8 +134,23 @@ process_input(char* buff, uint32_t size)
 static void
 prompt(int32_t status)
 {
-	puts(">>>", status == 0 ? color.prompt : color.error);
+	puts(">>>", color.prompt);
 	putchar(' ', color.fg);
+}
+
+static uint32_t
+create_process(char** args, int* fd, char* name, int unkillable, int priority, void* code)
+{
+	process_initialization p;
+
+	p.args = args;
+	p.file_descriptors = fd;
+	p.name = name;
+	p.unkillable = unkillable;
+	p.priority = priority;
+	p.code = code;
+
+	return asm_init_process(&p);
 }
 
 static uint32_t
@@ -185,31 +202,6 @@ static uint32_t
 testzde()
 {
 	asm_testzde();
-	return 0;
-}
-
-static uint32_t
-pong()
-{
-	char* usage = "USAGE: pong [fg] [bg]\nWhen leaving empty, <fg> and <bg> will get default values\n";
-
-	if (args_len == 1) {
-		start_game(PONG_FG, PONG_BG);
-	} else if (args_len == 3) {
-		if (!is_hex_color_code(args[1]) || !is_hex_color_code(args[2])) {
-			puts("Invalid arguments\n", color.output);
-			puts(usage, color.output);
-			return -1;
-		}
-		uint32_t fg = hex_to_uint(args[1]);
-		uint32_t bg = hex_to_uint(args[2]);
-		start_game(fg, bg);
-	} else {
-		puts("Invalid ammount of arguments\n", color.output);
-		puts(usage, color.output);
-		return -1;
-	}
-	asm_clear(color.bg);
 	return 0;
 }
 
@@ -309,7 +301,7 @@ ps()
 }
 
 static uint32_t
-pid()
+func_pid()
 {
 	char aux[6];
 	uint64_t pid = asm_get_current_id();
@@ -320,14 +312,20 @@ pid()
 }
 
 static uint32_t
-kill()
+pid()
+{
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "pid", NULL };
+	create_process(my_args, fd, "pid", 0, 4, &func_pid);
+}
+
+static uint32_t
+func_kill()
 {
 	if (args_len == 1) {
 		asm_kill_current_process(0);
-	}
-	if (args_len == 2) {
+	} else if (args_len == 2) {
 		int arg = customAtoi(args[1]);
-
 		asm_kill_process(arg, 0);
 	} else if (args_len == 3) {
 		asm_kill_process(customAtoi(args[1]), customAtoi(args[2]));  // los paso a int
@@ -341,40 +339,92 @@ kill()
 }
 
 static uint32_t
-block()
+kill()
+{
+	int fd[3] = { DEV_NULL, DEV_NULL, STDERR };
+	char* my_args[2] = { "kill", NULL };
+	create_process(my_args, fd, "kill", 0, 4, &func_kill);
+}
+
+static uint32_t
+func_block()
 {
 	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 		asm_block_process(arg);
-		return 0;
+		return asm_kill_current_process(0);
 	}
 	char* usage = "USAGE: block <pid> \n";
 	puts(usage, color.output);
-	return 1;
+	return asm_kill_current_process(1);
 }
+
 static uint32_t
-unblock()
+block()
+{
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "block", NULL };
+	create_process(my_args, fd, "block", 0, 4, &func_block);
+}
+
+static void
+func_unblock()
 {
 	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 		asm_unblock_process(arg);
-		return 0;
+		return asm_kill_current_process(0);
 	}
 	char* usage = "USAGE: unblock <pid> \n";
+	puts(usage, color.output);
+	return asm_kill_current_process(1);
+}
+
+static uint32_t
+unblock()
+{
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "unblock", NULL };
+	create_process(my_args, fd, "unblock", 0, 4, &func_unblock);
+}
+
+void
+func_nice()
+{
+	if (args_len == 3) {
+		int pid = customAtoi(args[1]);
+		int new_priority = customAtoi(args[2]);
+		asm_set_priority(pid, new_priority);
+		return 0;
+	}
+	char* usage = "USAGE: nice <pid> <new status> \n";
 	puts(usage, color.output);
 	return 1;
 }
 
 static uint32_t
-setpriority()
+nice()
 {
-	if (args_len == 3) {
-		int pid = customAtoi(args[1]);
-		int new_priority = customAtoi(args[2]);
-		asm_set_priority(pid,new_priority);
-		return 0;
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "nice", NULL };
+	int pid = create_process(my_args, fd, "nice", 0, 4, &func_nice);
+	return asm_kill_process(pid, 0);
+}
+
+void
+func_loop()
+{
+	while (1) {
+		puts("Hi! I'm process ", color.output);
+		func_pid();
+		asm_sleep(2 * 18);
 	}
-	char* usage = "USAGE: setstatus <pid> <new status> \n";
-	puts(usage, color.output);
-	return 1;
+}
+
+static uint32_t
+loop()
+{
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "loop", NULL };
+	create_process(my_args, fd, "loop", 0, 4, &func_loop);
 }

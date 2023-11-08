@@ -90,16 +90,16 @@ main()
 
 	int pid_idle = create_process(&p_idle);
 
-	process_initialization p_idle1;
+	// process_initialization p_idle1;
 
-	p_idle1.args = args_idle;
-	p_idle1.name = "idle aux";
-	p_idle1.code = &prueba;
-	p_idle1.file_descriptors = fd_idle;
-	p_idle1.unkillable = 0;
-	p_idle1.priority = 1;
+	// p_idle1.args = args_idle;
+	// p_idle1.name = "proceso hola";
+	// p_idle1.code = &prueba;
+	// p_idle1.file_descriptors = fd_idle;
+	// p_idle1.unkillable = 0;
+	// p_idle1.priority = 1;
 
-	pid_idle = create_process(&p_idle1);
+	// pid_idle = create_process(&p_idle1);
 
 
 	// creo la shell
