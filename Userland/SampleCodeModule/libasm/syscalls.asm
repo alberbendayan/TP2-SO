@@ -50,6 +50,7 @@ global asm_get_snapshots_info
 global asm_get_current_id
 global asm_block_process
 global asm_unblock_process
+global asm_set_priority
 sys_init_process                    equ 18
 sys_kill_process                    equ 19
 sys_kill_current_process            equ 20
@@ -57,6 +58,7 @@ sys_get_snapshots_info              equ 21
 sys_get_current_id                  equ 22
 sys_block_process                   equ 23
 sys_unblock_process                 equ 24
+sys_set_priority                    equ 25
 
 %macro syscall_handler 1
     push rbp
@@ -143,3 +145,6 @@ asm_block_process:
 
 asm_unblock_process:
     syscall_handler sys_unblock_process
+
+asm_set_priority:
+    syscall_handler sys_set_priority

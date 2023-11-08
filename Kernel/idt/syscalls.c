@@ -50,7 +50,8 @@ enum syscalls
 	SYS_GET_SNAPSHOTS_INFO,
 	SYS_GET_CURRENT_ID,
 	SYS_BLOCK_PROCESS,
-	SYS_UNBLOCK_PROCESS
+	SYS_UNBLOCK_PROCESS,
+	SYS_SET_PRIORITY
 };
 
 static uint8_t regs_flag = 0;
@@ -158,6 +159,12 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_UNBLOCK_PROCESS: {
 			return unblock_process(rsi);
 		} break;
+
+		case SYS_SET_PRIORITY: {
+			return set_priority(rsi,rdx);
+		} break;
+
+		
 	}
 	return 0;
 }

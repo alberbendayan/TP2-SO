@@ -128,4 +128,6 @@ extern uint64_t sys_get_current_id();
 extern uint64_t asm_block_process(int pid);
 
 extern uint64_t asm_unblock_process(int pid);
+
+extern uint64_t asm_set_priority(int pid, int new_prio);
 #endif

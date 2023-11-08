@@ -54,6 +54,7 @@ static uint32_t pid();
 static uint32_t kill();
 static uint32_t block();
 static uint32_t unblock();
+static uint32_t setpriority();
 
 uint32_t
 shell_init()
@@ -75,25 +76,26 @@ shell_init()
 static void
 load_commands()
 {
-	load_command((main_function)help, "help", "          Displays this help message");
-	load_command((main_function)datetime, "datetime", "      Prints the current datetime");
+	load_command((main_function)help, "help", "             Displays this help message");
+	load_command((main_function)datetime, "datetime", "         Prints the current datetime");
 	load_command((main_function)printreg,
 	             "printreg",
-	             "      Prints all the registers values saved in the last key press of 'Ctrl+r'");
-	load_command((main_function)pong, "pong", "          Pong (The Game)");
+	             "         Prints all the registers values saved in the last key press of 'Ctrl+r'");
+	load_command((main_function)pong, "pong", "             Pong (The Game)");
 	load_command(
-	    (main_function)setcolor, "setcolor", "      Sets foreground, background, prompt, output or error colors");
-	load_command((main_function)switchcolors, "switchcolors", "  Inverts the background and foreground colors");
-	load_command((main_function)clear, "clear", "         Clears the screen");
-	load_command((main_function)testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
-	load_command((main_function)testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
-	load_command((main_function)exit, "exit", "          Exits the shell");
-	load_command((main_function)memstatus, "mem", "           Shows memory status");
-	load_command((main_function)ps, "ps", "            Shows status of all processes");
-	load_command((main_function)pid, "pid", "           Shows current process id");
-	load_command((main_function)kill, "kill", "          Kill a process by id");
-	load_command((main_function)block, "block", "         Block a process by id");
-	load_command((main_function)unblock, "unblock", "       Unblock a process by id");
+	    (main_function)setcolor, "setcolor", "         Sets foreground, background, prompt, output or error colors");
+	load_command((main_function)switchcolors, "switchcolors", "     Inverts the background and foreground colors");
+	load_command((main_function)clear, "clear", "            Clears the screen");
+	load_command((main_function)testioe, "testioe", "          Tests the 'Invalid Opcode Exception'");
+	load_command((main_function)testzde, "testzde", "          Tests the 'Zero Division Error Exception'");
+	load_command((main_function)exit, "exit", "             Exits the shell");
+	load_command((main_function)memstatus, "mem", "              Shows memory status");
+	load_command((main_function)ps, "ps", "               Shows status of all processes");
+	load_command((main_function)pid, "pid", "              Shows current process id");
+	load_command((main_function)kill, "kill", "             Kill a process by id");
+	load_command((main_function)block, "block", "            Block a process by id");
+	load_command((main_function)unblock, "unblock", "          Unblock a process by id");
+	load_command((main_function)setpriority, "setpriority", "    Change process priority by id");
 
 	// hacer los tests aca
 }
@@ -359,6 +361,20 @@ unblock()
 		return 0;
 	}
 	char* usage = "USAGE: unblock <pid> \n";
+	puts(usage, color.output);
+	return 1;
+}
+
+static uint32_t
+setpriority()
+{
+	if (args_len == 3) {
+		int pid = customAtoi(args[1]);
+		int new_priority = customAtoi(args[2]);
+		asm_set_priority(pid,new_priority);
+		return 0;
+	}
+	char* usage = "USAGE: setstatus <pid> <new status> \n";
 	puts(usage, color.output);
 	return 1;
 }
