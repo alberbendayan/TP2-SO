@@ -5,7 +5,7 @@
 #include <syscalls.h>
 
 #define MAX_COMMANDS 20
-#define MAX_ARGS 3
+#define MAX_ARGS 8
 #define INPUT_SIZE 200
 
 #define PONG_FG 0xf5ebbc
@@ -50,6 +50,10 @@ static uint32_t setcolor();
 static uint32_t switchcolors();
 static uint32_t memstatus();
 static uint32_t ps();
+static uint32_t pid();
+static uint32_t kill();
+static uint32_t block();
+static uint32_t unblock();
 
 uint32_t
 shell_init()
@@ -84,8 +88,12 @@ load_commands()
 	load_command((main_function)testioe, "testioe", "       Tests the 'Invalid Opcode Exception'");
 	load_command((main_function)testzde, "testzde", "       Tests the 'Zero Division Error Exception'");
 	load_command((main_function)exit, "exit", "          Exits the shell");
-	load_command((main_function)memstatus, "mem", "           Memory status");
-	load_command((main_function)ps, "ps", "            Process status");
+	load_command((main_function)memstatus, "mem", "           Shows memory status");
+	load_command((main_function)ps, "ps", "            Shows status of all processes");
+	load_command((main_function)pid, "pid", "           Shows current process id");
+	load_command((main_function)kill, "kill", "          Kill a process by id");
+	load_command((main_function)block, "block", "         Block a process by id");
+	load_command((main_function)unblock, "unblock", "       Unblock a process by id");
 
 	// hacer los tests aca
 }
@@ -288,13 +296,69 @@ memstatus()
 	return 0;
 }
 
-
 static uint32_t
 ps()
 {
-	char * string=asm_get_snapshots_info();
-	puts(string,color.fg);
+	char* string = asm_get_snapshots_info();
+	puts(string, color.output);
 	asm_free(string);
-	
+
 	return 0;
+}
+
+static uint32_t
+pid()
+{
+	char aux[6];
+	uint64_t pid = asm_get_current_id();
+	uint_to_base(pid, aux, 10);
+	puts(aux, color.output);
+	puts("\n", color.bg);
+	return 0;
+}
+
+static uint32_t
+kill()
+{
+	if (args_len == 1) {
+		asm_kill_current_process(0);
+	}
+	if (args_len == 2) {
+		int arg = customAtoi(args[1]);
+
+		asm_kill_process(arg, 0);
+	} else if (args_len == 3) {
+		asm_kill_process(customAtoi(args[1]), customAtoi(args[2]));  // los paso a int
+	} else {
+		char* usage = "USAGE: kill <pid> <ret value> or kill <pid>\n When leaving empty <pid> and <ret value> the "
+		              "current process will be killed\n When leaving empty <ret value> the return value will be 0\n";
+		puts(usage, color.output);
+		return 1;
+	}
+	return 0;
+}
+
+static uint32_t
+block()
+{
+	if (args_len == 2) {
+		int arg = customAtoi(args[1]);
+		asm_block_process(arg);
+		return 0;
+	}
+	char* usage = "USAGE: block <pid> \n";
+	puts(usage, color.output);
+	return 1;
+}
+static uint32_t
+unblock()
+{
+	if (args_len == 2) {
+		int arg = customAtoi(args[1]);
+		asm_unblock_process(arg);
+		return 0;
+	}
+	char* usage = "USAGE: unblock <pid> \n";
+	puts(usage, color.output);
+	return 1;
 }

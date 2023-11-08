@@ -205,3 +205,25 @@ void intToArray(int num, char *result) {
         end--;
     }
 }
+
+
+int customAtoi(const char *str) {
+    int result = 0;
+    int sign = 1;  // Para manejar el signo positivo o negativo
+
+    // Manejar signos positivos o negativos
+    if (*str == '-') {
+        sign = -1;
+        str++; // Avanzar al siguiente carácter
+    } else if (*str == '+') {
+        str++; // Avanzar al siguiente carácter
+    }
+
+    // Recorrer la cadena y construir el número entero
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+
+    return result * sign;
+}

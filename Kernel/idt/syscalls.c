@@ -5,6 +5,7 @@
 #include <memoryManagement.h>
 #include <process.h>
 #include <rtc.h>
+#include <scheduler.h>
 #include <sound.h>
 #include <syscalls.h>
 #include <text.h>
@@ -46,8 +47,10 @@ enum syscalls
 	SYS_CREATE_PROCESS,
 	SYS_KILL_PROCESS,
 	SYS_KILL_CURRENT_PROCESS,
-	SYS_GET_ALL_PROCESESS_SNAPSHOTS,
-	SYS_GET_SNAPSHOTS_INFO
+	SYS_GET_SNAPSHOTS_INFO,
+	SYS_GET_CURRENT_ID,
+	SYS_BLOCK_PROCESS,
+	SYS_UNBLOCK_PROCESS
 };
 
 static uint8_t regs_flag = 0;
@@ -140,12 +143,21 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			return kill_current_process(rsi);
 		} break;
 
-		case SYS_GET_ALL_PROCESESS_SNAPSHOTS: {
-			return get_all_proccesses_snapshot();
-		} break;
 		case SYS_GET_SNAPSHOTS_INFO: {
 			return get_snapshots_info();
-		}break;
+		} break;
+
+		case SYS_GET_CURRENT_ID: {
+			return get_pid();
+		} break;
+
+		case SYS_BLOCK_PROCESS: {
+			return block_process(rsi);
+		} break;
+
+		case SYS_UNBLOCK_PROCESS: {
+			return unblock_process(rsi);
+		} break;
 	}
 	return 0;
 }

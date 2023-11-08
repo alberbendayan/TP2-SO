@@ -46,14 +46,17 @@ sys_used_heap   equ 17
 global asm_init_process
 global asm_kill_process
 global asm_kill_current_process
-global asm_get_all_procesess_snapshots
 global asm_get_snapshots_info
+global asm_get_current_id
+global asm_block_process
+global asm_unblock_process
 sys_init_process                    equ 18
 sys_kill_process                    equ 19
 sys_kill_current_process            equ 20
-sys_get_all_procesess_snapshot      equ 21
-sys_get_snapshots_info              equ 22
-
+sys_get_snapshots_info              equ 21
+sys_get_current_id                  equ 22
+sys_block_process                   equ 23
+sys_unblock_process                 equ 24
 
 %macro syscall_handler 1
     push rbp
@@ -129,8 +132,14 @@ asm_kill_process:
 asm_kill_current_process:
     syscall_handler sys_kill_current_process
 
-asm_get_all_procesess:
-    syscall_handler sys_get_all_procesess_snapshot
-
 asm_get_snapshots_info:
     syscall_handler sys_get_snapshots_info
+
+asm_get_current_id:
+    syscall_handler sys_get_current_id
+
+asm_block_process:
+    syscall_handler sys_block_process
+
+asm_unblock_process:
+    syscall_handler sys_unblock_process

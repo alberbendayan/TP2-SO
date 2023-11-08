@@ -11,7 +11,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../../../Kernel/include/linkedListADT.h"
 
 /*
  * Devuele el caracter presionado por teclado y el estado (presionado o soltado).
@@ -116,7 +115,17 @@ extern uint64_t asm_kill_process(uint16_t pid, uint32_t ret_value);
  */
 extern uint64_t asm_kill_current_process(uint32_t ret_value);
 
-extern linked_list_ADT asm_get_all_procesess();
 
+/*
+ * Acaba con el proceso en ejecución
+ */
 extern char* asm_get_snapshots_info();
+
+
+
+extern uint64_t sys_get_current_id();
+
+extern uint64_t asm_block_process(int pid);
+
+extern uint64_t asm_unblock_process(int pid);
 #endif

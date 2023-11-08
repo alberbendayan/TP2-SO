@@ -62,6 +62,8 @@ init_kernel_binary()
 	return get_stack_base();
 }
 
+int prueba(int argc, char** argv);
+
 int
 main()
 {
@@ -87,6 +89,18 @@ main()
 	p_idle.priority = 4;
 
 	int pid_idle = create_process(&p_idle);
+
+	process_initialization p_idle1;
+
+	p_idle1.args = args_idle;
+	p_idle1.name = "idle aux";
+	p_idle1.code = &prueba;
+	p_idle1.file_descriptors = fd_idle;
+	p_idle1.unkillable = 0;
+	p_idle1.priority = 1;
+
+	pid_idle = create_process(&p_idle1);
+
 
 	// creo la shell
 	int fd_shell[3] = { STDIN, STDOUT, STDERR };
@@ -251,6 +265,17 @@ idle(int argc, char** argv)
 {
 	while (1) {
 		asm_idle();
+	}
+
+	return 0;
+}
+
+int
+prueba(int argc, char** argv)
+{
+	for(int i=0; i<1000; i ++){
+		for(int j=0;j<100000000;j++){}
+		tx_put_word("Hola\n",0xFF0000);
 	}
 
 	return 0;

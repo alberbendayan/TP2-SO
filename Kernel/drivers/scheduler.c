@@ -99,17 +99,21 @@ create_process(process_initialization* data)
 	return proc->pid;
 }
 
-int32_t unblock_process(uint64_t pid){
+int32_t
+unblock_process(uint64_t pid)
+{
 	return set_status(pid, READY);
 }
 
-int32_t block_process(uint64_t pid){
-      int aux = set_status(pid, BLOCKED);
-      scheduler_ADT scheduler = get_address();
-	  if (pid == scheduler->current_pid){
-           yield();
-      }
-      return aux;
+int32_t
+block_process(uint64_t pid)
+{
+	int aux = set_status(pid, BLOCKED);
+	scheduler_ADT scheduler = get_address();
+	if (pid == scheduler->current_pid) {
+		yield();
+	}
+	return aux;
 }
 
 void
@@ -129,103 +133,103 @@ linked_list_ADT
 get_all_proccesses_snapshot()
 {
 	scheduler_ADT scheduler = get_address();
-	linked_list_ADT snapshots=create_linked_list_ADT();
+	linked_list_ADT snapshots = create_linked_list_ADT();
 	node* my_node;
-	
-	for(int i=0;i < scheduler->qty_processes; i++){
-		process_snapshot* aux=mm_malloc(sizeof(process_snapshot));
-		my_node=append_element(snapshots,load_snapshot(aux, (process *) scheduler->processes[i]->data));
-		my_node=my_node->next;
+
+	for (int i = 0; i < scheduler->qty_processes; i++) {
+		process_snapshot* aux = mm_malloc(sizeof(process_snapshot));
+		my_node = append_element(snapshots, load_snapshot(aux, (process*)scheduler->processes[i]->data));
+		my_node = my_node->next;
 	}
-	
+
 	return snapshots;
 }
 
 static void
-get_snapshot_info(process_snapshot* snapshot,char* to_ret){
-		scheduler_ADT scheduler = get_address();
-		int j=0;
-		char aux_id[8];
-		char aux_pri[14];
-		char aux_sp[8];
-		char aux_bp[8];
-		char aux_fg[8];
+get_snapshot_info(process_snapshot* snapshot, char* to_ret)
+{
+	scheduler_ADT scheduler = get_address();
+	int j = 0;
+	char aux_id[8];
+	char aux_pri[14];
+	char aux_sp[8];
+	char aux_bp[8];
+	char aux_fg[8];
 
-		j += strlen(snapshot->name);
-		memcpy(to_ret, snapshot->name, j);
-		while (j < 18) {
-			to_ret[j++] = ' ';
-		}
+	j += strlen(snapshot->name);
+	memcpy(to_ret, snapshot->name, j);
+	while (j < 18) {
+		to_ret[j++] = ' ';
+	}
 
-		uint_to_base(snapshot->pid, aux_id, 10);
-		memcpy((to_ret+ j), aux_id, strlen(aux_id));
-		j += strlen(aux_id);
+	uint_to_base(snapshot->pid, aux_id, 10);
+	memcpy((to_ret + j), aux_id, strlen(aux_id));
+	j += strlen(aux_id);
 
-		while (j < 30) {
-			to_ret[j++] = ' ';
-		}
+	while (j < 30) {
+		to_ret[j++] = ' ';
+	}
 
-		uint_to_base(snapshot->priority, aux_pri, 10);
-		memcpy((to_ret + j), aux_pri, strlen(aux_pri));
-		j += strlen(aux_pri);
+	uint_to_base(snapshot->priority, aux_pri, 10);
+	memcpy((to_ret + j), aux_pri, strlen(aux_pri));
+	j += strlen(aux_pri);
 
-		while (j < 37) {
-			to_ret[j++] = ' ';
-		}
+	while (j < 37) {
+		to_ret[j++] = ' ';
+	}
 
-		uint_to_base(snapshot->stack_pos, aux_sp, 10);
-		memcpy((to_ret + j), aux_sp, strlen(aux_sp));
-		j += strlen(aux_sp);
+	uint_to_base(snapshot->stack_pos, aux_sp, 10);
+	memcpy((to_ret + j), aux_sp, strlen(aux_sp));
+	j += strlen(aux_sp);
 
-		while (j < 51) {
-			to_ret[j++] = ' ';
-		}
+	while (j < 51) {
+		to_ret[j++] = ' ';
+	}
 
-		uint_to_base(snapshot->stack_base, aux_bp, 10);
-		memcpy((to_ret + j), aux_bp, strlen(aux_bp));
-		j += strlen(aux_sp);
+	uint_to_base(snapshot->stack_base, aux_bp, 10);
+	memcpy((to_ret + j), aux_bp, strlen(aux_bp));
+	j += strlen(aux_sp);
 
-		while (j < 67) {
-			to_ret[j++] = ' ';
-		}
+	while (j < 67) {
+		to_ret[j++] = ' ';
+	}
 
-		memcpy((to_ret + j),snapshot->foreground==1?"Yes":"No ",3);
-		j+=3;
-		to_ret[j]='\0';
+	memcpy((to_ret + j), snapshot->foreground == 1 ? "Yes" : "No ", 3);
+	j += 3;
+	to_ret[j] = '\0';
 }
 char*
-get_snapshots_info(){
+get_snapshots_info()
+{
 	scheduler_ADT scheduler = get_address();
-	linked_list_ADT snapshots=get_all_proccesses_snapshot();
-	
-	char* to_ret=mm_malloc(scheduler->qty_processes*BUFFER_SIZE);
-	
+	linked_list_ADT snapshots = get_all_proccesses_snapshot();
 
+	char* to_ret = mm_malloc(scheduler->qty_processes * BUFFER_SIZE);
 
-	char* header="  Name              ID      Priority      SP            BP      Foreground\n";
-	int len_header=strlen(header);
-	memcpy(to_ret,header,len_header);
-	int i=len_header;
+	char* header = "  Name              ID      Priority      SP            BP      Foreground\n";
+	int len_header = strlen(header);
+	memcpy(to_ret, header, len_header);
+	int i = len_header;
 	begin(snapshots);
-	while(has_next(snapshots)){
-		process_snapshot* data=(process_snapshot*) next(snapshots);
-		char str[BUFFER_SIZE];
-		to_ret[i++]=' ';
-		to_ret[i++]=' ';
-		get_snapshot_info(data,str);
-		int len=strlen(str);
-		memcpy(to_ret+i,str,len);
-		i+=len;
-		to_ret[i++]='\n';
-		mm_free(data->name);
-		mm_free(data);
+	while (has_next(snapshots)) {
+		process_snapshot* data = (process_snapshot*)next(snapshots);
+		if (data->status != ZOMBIE) {
+			char str[BUFFER_SIZE];
+			to_ret[i++] = ' ';
+			to_ret[i++] = ' ';
+			get_snapshot_info(data, str);
+			int len = strlen(str);
+			memcpy(to_ret + i, str, len);
+			i += len;
+			to_ret[i++] = '\n';
+			mm_free(data->name);
+			mm_free(data);
+		}
 	}
 	free_linked_list_ADT_deep(snapshots);
-	to_ret[i]='\0';
+	to_ret[i] = '\0';
 	return to_ret;
 }
-
-
 
 uint16_t
 get_pid()
