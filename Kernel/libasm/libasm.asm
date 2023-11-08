@@ -11,6 +11,7 @@ global asm_timertick
 global asm_idle
 global asm_move_rsp
 global asm_initialize_stack
+global asm_xchg
 
 extern exc_printreg
 extern kill_current_process
@@ -190,3 +191,8 @@ asm_initialize_stack:
 	mov rsp, r8
 	mov rbp, r9
 	ret
+
+asm_xchg:
+	mov rax, rsi
+    xchg [rdi], eax
+    ret

@@ -1,5 +1,10 @@
+#include <libasm.h>
+#include <libc.h>
 #include <linkedListADT.h>
+#include <scheduler.h>
 #include <semaphore.h>
+
+#define NULL (void*)0
 
 typedef struct semaphore_CDT
 {
@@ -98,16 +103,49 @@ sem_close(uint32_t id)
 }
 
 int
-sem_wait(uint32_t id)
+sem_post(uint32_t id)
 {
 	semaphore* sem = get_sem(id);
+	if (sem == NULL) {
+		return -1;
+	}
+
+	down(&(sem->mutex));
+	if (sem->blocked_PIDs_size > 0) {
+		int next_pid = sem->blocked_PIDs[0];
+		sem->blocked_PIDs_size--;
+		for (int i = 0; i < sem->blocked_PIDs_size; i++) {
+			sem->blocked_PIDs[i] = sem->blocked_PIDs[i + 1];
+		}
+		unblock_process(next_pid);  // marco el proceso como ready
+		up(&(sem->mutex));
+		return 0;
+	} else {
+		sem->value++;
+	}
+
+	up(&(sem->mutex));
 
 	return 0;
 }
 int
-sem_post(uint32_t id)
+sem_wait(uint32_t id)
 {
 	semaphore* sem = get_sem(id);
-    
+	if (sem == NULL) {
+		return -1;
+	}
+
+	down(&(sem->mutex));
+	if (sem->value > 0) {
+		sem->value--;
+		up(&(sem->mutex));
+		return 0;
+	} else {
+		int pid = get_pid();
+		sem->blocked_PIDs[sem->blocked_PIDs_size++] = pid;
+		up(&(sem->mutex));
+		block_process(pid);
+	}
 	return 0;
 }

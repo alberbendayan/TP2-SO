@@ -35,4 +35,8 @@ linked_list_ADT get_all_proccesses_snapshot();
 
 char* get_snapshots_info();
 
+int32_t unblock_process(uint64_t pid);
+
+int32_t block_process(uint64_t pid);
+
 #endif

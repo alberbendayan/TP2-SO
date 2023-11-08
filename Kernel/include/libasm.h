@@ -66,4 +66,6 @@ extern void asm_move_rsp(uint64_t rsp);
 extern void asm_idle();
 
 extern void asm_initialize_stack(void (*f) (main_function code, char ** args),main_function,void*,void*);
+
+extern int asm_xchg();
 #endif

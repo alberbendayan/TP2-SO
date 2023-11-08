@@ -1,3 +1,4 @@
+#include <libasm.h>
 #include <libc.h>
 #include <stdint.h>
 
@@ -81,4 +82,17 @@ uint_to_base(uint64_t value, char* buff, uint32_t base)
 	}
 
 	return digits;
+}
+
+void
+up(int* mutex)
+{
+	while (asm_xchg(mutex, 1) != 0)
+		;
+}
+
+void
+down(int* mutex)
+{
+	asm_xchg(mutex, 0);
 }

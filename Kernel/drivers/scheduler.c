@@ -99,6 +99,19 @@ create_process(process_initialization* data)
 	return proc->pid;
 }
 
+int32_t unblock_process(uint64_t pid){
+	return set_status(pid, READY);
+}
+
+int32_t block_process(uint64_t pid){
+      int aux = set_status(pid, BLOCKED);
+      scheduler_ADT scheduler = get_address();
+	  if (pid == scheduler->current_pid){
+           yield();
+      }
+      return aux;
+}
+
 void
 force_process(uint16_t pid)
 {

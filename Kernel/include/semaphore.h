@@ -5,10 +5,7 @@
 
 #define MAX_BLOCKED 64
 
-
-
-typedef struct semaphore_CDT *semaphore_ADT;
-
+typedef struct semaphore_CDT* semaphore_ADT;
 
 void create_semaphore_adt();
 
