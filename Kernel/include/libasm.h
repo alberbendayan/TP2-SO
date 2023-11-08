@@ -67,5 +67,8 @@ extern void asm_idle();
 
 extern void asm_initialize_stack(void (*f) (main_function code, char ** args),main_function,void*,void*);
 
-extern int asm_xchg();
+/*
+ * Devuelve la información del productor del procesador.
+ */
+extern int asm_xchg(int *mutex, int val);
 #endif
