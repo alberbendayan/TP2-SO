@@ -14,6 +14,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <semaphore.h>
 
 #define BLACK 0x000000
 #define WHITE 0xffffff
@@ -69,6 +70,7 @@ main()
 	idt_loader();
 	create_scheduler();
 	create_pipe_manager();
+	create_semaphore_adt();
 	
 
 	// creo el proceso idle

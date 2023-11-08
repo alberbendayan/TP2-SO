@@ -57,9 +57,6 @@ get_process_by_pid(uint32_t pid)
 	for (int8_t i = 0; i < scheduler->qty_processes; i++) {
 		process* proc = (process*)scheduler->processes[i]->data;
 		if (pid == proc->pid) {
-			// tx_put_word("devuelvo el proceso de nombre:", 0xffff00);
-			// tx_put_word(proc->name, 0xffff00);
-			// tx_put_word("\n", 0xffff00);
 			return proc;
 		}
 	}
