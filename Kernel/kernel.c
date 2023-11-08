@@ -111,7 +111,7 @@ main()
 	p_shell.args = args_shell;
 	p_shell.file_descriptors = fd_shell;
 	p_shell.name = "shell";
-	p_shell.unkillable = 1;
+	p_shell.unkillable = 0;
 	p_shell.priority = 4;
 	p_shell.code = (main_function)sample_code_module_addr;
 

@@ -30,6 +30,7 @@ static char input_buffer[INPUT_SIZE];
 static uint32_t commands_len = 0;
 static uint32_t args_len = 0;
 static uint8_t running = 1;
+static uint8_t foreground = 0;
 
 static void load_commands();
 static void load_command(uint32_t (*fn)(), char* name, char* desc);
@@ -118,12 +119,18 @@ static int32_t
 process_input(char* buff, uint32_t size)
 {
 	args_len = strtok(buff, ' ', args, MAX_ARGS);
-	if (args_len == 0)
+	if (args_len == 0) {
 		return -1;
-
+	}
 	for (int i = 0; i < commands_len; i++) {
-		if (strcmp(args[0], commands[i].name))
+		if (strcmp(args[0], commands[i].name)) {
 			return commands[i].fn();
+		}
+	}
+	if(strcmp(args[args_len-1],"&")){
+		foreground = 0;
+	}else{
+		foreground = 1;
 	}
 	puts("Command not found: ", color.output);
 	puts(args[0], color.output);
@@ -134,6 +141,7 @@ process_input(char* buff, uint32_t size)
 static void
 prompt(int32_t status)
 {
+	asm_sleep(6);
 	puts(">>>", color.prompt);
 	putchar(' ', color.fg);
 }
@@ -154,7 +162,7 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 }
 
 static uint32_t
-help()
+func_help()
 {
 	for (int i = 0; i < commands_len; i++) {
 		puts(commands[i].name, color.output);
@@ -165,32 +173,60 @@ help()
 }
 
 static uint32_t
-datetime()
+help()
+{
+	int fd[3] = { foreground?STDIN:DEV_NULL, STDOUT, STDERR };
+	char* my_args[2] = { "help", NULL };
+	create_process(my_args, fd, "help", 0, 4, &func_help);
+}
+
+static uint32_t
+func_datetime()
 {
 	asm_datetime(color.output);
 	return 0;
 }
 
 static uint32_t
+datetime()
+{
+	int fd[3] = { foreground?STDIN:DEV_NULL, STDOUT, STDERR };
+	char* my_args[2] = { "datetime", NULL };
+	create_process(my_args, fd, "datetime", 0, 4, &func_datetime);
+}
+
+// el clear lo dejo como builtin de la shell
+static uint32_t
 clear()
 {
 	asm_clear(color.bg);
 	return 0;
 }
-
+// finaliza proceso
 static uint32_t
 exit()
 {
-	return running = 0;
+	puts("Shell has finished",color.output);
+	asm_kill_process(1,0);
 }
 
 static uint32_t
-printreg()
+func_printreg()
 {
 	asm_printreg(color.output);
 	return 0;
 }
 
+static uint32_t
+printreg()
+{
+	int fd[3] = { foreground?STDIN:DEV_NULL, STDOUT, STDERR };
+	char* my_args[2] = { "printreg", NULL };
+	int pid = create_process(my_args, fd, "printreg", 0, 4, &func_printreg);
+	return 0;
+}
+
+// las excepciones las dejamos asi xq no son requisito del tp
 static uint32_t
 testioe()
 {
@@ -204,7 +240,7 @@ testzde()
 	asm_testzde();
 	return 0;
 }
-
+// builtin de la shell
 static uint32_t
 setcolor()
 {
@@ -259,7 +295,7 @@ setcolor()
 	puts("'\n", color.output);
 	return -1;
 }
-
+// builtin de la shell
 static uint32_t
 switchcolors()
 {
@@ -271,7 +307,7 @@ switchcolors()
 }
 
 static uint32_t
-memstatus()
+func_memstatus()
 {
 	char c1[32], c2[32], c3[32];
 	uint_to_base(asm_total_heap(), c1, 10);
@@ -289,14 +325,33 @@ memstatus()
 
 	return 0;
 }
+static uint32_t
+memstatus()
+{
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "memstatus", NULL };
+	int pid = create_process(my_args, fd, "memstatus", 0, 4, &func_memstatus);
+	// return asm_kill_process(pid,0);
+	return 0;
+}
 
 static uint32_t
-ps()
+func_ps()
 {
 	char* string = asm_get_snapshots_info();
 	puts(string, color.output);
 	asm_free(string);
 
+	return 0;
+}
+
+static uint32_t
+ps()
+{
+	int fd[3] = { STDIN, STDOUT, STDERR };
+	char* my_args[2] = { "ps", NULL };
+	int pid = create_process(my_args, fd, "ps", 0, 4, &func_ps);
+	// return asm_kill_process(pid,0);
 	return 0;
 }
 
