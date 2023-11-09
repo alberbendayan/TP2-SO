@@ -62,6 +62,16 @@ sys_unblock_process                 equ 24
 sys_set_priority                    equ 25
 sys_yield                           equ 26
 
+;semaphores
+global asm_sem_open
+global asm_sem_wait
+global asm_sem_post
+global asm_sem_close
+sys_sem_open        equ 27
+sys_sem_wait        equ 28
+sys_sem_post        equ 29
+sys_sem_close       equ 30
+
 %macro syscall_handler 1
     push rbp
     mov rbp,rsp
@@ -153,3 +163,15 @@ asm_set_priority:
 
 asm_yield:
     syscall_handler sys_yield
+
+asm_sem_open:
+    syscall_handler sys_sem_open
+
+asm_sem_wait:
+    syscall_handler sys_sem_wait
+
+asm_sem_post:
+    syscall_handler sys_sem_post
+
+asm_sem_close:
+    syscall_handler sys_sem_close

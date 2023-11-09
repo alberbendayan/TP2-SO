@@ -130,22 +130,6 @@ force_process(uint16_t pid)
 	asm_move_rsp(p->stack_pos);
 }
 
-// linked_list_ADT
-// get_all_proccesses_snapshot()
-// {
-// 	scheduler_ADT scheduler = get_address();
-// 	linked_list_ADT snapshots = create_linked_list_ADT();
-// 	node* my_node;
-
-// 	for (int i = 0; i < scheduler->qty_processes; i++) {
-// 		process_snapshot* aux = mm_malloc(sizeof(process_snapshot));
-// 		my_node = append_element(snapshots, load_snapshot(aux, (process*)scheduler->processes[i]->data));
-// 		my_node = my_node->next;
-// 	}
-
-// 	return snapshots;
-// }
-
 linked_list_ADT
 get_all_proccesses_snapshot()
 {

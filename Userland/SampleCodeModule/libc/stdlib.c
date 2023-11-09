@@ -163,79 +163,82 @@ hex_to_uint(char* code)
 	return ret;
 }
 
+void
+intToArray(int num, char* result)
+{
+	if (num == 0) {
+		result[0] = '0';
+		result[1] = '\0';
+		return;
+	}
 
-void intToArray(int num, char *result) {
-    if (num == 0) {
-        result[0] = '0';
-        result[1] = '\0';
-        return;
-    }
+	int i = 0;
+	int isNegative = 0;
 
-    int i = 0;
-    int isNegative = 0;
+	if (num < 0) {
+		isNegative = 1;
+		num = -num;
+	}
 
-    if (num < 0) {
-        isNegative = 1;
-        num = -num;
-    }
+	while (num > 0) {
+		int digit = num % 10;
+		result[i] = '0' + digit;
+		num /= 10;
+		i++;
+	}
 
-    while (num > 0) {
-        int digit = num % 10;
-        result[i] = '0' + digit;
-        num /= 10;
-        i++;
-    }
+	if (isNegative) {
+		result[i] = '-';
+		i++;
+	}
 
-    if (isNegative) {
-        result[i] = '-';
-        i++;
-    }
+	result[i] = '\0';
 
-    result[i] = '\0';
+	// Invertir el resultado
+	int start = 0;
+	int end = i - 1;
 
-    // Invertir el resultado
-    int start = 0;
-    int end = i - 1;
-
-    while (start < end) {
-        char temp = result[start];
-        result[start] = result[end];
-        result[end] = temp;
-        start++;
-        end--;
-    }
+	while (start < end) {
+		char temp = result[start];
+		result[start] = result[end];
+		result[end] = temp;
+		start++;
+		end--;
+	}
 }
 
+int
+customAtoi(const char* str)
+{
+	int result = 0;
+	int sign = 1;  // Para manejar el signo positivo o negativo
 
-int customAtoi(const char *str) {
-    int result = 0;
-    int sign = 1;  // Para manejar el signo positivo o negativo
+	// Manejar signos positivos o negativos
+	if (*str == '-') {
+		sign = -1;
+		str++;  // Avanzar al siguiente carácter
+	} else if (*str == '+') {
+		str++;  // Avanzar al siguiente carácter
+	}
 
-    // Manejar signos positivos o negativos
-    if (*str == '-') {
-        sign = -1;
-        str++; // Avanzar al siguiente carácter
-    } else if (*str == '+') {
-        str++; // Avanzar al siguiente carácter
-    }
+	// Recorrer la cadena y construir el número entero
+	while (*str >= '0' && *str <= '9') {
+		result = result * 10 + (*str - '0');
+		str++;
+	}
 
-    // Recorrer la cadena y construir el número entero
-    while (*str >= '0' && *str <= '9') {
-        result = result * 10 + (*str - '0');
-        str++;
-    }
-
-    return result * sign;
+	return result * sign;
 }
-int removeVocals(char * buf, int length){
-	int i=0;
-	for(int j=0; j<length; j++){
-		while( j<length &&( (buf[j] == 'a' || buf[j] == 'e' || buf[j] == 'i' 
-					|| buf[j] == 'o' || buf[j] == 'u') || (buf[j] == 'A' || buf[j] == 'E' || buf[j] == 'I' 
-					|| buf[j] == 'O' || buf[j] == 'U'))){
+int
+removeVocals(char* buf, int length)
+{
+	int i = 0;
+	for (int j = 0; j < length; j++) {
+		while (j < length && ((buf[j] == 'a' || buf[j] == 'e' || buf[j] == 'i' || buf[j] == 'o' || buf[j] == 'u') ||
+		                      (buf[j] == 'A' || buf[j] == 'E' || buf[j] == 'I' || buf[j] == 'O' || buf[j] == 'U'))) {
 			j++;
 		}
-		if(j<length){
+		if (j < length) {
 			buf[i] = buf[j];
 			i++;
 		}

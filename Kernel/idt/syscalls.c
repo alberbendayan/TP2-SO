@@ -6,6 +6,7 @@
 #include <process.h>
 #include <rtc.h>
 #include <scheduler.h>
+#include <semaphore.h>
 #include <sound.h>
 #include <syscalls.h>
 #include <text.h>
@@ -52,7 +53,13 @@ enum syscalls
 	SYS_BLOCK_PROCESS,
 	SYS_UNBLOCK_PROCESS,
 	SYS_SET_PRIORITY,
-	SYS_YIELD
+	SYS_YIELD,
+
+	// semaphore
+	SYS_SEM_OPEN,
+	SYS_SEM_WAIT,
+	SYS_SEM_POST,
+	SYS_SEM_CLOSE
 };
 
 static uint8_t regs_flag = 0;
@@ -162,14 +169,29 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_SET_PRIORITY: {
-			return set_priority(rsi,rdx);
+			return set_priority(rsi, rdx);
 		} break;
 
 		case SYS_YIELD: {
 			yield();
 			return 0;
 		} break;
-		
+
+		case SYS_SEM_OPEN: {
+			return sem_open(rsi, rdx);
+		} break;
+
+		case SYS_SEM_WAIT: {
+			return sem_wait(rsi);
+		} break;
+
+		case SYS_SEM_POST: {
+			return sem_post(rsi);
+		} break;
+
+		case SYS_SEM_CLOSE: {
+			return sem_close(rsi);
+		} break;
 	}
 	return 0;
 }

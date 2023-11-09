@@ -121,8 +121,6 @@ extern uint64_t asm_kill_current_process(uint32_t ret_value);
  */
 extern char* asm_get_snapshots_info();
 
-
-
 extern uint64_t sys_get_current_id();
 
 extern uint64_t asm_block_process(int pid);
@@ -132,4 +130,13 @@ extern uint64_t asm_unblock_process(int pid);
 extern uint64_t asm_set_priority(int pid, int new_prio);
 
 extern uint64_t asm_yield();
+
+extern uint64_t asm_sem_open(uint32_t id, uint32_t init_val);
+
+extern uint64_t asm_sem_wait(uint32_t id);
+
+extern uint64_t asm_sem_post(uint32_t id);
+
+extern uint64_t asm_sem_close(uint32_t id);
+
 #endif
