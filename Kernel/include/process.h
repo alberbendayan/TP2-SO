@@ -28,7 +28,7 @@ typedef struct process
 	uint16_t pid;
 	uint16_t parent_pid;
 	uint16_t waiting_for_pid;
-	void* stack_base;  // MemoryBlock
+	void* stack_base; 
 	void* stack_pos;
 	char** argv;
 	char* name;

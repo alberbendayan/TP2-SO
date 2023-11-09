@@ -3,6 +3,7 @@
 #include <shell.h>
 #include <stdlib.h>
 #include <syscalls.h>
+#include <phylos.h>
 
 #define MAX_COMMANDS 20
 #define MAX_ARGS 8
@@ -59,6 +60,7 @@ static uint32_t unblock();
 static uint32_t nice();
 static uint32_t loop();
 static uint32_t yield();
+static uint32_t phylos();
 
 uint32_t
 shell_init()
@@ -101,6 +103,8 @@ load_commands()
 	load_command((main_function)nice, "nice", "             Change process priority by id");
 	load_command((main_function)loop, "loop", "             Print current process id");
 	load_command((main_function)yield, "yield", "            Renounce CPU");
+	load_command((main_function)phylos, "phylos", "           Phylos");
+	
 
 	// hacer los tests aca
 }
@@ -523,7 +527,7 @@ func_loop()
 		puts("Hi! I'm process ", color.output);
 		puts(aux, color.output);
 		puts("\n", color.bg);
-		asm_sleep(2 * 18);
+		asm_sleep(5 * 18);
 	}
 	asm_unblock_process(1);
 }
@@ -534,4 +538,8 @@ loop()
 	int fd[3] = { foreground ? STDIN : DEV_NULL, STDOUT, STDERR };
 	char* my_args[2] = { "loop", NULL };
 	create_process(my_args, fd, "loop", 0, 4, &func_loop);
+}
+
+static uint32_t phylos(){
+	phylo_init();
 }
