@@ -3,6 +3,7 @@
 #include <keyboard.h>
 #include <libasm.h>
 #include <memoryManagement.h>
+#include <pipesADT.h>
 #include <process.h>
 #include <rtc.h>
 #include <scheduler.h>
@@ -59,7 +60,16 @@ enum syscalls
 	SYS_SEM_OPEN,
 	SYS_SEM_WAIT,
 	SYS_SEM_POST,
-	SYS_SEM_CLOSE
+	SYS_SEM_CLOSE,
+
+	// Pipes
+	SYS_PIPE_OPEN,
+	SYS_PIPE_OPEN_FOR_PID,
+	SYS_PIPE_CLOSE,
+	SYS_PIPE_CLOSE_FOR_PID,
+	SYS_READ_PIPE,
+	SYS_WRITE_PIPE
+
 };
 
 static uint8_t regs_flag = 0;
@@ -192,6 +202,31 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_SEM_CLOSE: {
 			return sem_close(rsi);
 		} break;
+
+		case SYS_PIPE_OPEN: {
+			return pipe_open(rsi, rdx);
+		} break;
+
+		case SYS_PIPE_OPEN_FOR_PID: {
+			return pipe_open_for_pid(rsi, rdx, rcx);
+		} break;
+
+		case SYS_PIPE_CLOSE: {
+			return pipe_close(rsi);
+		} break;
+
+		case SYS_PIPE_CLOSE_FOR_PID: {
+			return pipe_open_for_pid(rsi, rdx);
+		} break;
+
+		case SYS_READ_PIPE: {
+			return read_pipe(rsi, rdx,rcx);
+		} break;
+
+		case SYS_WRITE_PIPE: {
+			return write_pipe(rsi, rdx, rcx,r8);
+		} break;
+			
 	}
 	return 0;
 }

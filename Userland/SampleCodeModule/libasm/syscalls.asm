@@ -72,6 +72,22 @@ sys_sem_wait        equ 28
 sys_sem_post        equ 29
 sys_sem_close       equ 30
 
+;pipe
+global asm_pipe_open
+global asm_pipe_open_for_pid
+global asm_pipe_close
+global asm_pipe_close_for_pid
+global asm_read_pipe
+global asm_write_pipe
+sys_pipe_open           equ 31
+sys_pipe_open_for_pid   equ 32
+sys_pipe_close          equ 33
+sys_pipe_close_for_pid  equ 34
+sys_read_pipe           equ 35
+sys_write_pipe          equ 36
+
+
+
 %macro syscall_handler 1
     push rbp
     mov rbp,rsp
@@ -175,3 +191,22 @@ asm_sem_post:
 
 asm_sem_close:
     syscall_handler sys_sem_close
+
+asm_pipe_open:
+    syscall_handler sys_pipe_open
+
+asm_pipe_open_for_pid:
+    syscall_handler sys_pipe_open_for_pid
+
+asm_pipe_close:
+    syscall_handler sys_pipe_close
+
+asm_pipe_pipe_close_for_pid:
+    syscall_handler sys_pipe_close_for_pid
+
+asm_read_pipe:
+    syscall_handler sys_read_pipe
+
+asm_write_pipe:
+    syscall_handler sys_write_pipe
+
