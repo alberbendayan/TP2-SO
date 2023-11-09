@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <text.h>
 #include <video.h>
+#include <scheduler.h>
 
 #define KC_L_SHIFT 42
 #define KC_R_SHIFT 54
@@ -16,7 +17,8 @@
 #define KC_L_CTRL_RELEASE KC_L_CTRL + 128
 
 #define BUFFER_MAX 10
-#define REGISTER_CAPTURE 9 
+#define REGISTER_CAPTURE 9
+#define KILL_FOREGROUND_PROCESS 99
 #define RELEASED 0
 #define PRESSED 1
 
@@ -70,11 +72,18 @@ keyboard_handler()
 		key -= (key & 0x80 ? 0x80 : 0);
 		code = get_scancode(key);
 
-		// handle para el snapshot de registros
-		if (control && (code == 'r' || code == 'R'))
-			return REGISTER_CAPTURE; 
-		else if (key >= 0 && key < keys && code != 0)
+		// handle para casos especiales
+		if (control && (code == 'r' || code == 'R')) {
+			return REGISTER_CAPTURE;
+		} else if(control && (code == 'c' || code == 'C')){
+			return kill_foreground_process();
+		} else if(control && (code == 'd' || code == 'D')){
+			// hacer el EOF
+			return 1;
+		}
+		else if (key >= 0 && key < keys && code != 0) {
 			put_buffer(code, state);
+		}
 	}
 	return 0;
 }

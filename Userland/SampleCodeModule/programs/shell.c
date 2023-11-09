@@ -58,6 +58,7 @@ static uint32_t block();
 static uint32_t unblock();
 static uint32_t nice();
 static uint32_t loop();
+static uint32_t yield();
 
 uint32_t
 shell_init()
@@ -99,6 +100,7 @@ load_commands()
 	load_command((main_function)unblock, "unblock", "          Unblock a process by id");
 	load_command((main_function)nice, "nice", "             Change process priority by id");
 	load_command((main_function)loop, "loop", "             Print current process id");
+	load_command((main_function)yield, "yield", "            Renounce CPU");
 
 	// hacer los tests aca
 }
@@ -122,16 +124,19 @@ process_input(char* buff, uint32_t size)
 	if (args_len == 0) {
 		return -1;
 	}
+
+	if (strcmp(args[args_len - 1], "&")) {
+		foreground = 0;
+	} else {
+		foreground = 1;
+	}
+
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name)) {
 			return commands[i].fn();
 		}
 	}
-	if(strcmp(args[args_len-1],"&")){
-		foreground = 0;
-	}else{
-		foreground = 1;
-	}
+
 	puts("Command not found: ", color.output);
 	puts(args[0], color.output);
 	putchar('\n', color.output);
@@ -144,6 +149,7 @@ prompt(int32_t status)
 	asm_sleep(6);
 	puts(">>>", color.prompt);
 	putchar(' ', color.fg);
+	asm_block_process(1);
 }
 
 static uint32_t
@@ -158,24 +164,36 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 	p.priority = priority;
 	p.code = code;
 
-	return asm_init_process(&p);
+	int ret = asm_init_process(&p);
+	// asm_block_process(1); // 1 es el id de la shell
+
+	return ret;
 }
 
 static uint32_t
 func_help()
 {
+	if (foreground) {
+		asm_block_process(1);
+	}
 	for (int i = 0; i < commands_len; i++) {
 		puts(commands[i].name, color.output);
 		puts(commands[i].desc, color.output);
 		putchar('\n', color.output);
 	}
+	asm_unblock_process(1);
 	return 0;
 }
 
 static uint32_t
 help()
 {
-	int fd[3] = { foreground?STDIN:DEV_NULL, STDOUT, STDERR };
+	// if (foreground) {
+	// 	puts("estoy en foreground\n", 0xff0000);
+	// } else {
+	// 	puts("estoy en background\n", 0xff0000);
+	// }
+	int fd[3] = { foreground ? STDIN : DEV_NULL, STDOUT, STDERR };
 	char* my_args[2] = { "help", NULL };
 	create_process(my_args, fd, "help", 0, 4, &func_help);
 }
@@ -183,14 +201,16 @@ help()
 static uint32_t
 func_datetime()
 {
+	asm_block_process(1);
 	asm_datetime(color.output);
+	asm_unblock_process(1);
 	return 0;
 }
 
 static uint32_t
 datetime()
 {
-	int fd[3] = { foreground?STDIN:DEV_NULL, STDOUT, STDERR };
+	int fd[3] = { foreground ? STDIN : DEV_NULL, STDOUT, STDERR };
 	char* my_args[2] = { "datetime", NULL };
 	create_process(my_args, fd, "datetime", 0, 4, &func_datetime);
 }
@@ -206,21 +226,23 @@ clear()
 static uint32_t
 exit()
 {
-	puts("Shell has finished",color.output);
-	asm_kill_process(1,0);
+	puts("Shell has finished", color.output);
+	asm_kill_process(1, 0);
 }
 
 static uint32_t
 func_printreg()
 {
+	asm_block_process(1);
 	asm_printreg(color.output);
+	asm_unblock_process(1);
 	return 0;
 }
 
 static uint32_t
 printreg()
 {
-	int fd[3] = { foreground?STDIN:DEV_NULL, STDOUT, STDERR };
+	int fd[3] = { foreground ? STDIN : DEV_NULL, STDOUT, STDERR };
 	char* my_args[2] = { "printreg", NULL };
 	int pid = create_process(my_args, fd, "printreg", 0, 4, &func_printreg);
 	return 0;
@@ -309,6 +331,7 @@ switchcolors()
 static uint32_t
 func_memstatus()
 {
+	asm_block_process(1);
 	char c1[32], c2[32], c3[32];
 	uint_to_base(asm_total_heap(), c1, 10);
 	uint_to_base(asm_free_heap(), c2, 10);
@@ -322,7 +345,7 @@ func_memstatus()
 	puts("Used heap: ", color.output);
 	puts(c3, color.output);
 	puts("\n", color.output);
-
+	asm_unblock_process(1);
 	return 0;
 }
 static uint32_t
@@ -338,10 +361,11 @@ memstatus()
 static uint32_t
 func_ps()
 {
+	asm_block_process(1);
 	char* string = asm_get_snapshots_info();
 	puts(string, color.output);
 	asm_free(string);
-
+	asm_unblock_process(1);
 	return 0;
 }
 
@@ -358,11 +382,13 @@ ps()
 static uint32_t
 func_pid()
 {
+	asm_block_process(1);
 	char aux[6];
 	uint64_t pid = asm_get_current_id();
 	uint_to_base(pid, aux, 10);
 	puts(aux, color.output);
 	puts("\n", color.bg);
+	asm_unblock_process(1);
 	return 0;
 }
 
@@ -377,6 +403,7 @@ pid()
 static uint32_t
 func_kill()
 {
+	asm_block_process(1);
 	if (args_len == 1) {
 		asm_kill_current_process(0);
 	} else if (args_len == 2) {
@@ -388,8 +415,10 @@ func_kill()
 		char* usage = "USAGE: kill <pid> <ret value> or kill <pid>\n When leaving empty <pid> and <ret value> the "
 		              "current process will be killed\n When leaving empty <ret value> the return value will be 0\n";
 		puts(usage, color.output);
+		asm_unblock_process(1);
 		return 1;
 	}
+	asm_unblock_process(1);
 	return 0;
 }
 
@@ -404,13 +433,16 @@ kill()
 static uint32_t
 func_block()
 {
+	asm_block_process(1);
 	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 		asm_block_process(arg);
+		asm_unblock_process(1);
 		return asm_kill_current_process(0);
 	}
 	char* usage = "USAGE: block <pid> \n";
 	puts(usage, color.output);
+	asm_unblock_process(1);
 	return asm_kill_current_process(1);
 }
 
@@ -425,13 +457,16 @@ block()
 static void
 func_unblock()
 {
+	asm_block_process(1);
 	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 		asm_unblock_process(arg);
+		asm_unblock_process(1);
 		return asm_kill_current_process(0);
 	}
 	char* usage = "USAGE: unblock <pid> \n";
 	puts(usage, color.output);
+	asm_unblock_process(1);
 	return asm_kill_current_process(1);
 }
 
@@ -446,14 +481,17 @@ unblock()
 void
 func_nice()
 {
+	asm_block_process(1);
 	if (args_len == 3) {
 		int pid = customAtoi(args[1]);
 		int new_priority = customAtoi(args[2]);
 		asm_set_priority(pid, new_priority);
+		asm_unblock_process(1);
 		return 0;
 	}
 	char* usage = "USAGE: nice <pid> <new status> \n";
 	puts(usage, color.output);
+	asm_unblock_process(1);
 	return 1;
 }
 
@@ -466,20 +504,34 @@ nice()
 	return asm_kill_process(pid, 0);
 }
 
+static uint32_t
+yield()
+{
+	asm_yield();
+}
+
 void
 func_loop()
 {
+	if (foreground) {
+		asm_block_process(1);
+	}
+	char aux[6];
+	uint64_t pid = asm_get_current_id();
+	uint_to_base(pid, aux, 10);
 	while (1) {
 		puts("Hi! I'm process ", color.output);
-		func_pid();
-		asm_sleep(2 * 18);
+		puts(aux, color.output);
+		puts("\n", color.bg);
+		asm_sleep(5 * 18);
 	}
+	asm_unblock_process(1);
 }
 
 static uint32_t
 loop()
 {
-	int fd[3] = { STDIN, STDOUT, STDERR };
+	int fd[3] = { foreground ? STDIN : DEV_NULL, STDOUT, STDERR };
 	char* my_args[2] = { "loop", NULL };
 	create_process(my_args, fd, "loop", 0, 4, &func_loop);
 }

@@ -130,4 +130,6 @@ extern uint64_t asm_block_process(int pid);
 extern uint64_t asm_unblock_process(int pid);
 
 extern uint64_t asm_set_priority(int pid, int new_prio);
+
+extern uint64_t asm_yield();
 #endif

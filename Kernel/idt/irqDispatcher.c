@@ -18,6 +18,7 @@ irq_dispatcher(uint64_t irq)
 		} break;
 
 		case KEYBOARD: {
+			keyboard_interruption();
 			return keyboard_handler();
 		} break;
 	}

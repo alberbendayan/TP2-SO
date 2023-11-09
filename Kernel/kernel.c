@@ -9,12 +9,12 @@
 #include <moduleLoader.h>
 #include <process.h>
 #include <scheduler.h>
+#include <semaphore.h>
 #include <sound.h>
 #include <stdint.h>
 #include <text.h>
 #include <time.h>
 #include <video.h>
-#include <semaphore.h>
 
 #define BLACK 0x000000
 #define WHITE 0xffffff
@@ -73,7 +73,6 @@ main()
 	create_scheduler();
 	create_pipe_manager();
 	create_semaphore_adt();
-	
 
 	// creo el proceso idle
 	char* args_idle[3] = { "idle", NULL };
@@ -100,7 +99,9 @@ main()
 	// p_idle1.priority = 1;
 
 	// pid_idle = create_process(&p_idle1);
-
+	// pid_idle = create_process(&p_idle1);
+	// pid_idle = create_process(&p_idle1);
+	// pid_idle = create_process(&p_idle1);
 
 	// creo la shell
 	int fd_shell[3] = { STDIN, STDOUT, STDERR };
@@ -116,7 +117,7 @@ main()
 	p_shell.code = (main_function)sample_code_module_addr;
 
 	uint16_t pid_shell = create_process(&p_shell);
-	
+
 	// uint16_t pid_shell1 = create_process(&p_shell);
 
 	// uint16_t pid_shell2 = create_process(&p_shell);
@@ -273,9 +274,9 @@ idle(int argc, char** argv)
 int
 prueba(int argc, char** argv)
 {
-	for(int i=0; i<1000; i ++){
-		for(int j=0;j<100000000;j++){}
-		tx_put_word("Hola\n",0xFF0000);
+	for (int i = 0; i < 1000; i++) {
+		for (int j = 0; j < 100000000; j++) {}
+		tx_put_word("Hola\n", 0xFF0000);
 	}
 
 	return 0;

@@ -51,6 +51,7 @@ global asm_get_current_id
 global asm_block_process
 global asm_unblock_process
 global asm_set_priority
+global asm_yield
 sys_init_process                    equ 18
 sys_kill_process                    equ 19
 sys_kill_current_process            equ 20
@@ -59,6 +60,7 @@ sys_get_current_id                  equ 22
 sys_block_process                   equ 23
 sys_unblock_process                 equ 24
 sys_set_priority                    equ 25
+sys_yield                           equ 26
 
 %macro syscall_handler 1
     push rbp
@@ -148,3 +150,6 @@ asm_unblock_process:
 
 asm_set_priority:
     syscall_handler sys_set_priority
+
+asm_yield:
+    syscall_handler sys_yield

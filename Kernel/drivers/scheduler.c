@@ -12,9 +12,10 @@
 #define BLOCKED_INDEX QTY_READY_LEVELS
 #define MAX_PROCESSES 4096
 #define IDLE_PID 0
+#define SHELL_PID 1
 #define QUANTUM_COEF 2
 #define SCHEDULER_ADDRESS 0x60000
-#define BUFFER_SIZE 75
+#define BUFFER_SIZE 128
 
 typedef struct scheduler_CDT
 {
@@ -196,6 +197,13 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 
 	memcpy((to_ret + j), snapshot->foreground == 1 ? "Yes" : "No ", 3);
 	j += 3;
+	while (j < 84) {
+		to_ret[j++] = ' ';
+	}
+	char parent[4] = "    ";
+	uint_to_base(snapshot->parent_pid, parent, 10);
+	memcpy((to_ret + j), parent, 4);
+	j += 4;
 	to_ret[j] = '\0';
 }
 char*
@@ -206,7 +214,7 @@ get_snapshots_info()
 
 	char* to_ret = mm_malloc(scheduler->qty_processes * BUFFER_SIZE);
 
-	char* header = "  Name              ID      Priority      SP            BP      Foreground\n";
+	char* header = "  Name              ID      Priority      SP            BP      Foreground        Parent ID\n";
 	int len_header = strlen(header);
 	memcpy(to_ret, header, len_header);
 	int i = len_header;
@@ -339,11 +347,24 @@ get_next(scheduler_ADT scheduler)
 	return my_process->pid;
 }
 
+void
+keyboard_interruption()
+{
+	scheduler_ADT scheduler = get_address();
+	process* p = scheduler->processes[scheduler->current_pid]->data;
+	if (scheduler->current_pid == IDLE_PID || p->file_descriptors[STDIN] != STDIN) {
+		unblock_process(SHELL_PID);
+	}
+}
+
 void*
 schedule(void* prev_stack_pointer)
 {
 	static int flag_is_first = 1;
 	scheduler_ADT scheduler = get_address();
+	// process* aux = scheduler->processes[scheduler->current_pid]->data;
+	// tx_put_word(aux->name,0xff0000);
+	// tx_put_word("\n",0xff0000);
 
 	scheduler->remaining_quantum--;
 	if (!scheduler->qty_processes || scheduler->remaining_quantum > 0) {
@@ -462,5 +483,22 @@ change_FD(uint16_t pid, uint8_t old_fd, int16_t new_fd)
 	}
 	process* proc = (process*)process_node->data;
 	proc->file_descriptors[old_fd] = new_fd;
+	return 0;
+}
+
+int32_t
+kill_foreground_process()
+{
+	scheduler_ADT scheduler = get_address();
+	process* p;
+	for (int i = 2; i < scheduler->qty_processes; i++) {
+		p = scheduler->processes[i]->data;
+		if (p->status == READY || p->status == RUNNING) {
+			if (p->file_descriptors[STDIN] == STDIN) {
+				unblock_process(SHELL_PID);
+				return kill_process(i, 0);
+			}
+		}
+	}
 	return 0;
 }

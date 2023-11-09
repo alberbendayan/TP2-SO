@@ -3,7 +3,7 @@
 #include <process.h>
 #include <stdint.h>
 
-typedef struct scheduler_CDT *scheduler_ADT;
+typedef struct scheduler_CDT* scheduler_ADT;
 
 scheduler_ADT create_scheduler();
 
@@ -19,7 +19,7 @@ uint32_t set_priority(uint16_t pid, uint8_t new_priority);
 
 int8_t set_status(uint16_t pid, uint8_t new_status);
 
-void *schedule(void *prev_stack_pointer);
+void* schedule(void* prev_stack_pointer);
 
 int32_t kill_current_process(int32_t ret_value);
 
@@ -29,7 +29,7 @@ int32_t kill_process(uint16_t pid, int32_t ret_value);
 
 process_status get_process_status(uint16_t pid);
 
-void force_process (uint16_t pid);
+void force_process(uint16_t pid);
 
 linked_list_ADT get_all_proccesses_snapshot();
 
@@ -38,5 +38,9 @@ char* get_snapshots_info();
 int32_t unblock_process(uint64_t pid);
 
 int32_t block_process(uint64_t pid);
+
+int32_t kill_foreground_process();
+
+void keyboard_interruption();
 
 #endif
