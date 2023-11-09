@@ -351,8 +351,15 @@ void
 keyboard_interruption()
 {
 	scheduler_ADT scheduler = get_address();
-	process* p = scheduler->processes[scheduler->current_pid]->data;
-	if (scheduler->current_pid == IDLE_PID || p->file_descriptors[STDIN] != STDIN) {
+	process* p;
+	uint8_t flag = 1;
+	for (int i = 2; i < scheduler->qty_processes; i++) {
+		p = scheduler->processes[i]->data;
+		if ((p->file_descriptors[STDIN] == STDIN && (p->status == READY || p->status == RUNNING))) {
+			flag=0;
+		}
+	}
+	if (flag) {
 		unblock_process(SHELL_PID);
 	}
 }

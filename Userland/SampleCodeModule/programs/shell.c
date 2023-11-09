@@ -523,7 +523,7 @@ func_loop()
 		puts("Hi! I'm process ", color.output);
 		puts(aux, color.output);
 		puts("\n", color.bg);
-		asm_sleep(5 * 18);
+		asm_sleep(2 * 18);
 	}
 	asm_unblock_process(1);
 }
