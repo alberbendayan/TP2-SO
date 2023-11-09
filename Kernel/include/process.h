@@ -9,7 +9,6 @@ typedef enum
 	BLOCKED = 0,
 	READY,
 	RUNNING,
-	ZOMBIE,
 	DEAD
 } process_status;
 
@@ -37,7 +36,6 @@ typedef struct process
 	process_status status;
 	int16_t file_descriptors[BUILT_IN_DESCRIPTORS];
 	int32_t ret_value;
-	linked_list_ADT zombie_children;
 } process;
 
 typedef int (*main_function)(int argc, char** args);
@@ -74,9 +72,8 @@ void init_process(process* proc,
                   int16_t file_descriptors[],
                   uint8_t unkillable);
 
-process_snapshot* load_snapshot(process_snapshot* snapshot, process* proc);
+int load_snapshot(process_snapshot* snapshot, process* proc);
 int process_is_waiting(process* proc, uint16_t pid_to_wait);
-int get_zombies_snapshots(int process_index, process_snapshot ps_array[], process* next_process);
 void free_process(process* proc);
 void close_file_descriptors(process* proc);
 

@@ -49,9 +49,8 @@ init_process(process* proc,
 	memcpy(proc->name, name, strlen(name) + 1);
 	proc->priority = priority;
 	void* stack_end = (void*)((uint64_t)proc->stack_base + STACK_SIZE);
-	proc->stack_pos = asm_initialize_stack( process_wrapper, code, stack_end, (void*)proc->argv);
+	proc->stack_pos = asm_initialize_stack(process_wrapper, code, stack_end, (void*)proc->argv);
 	proc->status = READY;
-	proc->zombie_children = create_linked_list_ADT();
 	proc->unkillable = unkillable;
 
 	assign_file_descriptor(proc, STDIN, file_descriptors[STDIN], READ);
@@ -107,46 +106,32 @@ alloc_arguments(char** args)
 void
 free_process(process* proc)
 {
-	free_linked_list_ADT_deep(proc->zombie_children);  // Esta bien esto? o hay que liberar toda la lista con el deep?
 	mm_free(proc->stack_base);
 	mm_free(proc->argv);  // faltaba
 	mm_free(proc->name);
 	mm_free(proc);
 }
 
-process_snapshot*
+int
 load_snapshot(process_snapshot* snapshot, process* proc)
 {
-	// char aux[100];
-	// uint_to_base(strlen(proc->name),aux,10);
-	// tx_put_word(aux,0x00ff00);
-	// tx_put_word("\n",0x00ff00);
-	
-	snapshot->name = mm_malloc(strlen(proc->name) + 1);
-	memcpy(snapshot->name, proc->name, strlen(proc->name) + 1);
-	snapshot->pid = proc->pid;
-	snapshot->parent_pid = proc->parent_pid;
-	snapshot->stack_base = proc->stack_base;
-	snapshot->priority = proc->priority;
-	snapshot->status = proc->status;
-	snapshot->foreground = proc->file_descriptors[STDIN] == STDIN;
-	snapshot->stack_pos = proc->stack_pos;
-	return snapshot;
+	if (proc != NULL) {
+		snapshot->name = mm_malloc(strlen(proc->name) + 1);
+		memcpy(snapshot->name, proc->name, strlen(proc->name) + 1);
+		snapshot->pid = proc->pid;
+		snapshot->parent_pid = proc->parent_pid;
+		snapshot->stack_base = proc->stack_base;
+		snapshot->priority = proc->priority;
+		snapshot->status = proc->status;
+		snapshot->foreground = proc->file_descriptors[STDIN] == STDIN;
+		snapshot->stack_pos = proc->stack_pos;
+		return 1;
+	}
+	return 0;
 }
 
 int
 process_is_waiting(process* proc, uint16_t pid_to_wait)
 {
 	return proc->waiting_for_pid == pid_to_wait && proc->status == BLOCKED;
-}
-
-int
-get_zombies_snapshots(int process_index, process_snapshot ps_array[], process* next_process)
-{
-	linked_list_ADT zombie_children = next_process->zombie_children;
-	begin(zombie_children);
-	while (has_next(zombie_children)) {
-		load_snapshot(&ps_array[process_index++], (process*)next(zombie_children));
-	}
-	return process_index;
 }

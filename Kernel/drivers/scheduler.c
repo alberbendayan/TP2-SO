@@ -130,19 +130,43 @@ force_process(uint16_t pid)
 	asm_move_rsp(p->stack_pos);
 }
 
+// linked_list_ADT
+// get_all_proccesses_snapshot()
+// {
+// 	scheduler_ADT scheduler = get_address();
+// 	linked_list_ADT snapshots = create_linked_list_ADT();
+// 	node* my_node;
+
+// 	for (int i = 0; i < scheduler->qty_processes; i++) {
+// 		process_snapshot* aux = mm_malloc(sizeof(process_snapshot));
+// 		my_node = append_element(snapshots, load_snapshot(aux, (process*)scheduler->processes[i]->data));
+// 		my_node = my_node->next;
+// 	}
+
+// 	return snapshots;
+// }
+
 linked_list_ADT
 get_all_proccesses_snapshot()
 {
 	scheduler_ADT scheduler = get_address();
 	linked_list_ADT snapshots = create_linked_list_ADT();
 	node* my_node;
-
-	for (int i = 0; i < scheduler->qty_processes; i++) {
-		process_snapshot* aux = mm_malloc(sizeof(process_snapshot));
-		my_node = append_element(snapshots, load_snapshot(aux, (process*)scheduler->processes[i]->data));
-		my_node = my_node->next;
+	int i = 0, j = 0;
+	while (i < scheduler->qty_processes) {
+		my_node = (node*)scheduler->processes[j];
+		if (my_node != NULL) {
+			process_snapshot* aux = mm_malloc(sizeof(process_snapshot));
+			int flag = load_snapshot(aux, my_node->data);
+			if (flag) {
+				i++;
+				my_node = append_element(snapshots, aux);
+			}else{
+				mm_free(aux);
+			}
+		}
+		j++;
 	}
-
 	return snapshots;
 }
 
@@ -221,18 +245,17 @@ get_snapshots_info()
 	begin(snapshots);
 	while (has_next(snapshots)) {
 		process_snapshot* data = (process_snapshot*)next(snapshots);
-		if (data->status != ZOMBIE) {
-			char str[BUFFER_SIZE];
-			to_ret[i++] = ' ';
-			to_ret[i++] = ' ';
-			get_snapshot_info(data, str);
-			int len = strlen(str);
-			memcpy(to_ret + i, str, len);
-			i += len;
-			to_ret[i++] = '\n';
-			mm_free(data->name);
-			mm_free(data);
-		}
+
+		char str[BUFFER_SIZE];
+		to_ret[i++] = ' ';
+		to_ret[i++] = ' ';
+		get_snapshot_info(data, str);
+		int len = strlen(str);
+		memcpy(to_ret + i, str, len);
+		i += len;
+		to_ret[i++] = '\n';
+		mm_free(data->name);
+		mm_free(data);
 	}
 	free_linked_list_ADT_deep(snapshots);
 	to_ret[i] = '\0';
@@ -251,7 +274,7 @@ process_is_alive(uint16_t pid)
 {
 	scheduler_ADT scheduler = get_address();
 	node* process_node = scheduler->processes[pid];
-	return process_node != NULL && ((process*)process_node->data)->status != ZOMBIE;
+	return process_node != NULL;
 }
 
 void
@@ -298,7 +321,7 @@ set_status(uint16_t pid, uint8_t new_status)
 	process* proc = (process*)my_node->data;
 	process_status old_status = proc->status;
 
-	if ((new_status == RUNNING && old_status != READY) || new_status == ZOMBIE || old_status == ZOMBIE) {
+	if (new_status == RUNNING && old_status != READY) {
 		return -1;
 	}
 	if (new_status == proc->status) {
@@ -356,7 +379,7 @@ keyboard_interruption()
 	for (int i = 2; i < scheduler->qty_processes; i++) {
 		p = scheduler->processes[i]->data;
 		if ((p->file_descriptors[STDIN] == STDIN && (p->status == READY || p->status == RUNNING))) {
-			flag=0;
+			flag = 0;
 		}
 	}
 	if (flag) {
@@ -422,16 +445,6 @@ kill_current_process(int32_t ret_value)
 	return kill_process(scheduler->current_pid, ret_value);
 }
 
-static void
-destroy_zombie(scheduler_ADT scheduler, process* zombie)
-{
-	node* zombie_node = scheduler->processes[zombie->pid];
-	scheduler->qty_processes--;
-	scheduler->processes[zombie->pid] = NULL;
-	free_process(zombie);
-	mm_free(zombie_node);
-}
-
 int32_t
 kill_process(uint16_t pid, int32_t ret_value)
 {
@@ -444,7 +457,7 @@ kill_process(uint16_t pid, int32_t ret_value)
 
 	process* process_to_kill = (process*)process_to_kill_node->data;
 
-	if (process_to_kill->status == ZOMBIE || process_to_kill->unkillable) {
+	if (process_to_kill->unkillable) {
 		return -1;
 	}
 
@@ -456,24 +469,20 @@ kill_process(uint16_t pid, int32_t ret_value)
 
 	process_to_kill->ret_value = ret_value;
 
-	process_to_kill->status = ZOMBIE;
-
-	// comienzo a iterar
-	begin(process_to_kill->zombie_children);
-	while (has_next(process_to_kill->zombie_children)) {
-		destroy_zombie(scheduler, (process*)next(process_to_kill->zombie_children));
-	}
-
 	node* parent_node = scheduler->processes[process_to_kill->parent_pid];
-	if (parent_node != NULL && ((process*)parent_node->data)->status != ZOMBIE) {
+	if (parent_node != NULL) {
 		process* parent = (process*)parent_node->data;
-		append_node(parent->zombie_children, process_to_kill_node);
 		if (process_is_waiting(parent, process_to_kill->pid)) {
 			set_status(process_to_kill->parent_pid, READY);
 		}
-	} else {
-		destroy_zombie(scheduler, process_to_kill);
 	}
+
+	scheduler->qty_processes--;
+	scheduler->next_unused_pid = pid;
+	free_process(process_to_kill);
+	mm_free(process_to_kill_node);
+	scheduler->processes[pid] = NULL;
+
 	if (pid == scheduler->current_pid) {
 		yield();
 	}
