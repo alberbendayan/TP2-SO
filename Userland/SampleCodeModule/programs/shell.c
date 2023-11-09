@@ -104,7 +104,6 @@ load_commands()
 	load_command((main_function)loop, "loop", "             Print current process id");
 	load_command((main_function)yield, "yield", "            Renounce CPU");
 	load_command((main_function)phylos, "phylos", "           Phylos");
-	//load_command((main_function)filter, "filter", "           Prints all consonants from STDIN");
 	
 
 	// hacer los tests aca
@@ -544,30 +543,3 @@ loop()
 static uint32_t phylos(){
 	phylo_init();
 }
-
-
-/*
-static uint32_t
-filter()
-{
-	int fd[3] = {STDIN , STDOUT, STDERR };
-	char* my_args[2] = { "filter", NULL };
-	create_process(my_args, fd, "filter", 0, 4, &func_filter);
-}
-
-static void 
-func_filter(){
-	
-	char buffer[50] = {0};
-
-
-	while(1){
-		SYSREAD
-		if(EOF)
-		return;
-		int len2 = remove_vocals(buffer, len);
-
-		puts(buffer,color.output);
-	}
-
-}*/

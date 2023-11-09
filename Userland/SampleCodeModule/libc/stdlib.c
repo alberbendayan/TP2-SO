@@ -230,7 +230,7 @@ customAtoi(const char* str)
 	return result * sign;
 }
 int
-remove_vocals(char* buf, int length)
+removeVocals(char* buf, int length)
 {
 	int i = 0;
 	for (int j = 0; j < length; j++) {
