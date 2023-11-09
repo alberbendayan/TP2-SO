@@ -43,4 +43,5 @@ int32_t kill_foreground_process();
 
 void keyboard_interruption();
 
+int wait_process(uint16_t my_pid,uint16_t pid_to_wait);
 #endif

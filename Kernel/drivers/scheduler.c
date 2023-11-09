@@ -486,6 +486,11 @@ change_FD(uint16_t pid, uint8_t old_fd, int16_t new_fd)
 	return 0;
 }
 
+int wait_process(uint16_t my_pid,uint16_t pid_to_wait){
+	scheduler_ADT scheduler = get_address();
+	return process_is_waiting(scheduler->processes[my_pid]->data,pid_to_wait);
+}
+
 int32_t
 kill_foreground_process()
 {

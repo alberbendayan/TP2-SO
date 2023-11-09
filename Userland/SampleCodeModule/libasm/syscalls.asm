@@ -86,7 +86,9 @@ sys_pipe_close_for_pid  equ 34
 sys_read_pipe           equ 35
 sys_write_pipe          equ 36
 
-
+;me olvide el wait pid (perdon la desprolijidad)
+global asm_waiting_for_pid
+sys_waiting_for_pid     equ 37
 
 %macro syscall_handler 1
     push rbp
@@ -210,3 +212,5 @@ asm_read_pipe:
 asm_write_pipe:
     syscall_handler sys_write_pipe
 
+asm_waiting_for_pid:
+    syscall_handler sys_waiting_for_pid
