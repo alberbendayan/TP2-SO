@@ -216,7 +216,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_PIPE_CLOSE_FOR_PID: {
-			return pipe_open_for_pid(rsi, rdx);
+			return pipe_close_for_pid(rsi, rdx);
 		} break;
 
 		case SYS_READ_PIPE: {
