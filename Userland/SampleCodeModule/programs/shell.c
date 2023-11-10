@@ -18,6 +18,7 @@
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
+#define EOF  -1
 
 #define NULL (void*)0
 typedef struct
@@ -96,6 +97,8 @@ static uint32_t unblock(char* args[MAX_ARGS],
                         enum pipe_flag pipe_flag);
 static uint32_t nice(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 static uint32_t loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+//static uint32_t cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+//static uint32_t filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 static uint32_t yield();
 static uint32_t phylos(char* args[MAX_ARGS],
                        uint32_t args_len,
@@ -634,7 +637,56 @@ loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enu
 
 	return 0;
 }
+/*
+void 
+func_cat(){
+	char buffer = {0};
+	int len;
 
+	while(1){
+		len = asm_read_fd(STDIN,buffer,1);
+
+		if(len == EOF ){
+			return;
+		}
+		
+		putchar(buffer,color.output);
+	}	
+}
+static uint32_t
+cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+{
+	uint32_t pid= create_process(args, fd, "cat", 0, 4, &func_cat, foreground);
+
+	return 0;
+}
+
+void 
+func_filter(){
+	char buffer[] = {0};
+	int len;
+
+	while(1){
+		len =asm_read_fd(STDIN,buffer,1) ;
+
+		if(len == EOF){
+			return;
+		}
+
+		int len2 = removeVocals(buffer, len);
+		
+
+		puts(buffer,color.output);
+	}
+}
+static uint32_t
+filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+{
+	uint32_t pid= create_process(args, fd, "filter", 0, 4, &func_filter, foreground);
+
+	return 0;
+}
+*/
 static uint32_t
 phylos(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
