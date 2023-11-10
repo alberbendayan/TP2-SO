@@ -521,11 +521,12 @@ int waitpid(uint16_t pid){
 		return -1;
 	}
 	child = child_node->data;
-	parent_node = scheduler->processes[child->pid];
+	parent_node = scheduler->processes[child->parent_pid];
 	if(parent_node == NULL){
 		return -1;
 	}
 	parent = parent_node->data;
+	parent->waiting_for_pid=child->pid;
 	block_process(parent->pid);
 
 	if(child->parent_pid == scheduler->current_pid){
