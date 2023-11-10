@@ -68,7 +68,10 @@ enum syscalls
 	SYS_PIPE_CLOSE,
 	SYS_PIPE_CLOSE_FOR_PID,
 	SYS_READ_PIPE,
-	SYS_WRITE_PIPE
+	SYS_WRITE_PIPE,
+
+	SYS_WAITING_FOR_PID,
+	SYS_WAIT_PID
 
 };
 
@@ -220,11 +223,15 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_READ_PIPE: {
-			return read_pipe(rsi, rdx,rcx);
+			return read_pipe(rsi, rdx, rcx);
 		} break;
 
 		case SYS_WRITE_PIPE: {
-			return write_pipe(rsi, rdx, rcx,r8);
+			return write_pipe(rsi, rdx, rcx, r8);
+		} break;
+
+		case SYS_WAIT_PID: {
+			return waitpid(rsi);
 		} break;
 			
 	}

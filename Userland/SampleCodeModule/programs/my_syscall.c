@@ -78,7 +78,7 @@ my_yield()
 int64_t
 my_wait(int64_t pid)
 {
-	return asm_waiting_for_pid(my_getpid(), pid);
+	return asm_wait_pid(pid);
 }
 
 int64_t

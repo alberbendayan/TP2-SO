@@ -23,8 +23,9 @@ void test_prio() {
     pids[i] = my_create_process("endless_loop_print", 0, argv);
     puts("proceso creado\n");
   }
-
-  //bussy_wait(1);
+  
+  puts("\nPRE CHANGING PRIORITIES...\n");
+  bussy_wait(WAIT);
   puts("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)

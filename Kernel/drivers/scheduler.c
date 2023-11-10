@@ -509,3 +509,27 @@ kill_foreground_process()
 	}
 	return 0;
 }
+
+int waitpid(uint16_t pid){
+	scheduler_ADT scheduler = get_address();
+	
+	process * parent;
+	process * child;
+	node * parent_node;
+	node* child_node = scheduler->processes[pid];
+	if(child_node == NULL){
+		return -1;
+	}
+	child = child_node->data;
+	parent_node = scheduler->processes[child->pid];
+	if(parent_node == NULL){
+		return -1;
+	}
+	parent = parent_node->data;
+	block_process(parent->pid);
+
+	if(child->parent_pid == scheduler->current_pid){
+		yield();
+	}
+	return 1;
+}
