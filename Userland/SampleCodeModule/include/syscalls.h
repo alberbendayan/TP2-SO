@@ -141,4 +141,6 @@ extern uint64_t asm_sem_close(uint32_t id);
 
 extern uint64_t asm_waiting_for_pid(uint32_t my_id,uint32_t id);
 
+extern uint64_t asm_wait_pid(uint32_t my_id);
+
 #endif
