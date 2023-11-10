@@ -70,7 +70,7 @@ get_last_free_pipe()
 	pipe* my_pipe = initialize_pipe();
 	pipe_adt->pipes[pipe_adt->last_free] = my_pipe;
 	pipe_adt->qty++;
-	return pipe_adt->last_free ;
+	return pipe_adt->last_free + BUILT_IN_DESCRIPTORS ;
 }
 
 static pipe*
@@ -158,7 +158,7 @@ pipe_close_for_pid(uint16_t pid, uint16_t id)
 static pipe*
 get_pipe_by_id(pipe_ADT pipe_adt, uint16_t id)
 {
-	int16_t index = (int16_t)id;  // mismo comentario de la resta
+	int16_t index = (int16_t)id - BUILT_IN_DESCRIPTORS;  // mismo comentario de la resta
 	if (index < 0 || index >= MAX_PIPES) {
 		return NULL;
 	}

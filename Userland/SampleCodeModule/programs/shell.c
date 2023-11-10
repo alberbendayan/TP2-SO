@@ -33,6 +33,13 @@ enum pipe_flag
 	PIPED_COMMAND_RIGHT = 1
 };
 
+enum fds_positions
+{
+	READ =0,
+	WRITE = 1,
+	ERR = 2
+};
+
 static Command commands[MAX_COMMANDS];
 static char input_buffer[INPUT_SIZE];
 static uint32_t commands_len = 0;
@@ -216,6 +223,16 @@ process_input(char* buff, uint32_t size)
 		int pipe_id=asm_get_last_free_pipe();
 		int fd_left[3]={STDIN,pipe_id,STDERR};
 		int fd_right[3]={pipe_id,STDOUT,STDERR};
+		for(int i=0;i<pipe_pos;i++){
+			puts(args[i],0xffffff);
+			puts(" ",0xffffff);
+		}
+		puts("\n", 0xffffff);
+		for(int i=0;i<args_len-pipe_pos-1;i++){
+			puts(args[pipe_pos+1+i],0xffffff);
+			puts(" ",0xffffff);
+		}
+		puts("\n", 0xffffff);
 		process_commands(args,pipe_pos,foreground,fd_left,PIPED_COMMAND_LEFT);
 		process_commands(args+pipe_pos+1,args_len-pipe_pos-1,foreground,fd_right,PIPED_COMMAND_RIGHT);
 		return -1;
@@ -230,6 +247,7 @@ process_commands(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, in
 			return commands[i].fn(args, args_len, foreground, fd, pipe_flag);
 		}
 	}
+
 
 	puts("Command not found: ", color.output);
 	puts(args[0], color.output);
