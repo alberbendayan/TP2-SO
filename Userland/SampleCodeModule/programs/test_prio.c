@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "my_syscall.h"
 #include "test_util.h"
+#include <tests.h>
 
 #define MINOR_WAIT 1000000 // TODO: Change this value to prevent a process from flooding the screen
 #define WAIT 10000000      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
@@ -22,29 +23,29 @@ void test_prio() {
     pids[i] = my_create_process("endless_loop_print", 0, argv);
 
   bussy_wait(WAIT);
-  printf("\nCHANGING PRIORITIES...\n");
+  puts("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     my_nice(pids[i], prio[i]);
 
   bussy_wait(WAIT);
-  printf("\nBLOCKING...\n");
+  puts("\nBLOCKING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     my_block(pids[i]);
 
-  printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
+  puts("CHANGING PRIORITIES WHILE BLOCKED...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     my_nice(pids[i], MEDIUM);
 
-  printf("UNBLOCKING...\n");
+  puts("UNBLOCKING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     my_unblock(pids[i]);
 
   bussy_wait(WAIT);
-  printf("\nKILLING...\n");
+  puts("\nKILLING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     my_kill(pids[i]);

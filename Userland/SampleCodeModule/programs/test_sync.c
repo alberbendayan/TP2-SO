@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "my_syscall.h"
 #include "test_util.h"
+#include <tests.h>
 
 #define SEM_ID "sem"
 #define TOTAL_PAIR_PROCESSES 2
@@ -32,7 +33,7 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
 
   if (use_sem)
     if (!my_sem_open(SEM_ID, 1)) {
-      printf("test_sync: ERROR opening semaphore\n");
+      puts("test_sync: ERROR opening semaphore\n");
       return -1;
     }
 
@@ -73,7 +74,10 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
     my_wait(pids[i + TOTAL_PAIR_PROCESSES]);
   }
 
-  printf("Final value: %d\n", global);
-
+  puts("Final value: ");
+  char c[100];
+  uint_to_base(global,c,10);
+  puts(c);
+  puts("\n");
   return 0;
 }

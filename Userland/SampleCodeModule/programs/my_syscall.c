@@ -1,18 +1,6 @@
 #include <stdint.h>
 #include <syscalls.h>
 
-typedef int (*main_function)(int argc, char** args);
-
-typedef struct process_initialization
-{
-	main_function code;
-	char** args;
-	char* name;
-	uint8_t priority;
-	int16_t* file_descriptors;
-	uint8_t unkillable;
-} process_initialization;
-
 int64_t
 my_getpid()
 {
@@ -22,20 +10,21 @@ my_getpid()
 int64_t
 my_create_process(char* name, uint64_t argc, char* argv[])
 {
-  process_initialization p;
-  p.args=argv;
-  p.name=name;
-  p.code=(*main_function)(argc,argv);
-  p.file_descriptors=[0,1,2];
-  p.unkillable=0;
-  p.priority=4;
+	int fd[3] = { 0, 1, 2 };
+	process_initialization p;
+	p.args = argv;
+	p.name = name;
+	p.code = (void*)0;
+	p.file_descriptors = fd;
+	p.unkillable = 0;
+	p.priority = 4;
 	return asm_init_process(&p);
 }
 
 int64_t
 my_nice(uint64_t pid, uint64_t newPrio)
 {
-	return asm_nice(pid, newPrio);
+	return asm_set_priority(pid, newPrio);
 }
 
 int64_t
@@ -47,13 +36,13 @@ my_kill(uint64_t pid)
 int64_t
 my_block(uint64_t pid)
 {
-	return asm_block_process(int pid);
+	return asm_block_process(pid);
 }
 
 int64_t
 my_unblock(uint64_t pid)
 {
-	return asm_unblock_process(int pid);
+	return asm_unblock_process(pid);
 }
 
 int64_t
@@ -89,5 +78,10 @@ my_yield()
 int64_t
 my_wait(int64_t pid)
 {
-	return asm_waiting_for_pid(my_getpid(),pid);
+	return asm_waiting_for_pid(my_getpid(), pid);
+}
+
+int64_t
+my_malloc(int64_t size){
+	return asm_malloc(size);
 }

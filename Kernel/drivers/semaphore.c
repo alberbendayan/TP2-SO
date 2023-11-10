@@ -36,7 +36,6 @@ create_semaphore_adt()
 uint32_t
 sem_open(uint32_t id, uint32_t init_val)
 {
-	tx_put_word("Creando el semaforo\n",0xff0f00);
 	semaphore* sem = get_sem(id);
 
 	if (sem == NULL) {

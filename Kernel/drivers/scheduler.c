@@ -145,7 +145,7 @@ get_all_proccesses_snapshot()
 			if (flag) {
 				i++;
 				my_node = append_element(snapshots, aux);
-			}else{
+			} else {
 				mm_free(aux);
 			}
 		}
@@ -376,7 +376,7 @@ schedule(void* prev_stack_pointer)
 {
 	static int flag_is_first = 1;
 	scheduler_ADT scheduler = get_address();
-	// process* aux = scheduler->processes[scheduler->current_pid]->data;
+	process* aux = scheduler->processes[scheduler->current_pid]->data;
 	// tx_put_word(aux->name,0xff0000);
 	// tx_put_word("\n",0xff0000);
 
@@ -486,9 +486,11 @@ change_FD(uint16_t pid, uint8_t old_fd, int16_t new_fd)
 	return 0;
 }
 
-int wait_process(uint16_t my_pid,uint16_t pid_to_wait){
+int
+wait_process(uint16_t my_pid, uint16_t pid_to_wait)
+{
 	scheduler_ADT scheduler = get_address();
-	return process_is_waiting(scheduler->processes[my_pid]->data,pid_to_wait);
+	return process_is_waiting(scheduler->processes[my_pid]->data, pid_to_wait);
 }
 
 int32_t

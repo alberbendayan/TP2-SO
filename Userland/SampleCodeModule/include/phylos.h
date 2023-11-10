@@ -4,11 +4,23 @@
 #include <stdint.h>
 
 
-/*
- * Corre el phylo.
- */
-uint32_t phylo_init();
+typedef enum
+{
+    THINKING = 1,
+    EATING = 2,
+    HUNGRY = 3
+    
+} state;
 
+typedef struct philosopher
+{
+    int pid;
+    int sem;
+    state philo_state;
+
+} philosopher;
+
+void run_philos(int argc, char *argv[]);
 
 
 

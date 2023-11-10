@@ -7,7 +7,7 @@ typedef int (*main_function)(int argc, char** args);
 
 typedef struct process_initialization
 {
-	main_function code;
+	void * code;
 	char** args;
 	char* name;
 	uint8_t priority;
