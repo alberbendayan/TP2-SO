@@ -19,10 +19,12 @@ void test_prio() {
   char *argv[] = {0};
   uint64_t i;
 
-  for (i = 0; i < TOTAL_PROCESSES; i++)
+  for (i = 0; i < TOTAL_PROCESSES; i++){
     pids[i] = my_create_process("endless_loop_print", 0, argv);
+    puts("proceso creado\n");
+  }
 
-  bussy_wait(WAIT);
+  //bussy_wait(1);
   puts("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)

@@ -6,7 +6,7 @@
 #include <syscalls.h>
 #include <tests.h>
 
-#define MAX_COMMANDS 20
+#define MAX_COMMANDS 30
 #define MAX_ARGS 8
 #define INPUT_SIZE 200
 
@@ -168,6 +168,10 @@ load_commands()
 	load_command((main_function)yield, "yield", "            Renounce CPU");
 	load_command((main_function)phylos, "phylos", "           Phylos");
 	load_command((main_function)testmm, "testmm", "           test Memory Manager");
+	load_command((main_function)testsync, "testsync", "         test syncro");
+	load_command((main_function)testprio, "testprio", "         test pritority");
+	load_command((main_function)testproc, "testproc", "         test process");
+	
 }
 
 static void
@@ -255,7 +259,7 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 	p.code = code;
 
 	int ret = asm_init_process(&p);
-	// asm_block_process(1); // 1 es el id de la shell
+	asm_block_process(1); // 1 es el id de la shell
 
 	return ret;
 }
@@ -624,6 +628,7 @@ phylos(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], e
 static uint32_t
 testmm(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
+	puts("Testeando el memory\n",0xff0000);
 	return create_process(args, fd, "testmm", 0, 4, &test_mm);
 }
 static uint32_t
@@ -639,5 +644,6 @@ testproc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3],
 static uint32_t
 testsync(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
+	puts("Testeando sincronizacion\n",0xff0000);
 	return create_process(args, fd, "test_sync", 0, 4, &test_sync);
 }
