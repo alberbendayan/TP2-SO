@@ -376,9 +376,9 @@ schedule(void* prev_stack_pointer)
 {
 	static int flag_is_first = 1;
 	scheduler_ADT scheduler = get_address();
-	process* aux = scheduler->processes[scheduler->current_pid]->data;
-	tx_put_word(aux->name,0xff0000);
-	tx_put_word("\n",0xff0000);
+	// process* aux = scheduler->processes[scheduler->current_pid]->data;
+	// tx_put_word(aux->name,0xff0000);
+	// tx_put_word("\n",0xff0000);
 
 	scheduler->remaining_quantum--;
 	if (!scheduler->qty_processes || scheduler->remaining_quantum > 0) {

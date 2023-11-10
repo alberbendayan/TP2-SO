@@ -27,6 +27,7 @@ phylosopher* phylos[MAX];
 static int current_phylos = 0;
 static int table_mutex;
 static int working;
+int flag_change_state = 0;
 
 #define RIGHT(i) ((i) + 1) % (current_phylos)
 #define LEFT(i) ((i) + current_phylos - 1) % (current_phylos)
@@ -101,20 +102,9 @@ run_phylos(int argc, char* argv[])
 	     0x00ff00);
 	asm_sleep(18);
 
-	for (int i = 0; i < MIN; i++) {
+	for (int i = 0; i < MIN+2; i++) {
 		add_phylo();
 	}
-
-	char* args[] = { "printer_assistant" };
-	process_initialization p;
-	int fd[3] = { 1, 1, 2 };
-	p.name = args[0];
-	p.args = args;
-	p.file_descriptors = fd;
-	p.priority = 4;
-	p.unkillable = 0;
-	p.code = &printer_assistant;
-	int printer_assistant_pid = asm_init_process(&p);
 
 	while (working) {
 		int var;
@@ -125,10 +115,11 @@ run_phylos(int argc, char* argv[])
 		switch (key) {
 			case 'A':
 			case 'a': {
-				puts("Apretaste la A para agregar un filosofo\n", 0x00ff00);
+				// puts("Apretaste la A para agregar un filosofo\n", 0x00ff00);
 				if (add_phylo() == -1) {
 					puts("No se puede agregar (maximo 8)\n", 0x00ff00);
 				} else {
+					flag_change_state = 1;
 					puts("Agregando filosofo...\n", 0x00ff00);
 				}
 			} break;
@@ -148,6 +139,20 @@ run_phylos(int argc, char* argv[])
 			default:
 				break;
 		}
+		key = 0;
+
+		if (flag_change_state) {
+			for (int i = 0; i < current_phylos; i++) {
+				if (phylos[i]->philo_state == EATING) {
+					putchar('E', 0xff0000);
+				} else {
+					putchar('.', 0xff0000);
+				}
+				putchar(' ', 0xff0000);
+			}
+			putchar('\n', 0xff0000);
+			flag_change_state = 0;
+		}
 	}
 
 	for (int i = 0; i < current_phylos; i++) {
@@ -155,7 +160,6 @@ run_phylos(int argc, char* argv[])
 		asm_kill_process(phylos[i]->pid, 0);
 		asm_free(phylos[i]);
 	}
-	asm_kill_process(printer_assistant_pid, 0);
 	asm_sem_close(MUTEX_ID);
 }
 
@@ -163,10 +167,13 @@ int
 add_phylo()
 {
 	if (current_phylos == MAX) {
+		puts("return -1\n", 0xff0000);
 		return -1;
 	}
+	// puts("entre al add\n", 0xff0000);
 	asm_sem_wait(table_mutex);
 	phylosopher* aux_phylo = asm_malloc(sizeof(phylosopher));
+	// puts("hice el malloc\n", 0xff0000);
 	if (aux_phylo == NULL) {
 		puts("malloc es null\n", 0xff0000);
 		return -1;
@@ -174,7 +181,7 @@ add_phylo()
 	char c[5];
 	my_int_to_array(current_phylos, c, 5);
 	aux_phylo->id_phylo = current_phylos;
-
+	puts(c, 0xff0000);
 	char* args[] = { c, NULL };
 
 	process_initialization p;
@@ -187,10 +194,10 @@ add_phylo()
 	p.code = lifecycle;
 
 	aux_phylo->pid = asm_init_process(&p);
-
+	// puts("Proceso inicializado\n",0xff0000);
 	aux_phylo->philo_state = THINKING;
 	aux_phylo->sem = asm_sem_open(SEM_ID + current_phylos, 1);
-
+	// puts("sem abierto\n",0xff0000);
 	phylos[current_phylos++] = aux_phylo;
 
 	asm_sem_post(table_mutex);
@@ -226,17 +233,17 @@ lifecycle(int argc, char* argv[])
 	while (working) {
 		attempt_for_forks(idx);
 
-		puts("tengo el fork y Soy el : ", 0xf0f00f);
-		puts(argv[0], 0xf0f00f);
-		puts("\n", 0xf0f00f);
+		// puts("tengo el fork y Soy el : ", 0xf0f00f);
+		// puts(argv[0], 0xf0f00f);
+		// puts("\n", 0xf0f00f);
 
 		asm_sleep(1);
 
 		release_forks(idx);
 
-		puts("deje el fork y Soy el : ", 0xf0f00f);
-		puts(argv[0], 0xf0f00f);
-		puts("\n", 0xf0f00f);
+		// puts("deje el fork y Soy el : ", 0xf0f00f);
+		// puts(argv[0], 0xf0f00f);
+		// puts("\n", 0xf0f00f);
 
 		asm_sleep(1);
 	}
@@ -245,17 +252,17 @@ lifecycle(int argc, char* argv[])
 void
 attempt_for_forks(int i)
 {
-	char c[10];
-	uint_to_base(i, c, 10);
-	puts("pedi el fork y soy el : ", 0xf0f00f);
-	puts(c, 0xf0f00f);
-	puts("\n", 0xf0f00f);
+	// char c[10];
+	// uint_to_base(i, c, 10);
+	// puts("pedi el fork y soy el : ", 0xf0f00f);
+	// puts(c, 0xf0f00f);
+	// puts("\n", 0xf0f00f);
 
 	asm_sem_wait(table_mutex);
 
 	phylos[i]->philo_state = HUNGRY;
 	check_for_forks(i);
-
+	flag_change_state = 1;
 	asm_sem_post(table_mutex);
 
 	asm_sem_wait(phylos[i]->sem);
@@ -266,53 +273,30 @@ release_forks(int i)
 {
 	char c[10];
 	uint_to_base(i, c, 10);
-	puts("deje el fork y soy el : ", 0xf0f00f);
-	puts(c, 0xf0f00f);
-	puts("\n", 0xf0f00f);
+	// puts("deje el fork y soy el : ", 0xf0f00f);
+	// puts(c, 0xf0f00f);
+	// puts("\n", 0xf0f00f);
 
 	asm_sem_wait(table_mutex);
 	phylos[i]->philo_state = THINKING;
 	check_for_forks(LEFT(i));
 	check_for_forks(RIGHT(i));
+	flag_change_state = 1;
 	asm_sem_post(table_mutex);
 }
 
 void
 check_for_forks(int i)
 {
-	char c[10];
-	uint_to_base(i, c, 10);
-	puts("checkeo el fork y soy el : ", 0xf0f00f);
-	puts(c, 0xf0f00f);
-	puts("\n", 0xf0f00f);	
+	// char c[10];
+	// uint_to_base(i, c, 10);
+	// puts("checkeo el fork y soy el : ", 0xf0f00f);
+	// puts(c, 0xf0f00f);
+	// puts("\n", 0xf0f00f);
 	if (phylos[i]->philo_state == HUNGRY && phylos[LEFT(i)]->philo_state != EATING &&
 	    phylos[RIGHT(i)]->philo_state != EATING) {
-
 		phylos[i]->philo_state = EATING;
+		flag_change_state = 1;
 		asm_sem_post(phylos[i]->sem);
-	}
-}
-
-void
-printer_assistant(int argc, char* argv[])
-{
-	while (working) {
-		puts("Antes de pasar el mutex desde el printer \n", 0xff00f0);
-		asm_sem_wait(table_mutex);
-		puts("Pase el mutex desde el printer \n", 0xff00f0);
-
-		for (int i = 0; i < current_phylos; i++) {
-			if (phylos[i]->philo_state == EATING) {
-				putchar('E', 0xff0000);
-			} else {
-				putchar('.', 0xff0000);
-			}
-			putchar(' ', 0xff0000);
-		}
-		putchar('\n', 0xff0000);
-
-		asm_sem_post(table_mutex);
-
-		asm_yield();
 	}
 }
