@@ -201,7 +201,6 @@ process_input(char* buff, uint32_t size)
 
 	if (strcmp(args[args_len - 1], "&")) {
 		foreground = 0;
-		args[args_len - 1] = NULL;
 	} else {
 		foreground = 1;
 	}
@@ -265,9 +264,9 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 }
 
 static uint32_t
-func_help(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+func_help(int args_len, char* args[MAX_ARGS])
 {
-	if (foreground) {
+	if (args[args_len-1]!="&") {
 		asm_block_process(1);
 	}
 	for (int i = 0; i < commands_len; i++) {
@@ -287,9 +286,11 @@ help(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enu
 }
 
 static uint32_t
-func_datetime()
+func_datetime(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	asm_datetime(color.output);
 	asm_unblock_process(1);
 	return 0;
@@ -317,9 +318,11 @@ exit()
 }
 
 static uint32_t
-func_printreg()
+func_printreg(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	asm_printreg(color.output);
 	asm_unblock_process(1);
 	return 0;
@@ -413,9 +416,11 @@ switchcolors()
 }
 
 static uint32_t
-func_memstatus()
+func_memstatus(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	char c1[32], c2[32], c3[32];
 	uint_to_base(asm_total_heap(), c1, 10);
 	uint_to_base(asm_free_heap(), c2, 10);
@@ -441,9 +446,11 @@ memstatus(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3]
 }
 
 static uint32_t
-func_ps()
+func_ps(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	char* string = asm_get_snapshots_info();
 	puts(string, color.output);
 	asm_free(string);
@@ -460,9 +467,11 @@ ps(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum 
 }
 
 static uint32_t
-func_pid()
+func_pid(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	char aux[6];
 	uint64_t pid = asm_get_current_id();
 	uint_to_base(pid, aux, 10);
@@ -481,7 +490,9 @@ pid(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum
 static uint32_t
 func_kill(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	if (args_len == 1) {
 		asm_kill_current_process(0);
 	} else if (args_len == 2) {
@@ -508,9 +519,11 @@ kill(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enu
 }
 
 static uint32_t
-func_block(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+func_block(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 		asm_block_process(arg);
@@ -530,9 +543,11 @@ block(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], en
 }
 
 static void
-func_unblock(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+func_unblock(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 		asm_unblock_process(arg);
@@ -552,9 +567,11 @@ unblock(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], 
 }
 
 void
-func_nice(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+func_nice(int args_len, char* args[MAX_ARGS])
 {
-	asm_block_process(1);
+	if (args[args_len-1]!="&") {
+		asm_block_process(1);
+	}
 	if (args_len == 3) {
 		int pid = customAtoi(args[1]);
 		int new_priority = customAtoi(args[2]);
@@ -582,9 +599,9 @@ yield()
 }
 
 void
-func_loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+func_loop(int args_len, char* args[MAX_ARGS])
 {
-	if (foreground) {
+	if (args[args_len-1]!="&") {
 		asm_block_process(1);
 	}
 	char aux[6];
