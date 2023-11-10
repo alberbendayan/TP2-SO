@@ -15,6 +15,11 @@
 #include <video.h>
 
 #define REGS_SIZE 20
+#define EOF -1
+
+
+static uint64_t write(uint64_t pid, uint64_t fd, char *source_buffer, uint64_t len);
+static uint64_t read(uint64_t fd, char *destination_buffer, uint64_t len);
 
 enum syscalls
 {
@@ -67,11 +72,13 @@ enum syscalls
 	SYS_PIPE_OPEN_FOR_PID,
 	SYS_PIPE_CLOSE,
 	SYS_PIPE_CLOSE_FOR_PID,
-	SYS_READ_PIPE,
-	SYS_WRITE_PIPE,
+	SYS_READ_FD,
+	SYS_WRITE_FD,
 
 	SYS_WAITING_FOR_PID,
-	SYS_WAIT_PID
+	SYS_WAIT_PID,
+
+	SYS_GET_LAST_FREE_PIPE
 
 };
 
@@ -222,17 +229,20 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 			return pipe_close_for_pid(rsi, rdx);
 		} break;
 
-		case SYS_READ_PIPE: {
-			return read_pipe(rsi, rdx, rcx);
+		case SYS_READ_FD: {
+			return read(rsi, rdx, rcx);
 		} break;
 
-		case SYS_WRITE_PIPE: {
-			return write_pipe(rsi, rdx, rcx, r8);
+		case SYS_WRITE_FD: {
+			return write(rsi, rdx, rcx, r8);
 		} break;
 
 		case SYS_WAIT_PID: {
 			return waitpid(rsi);
 		} break;
+		case SYS_GET_LAST_FREE_PIPE:{
+			return get_last_free_pipe();
+		}break;
 			
 	}
 	return 0;
@@ -245,4 +255,52 @@ save_registers(uint64_t* stack)
 	for (int i = 0; i < REGS_SIZE; i++) {
 		registers[i] = stack[i];
 	}
+}
+
+
+
+static uint64_t write(uint64_t pid, uint64_t fd, char *source_buffer, uint64_t len){
+	if (fd == DEV_NULL)
+	{
+		return 0;
+	}
+	else if (fd < DEV_NULL)
+	{
+		return -1;
+	}
+	if (fd >= BUILT_IN_DESCRIPTORS)
+		{
+			return write_pipe(get_pid(), fd, source_buffer, len);
+		}
+	else if (fd == STDOUT || fd == STDERR) 
+	{
+		tx_put_word(source_buffer,0xffffff);
+		return len;
+	}
+	return -1;
+}
+
+static uint64_t read(uint64_t fd, char *destination_buffer, uint64_t len){
+	uint8_t *state;
+	if (fd == DEV_NULL) 
+	{
+		destination_buffer[0] = EOF;
+		return 0;
+	}
+	else if (fd < DEV_NULL)
+	{
+		return -1;
+	}
+	if (fd >= BUILT_IN_DESCRIPTORS) {
+		return read_pipe(fd, destination_buffer, len);
+	}
+	else if (fd == STDIN) {
+		for (uint64_t i = 0; i < len; i++) {
+			destination_buffer[i] = kb_getchar(state);
+			if ((int) destination_buffer[i] == EOF)
+				return i + 1;
+		}
+		return len;
+	}
+	return -1;
 }

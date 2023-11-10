@@ -129,7 +129,8 @@ shell_init()
 	while (running) {
 		prompt(status);
 		len = gets(input_buffer, INPUT_SIZE, color.fg);
-		status = process_input(input_buffer, len);
+		status = process_input(input_buffer, len);	
+		
 	}
 
 	return status;
@@ -182,6 +183,7 @@ load_command(uint32_t (*fn)(), char* name, char* desc)
 static int32_t
 process_input(char* buff, uint32_t size)
 {
+
 	char* args[MAX_ARGS];
 	uint8_t foreground;
 	uint32_t args_len = 0;
@@ -203,6 +205,7 @@ process_input(char* buff, uint32_t size)
 	for (int i = 0; pipe_pos == NO_PIPE && i < args_len; i++) {
 		if (strcmp(args[i], "|")) {
 			pipe_pos = i;
+			args[i]=NULL;
 		}
 	}
 
@@ -210,7 +213,11 @@ process_input(char* buff, uint32_t size)
 		int fd_no_pipes[3] = { foreground ? STDIN : DEV_NULL, STDOUT, STDERR };
 		return process_commands(args, args_len, foreground, fd_no_pipes, NO_PIPE);
 	} else {
-		puts("MAL", 0xffff00);
+		int pipe_id=asm_get_last_free_pipe();
+		int fd_left[3]={STDIN,pipe_id,STDERR};
+		int fd_right[3]={pipe_id,STDOUT,STDERR};
+		process_commands(args,pipe_pos,foreground,fd_left,PIPED_COMMAND_LEFT);
+		process_commands(args+pipe_pos+1,args_len-pipe_pos-1,foreground,fd_right,PIPED_COMMAND_RIGHT);
 		return -1;
 	}
 }

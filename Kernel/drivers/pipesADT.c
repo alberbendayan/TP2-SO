@@ -70,7 +70,7 @@ get_last_free_pipe()
 	pipe* my_pipe = initialize_pipe();
 	pipe_adt->pipes[pipe_adt->last_free] = my_pipe;
 	pipe_adt->qty++;
-	return pipe_adt->last_free + BUILT_IN_DESCRIPTORS;
+	return pipe_adt->last_free ;
 }
 
 static pipe*
@@ -111,9 +111,10 @@ pipe_open_for_pid(uint16_t pid, uint16_t id, uint8_t mode)
 		if (pipe_adt->pipes[index] == NULL) {
 			return -1;
 		}
+		pipe_adt->qty++;
 	}
 
-	pipe_adt->qty++;
+	
 
 	if (mode == WRITE && pipe_adt->pipes[index]->input_pid < 0) {
 		pipe_adt->pipes[index]->input_pid = pid;

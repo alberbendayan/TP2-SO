@@ -1,48 +1,24 @@
 ; i/o interaction
 global asm_getchar
 global asm_putchar
-sys_read         equ 1
-sys_write        equ 2
-
-; drawing
 global asm_draw
 global asm_clear
 global asm_cursor
 global asm_show_cursor
-sys_draw         equ 3
-sys_clear        equ 4
-sys_cursor       equ 5
-sys_show_cursor  equ 6
-
-; properties
 global asm_winprops
-sys_winprops     equ 7
+global asm_waiting_for_pid
 
-; system
+global asm_wait_pid
 global asm_ticked
 global asm_sleep
 global asm_printreg
 global asm_datetime
 global asm_sound
-sys_ticks        equ 8
-sys_sleep        equ 9
-sys_regs         equ 10
-sys_rtc          equ 11
-sys_sound        equ 12
-
-; memory
 global asm_malloc
 global asm_free
 global asm_total_heap
 global asm_free_heap
 global asm_used_heap
-sys_malloc      equ 13
-sys_free        equ 14
-sys_total_heap  equ 15
-sys_free_heap   equ 16
-sys_used_heap   equ 17
-
-; process
 global asm_init_process
 global asm_kill_process
 global asm_kill_current_process
@@ -52,6 +28,50 @@ global asm_block_process
 global asm_unblock_process
 global asm_set_priority
 global asm_yield
+global asm_sem_open
+global asm_sem_wait
+global asm_sem_post
+global asm_sem_close
+global asm_pipe_open
+global asm_pipe_open_for_pid
+global asm_pipe_close
+global asm_pipe_close_for_pid
+global asm_read_pipe
+global asm_write_pipe
+global asm_get_last_free_pipe
+
+sys_read         equ 1
+sys_write        equ 2
+
+; drawing
+
+sys_draw         equ 3
+sys_clear        equ 4
+sys_cursor       equ 5
+sys_show_cursor  equ 6
+
+; properties
+
+sys_winprops     equ 7
+
+; system
+
+sys_ticks        equ 8
+sys_sleep        equ 9
+sys_regs         equ 10
+sys_rtc          equ 11
+sys_sound        equ 12
+
+; memory
+
+sys_malloc      equ 13
+sys_free        equ 14
+sys_total_heap  equ 15
+sys_free_heap   equ 16
+sys_used_heap   equ 17
+
+; process
+
 sys_init_process                    equ 18
 sys_kill_process                    equ 19
 sys_kill_current_process            equ 20
@@ -63,22 +83,14 @@ sys_set_priority                    equ 25
 sys_yield                           equ 26
 
 ;semaphores
-global asm_sem_open
-global asm_sem_wait
-global asm_sem_post
-global asm_sem_close
+
 sys_sem_open        equ 27
 sys_sem_wait        equ 28
 sys_sem_post        equ 29
 sys_sem_close       equ 30
 
 ;pipe
-global asm_pipe_open
-global asm_pipe_open_for_pid
-global asm_pipe_close
-global asm_pipe_close_for_pid
-global asm_read_pipe
-global asm_write_pipe
+
 sys_pipe_open           equ 31
 sys_pipe_open_for_pid   equ 32
 sys_pipe_close          equ 33
@@ -87,13 +99,14 @@ sys_read_pipe           equ 35
 sys_write_pipe          equ 36
 
 
-global asm_waiting_for_pid
+
 sys_waiting_for_pid     equ 37
 
 ;me olvide el wait pid (perdon la desprolijidad)
 
-global asm_wait_pid
 sys_wait_pid            equ 38
+
+sys_get_last_free_pipe  equ 39
 
 %macro syscall_handler 1
     push rbp
@@ -222,3 +235,6 @@ asm_waiting_for_pid:
 
 asm_wait_pid:
     syscall_handler sys_wait_pid  
+
+asm_get_last_free_pipe:
+    syscall_handler sys_get_last_free_pipe
