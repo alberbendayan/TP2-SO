@@ -481,20 +481,6 @@ pid(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum
 static uint32_t
 func_kill(int args_len, char* args[MAX_ARGS])
 {
-	char c3[100];
-	uint_to_base(args_len, c3, 10);
-	puts("aca: ", 0xffffff);
-	puts(c3, 0xffffff);
-	// Truchada que hace que funcione
-	args_len = 0;
-	for (; args_len < MAX_ARGS && args[args_len]; args_len++) {
-		puts(args[args_len], 0xffffff);
-		puts("\n", 0xffffff);
-	}
-	//
-	uint_to_base(args_len, c3, 10);
-	puts("aca: ", 0xffffff);
-	puts(c3, 0xffffff);
 	asm_block_process(1);
 	if (args_len == 1) {
 		asm_kill_current_process(0);

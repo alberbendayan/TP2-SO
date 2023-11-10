@@ -169,10 +169,6 @@ asm_move_rsp:
     pop rax
     iretq
 
-asm_process_wrapper:
-    call rdi
-    mov rdi, rax
-    call kill_current_process
 
 asm_initialize_stack:
 	mov r8, rsp 	
@@ -183,7 +179,7 @@ asm_initialize_stack:
 	push rdx
 	push 0x202
 	push 0x8
-    push asm_process_wrapper
+    push rdi
 	mov rdi, rsi 		
 	mov rsi, rcx		
 	push_state_full
