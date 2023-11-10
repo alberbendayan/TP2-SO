@@ -12,15 +12,16 @@ typedef enum
     
 } state;
 
-typedef struct philosopher
+typedef struct phylosopher
 {
     int pid;
     int sem;
+    int id_phylo;
     state philo_state;
 
-} philosopher;
+} phylosopher;
 
-void run_philos(int argc, char *argv[]);
+void run_phylos(int argc, char* argv[]);
 
 
 

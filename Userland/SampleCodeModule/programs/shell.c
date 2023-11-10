@@ -638,7 +638,7 @@ loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enu
 static uint32_t
 phylos(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid= create_process(args, fd, "phylos", 0, 4, &run_philos, foreground);
+	uint32_t pid= create_process(args, fd, "phylos", 0, 4, &run_phylos, foreground);
 
 	return 0;
 }
