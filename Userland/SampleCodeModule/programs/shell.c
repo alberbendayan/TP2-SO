@@ -66,6 +66,15 @@ static uint32_t loop(char* args[MAX_ARGS],uint32_t args_len,uint8_t foreground, 
 static uint32_t yield();
 static uint32_t phylos();
 
+static int
+array_len(char** array)
+{
+	int len = 0;
+	while (*(array++) != NULL)
+		len++;
+	return len;
+}
+
 uint32_t
 shell_init()
 {
@@ -133,12 +142,14 @@ process_input(char* buff, uint32_t size)
 	uint32_t args_len = 0;
 	args_len=strtok(buff, ' ', args, MAX_ARGS);
 	args[args_len]=NULL;
+	
 	if (args_len == 0) {
 		return -1;
 	}
 
 	if (strcmp(args[args_len - 1], "&")) {
 		foreground = 0;
+		args[args_len - 1]=NULL;
 	} else {
 		foreground = 1;
 	}
@@ -427,15 +438,28 @@ pid(char* args[MAX_ARGS],uint32_t args_len,uint8_t foreground, int fd[3], enum p
 }
 
 static uint32_t
-func_kill(char* args[MAX_ARGS],uint32_t args_len,uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+func_kill(int args_len, char* args[MAX_ARGS])
 {
+	char c3[100];
+	uint_to_base(args_len,c3,10);
+	puts("aca: ",0xffffff);
+	puts(c3,0xffffff);
+	//Truchada que hace que funcione
+	args_len=0;
+	for(;args_len<MAX_ARGS && args[args_len];args_len++){
+		puts(args[args_len],0xffffff);
+		puts("\n",0xffffff);
+	}
+	//
+	uint_to_base(args_len,c3,10);
+	puts("aca: ",0xffffff);
+	puts(c3,0xffffff);
 	asm_block_process(1);
 	if (args_len == 1) {
 		asm_kill_current_process(0);
 	} else if (args_len == 2) {
 		int arg = customAtoi(args[1]);
-		char c=uint_to_base(arg,c,10);
-		puts(c, 0xffffff);
+		
 		asm_kill_process(arg, 0);
 	} else if (args_len == 3) {
 		asm_kill_process(customAtoi(args[1]), customAtoi(args[2]));  // los paso a int

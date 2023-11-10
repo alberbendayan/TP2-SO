@@ -18,7 +18,8 @@ static int
 array_len(char** array)
 {
 	int len = 0;
-	while (*(array++) != 0)
+	int i=0;
+	while (array[i++] != NULL)
 		len++;
 	return len;
 }
@@ -26,6 +27,7 @@ array_len(char** array)
 void
 process_wrapper(main_function code, char** args)
 {
+	
 	kill_current_process(code(array_len(args), args));
 }
 
@@ -86,6 +88,7 @@ close_file_descriptor(uint16_t pid, int16_t fd_value)
 static char**
 alloc_arguments(char** args)
 {
+	
 	int argc = array_len(args), total_args_len = 0;  // falta hacer bien esta func
 	int args_len[argc];
 	for (int i = 0; i < argc; i++) {
