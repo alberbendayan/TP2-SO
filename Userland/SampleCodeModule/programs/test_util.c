@@ -1,7 +1,7 @@
 #include "my_syscall.h"
 
 #include <stdint.h>
-#include <stdio.h>
+
 
 // Random
 static uint32_t m_z = 362436069;
@@ -74,6 +74,7 @@ void
 endless_loop()
 {
 	while (1)
+		//puts("Entre al endless_loop\n",0xff0000);
 		;
 }
 

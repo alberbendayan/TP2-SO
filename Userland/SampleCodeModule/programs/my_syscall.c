@@ -8,13 +8,13 @@ my_getpid()
 }
 
 int64_t
-my_create_process(char* name, uint64_t argc, char* argv[])
+my_create_process(void * code, uint64_t argc, char* argv[])
 {
 	int fd[3] = { 0, 1, 2 };
 	process_initialization p;
 	p.args = argv;
-	p.name = name;
-	p.code = (void*)0;
+	p.name = argv[0];
+	p.code = code;
 	p.file_descriptors = fd;
 	p.unkillable = 0;
 	p.priority = 4;
