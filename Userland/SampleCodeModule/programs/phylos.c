@@ -42,52 +42,56 @@ void check_for_forks(int i);
 void printer_assistant();
 void lifecycle(int argc, char* argv[]);
 
-void reverse(char str[], int length) {
-    int start = 0;
-    int end = length - 1;
-    while (start < end) {
-        // Intercambiar los caracteres en las posiciones start y end
-        char temp = str[start];
-        str[start] = str[end];
-        str[end] = temp;
-        start++;
-        end--;
-    }
+void
+reverse(char str[], int length)
+{
+	int start = 0;
+	int end = length - 1;
+	while (start < end) {
+		// Intercambiar los caracteres en las posiciones start y end
+		char temp = str[start];
+		str[start] = str[end];
+		str[end] = temp;
+		start++;
+		end--;
+	}
 }
 
-void myIntToArray(int num, char result[], int bufferSize) {
-    // Manejar el caso especial de 0
-    if (num == 0) {
-        result[0] = '0';
-        result[1] = '\0';
-        return;
-    }
+void
+myIntToArray(int num, char result[], int bufferSize)
+{
+	// Manejar el caso especial de 0
+	if (num == 0) {
+		result[0] = '0';
+		result[1] = '\0';
+		return;
+	}
 
-    int isNegative = 0;
+	int isNegative = 0;
 
-    // Manejar números negativos
-    if (num < 0) {
-        isNegative = 1;
-        num = -num;
-    }
+	// Manejar números negativos
+	if (num < 0) {
+		isNegative = 1;
+		num = -num;
+	}
 
-    int i = 0;
-    while (num != 0) {
-        int rem = num % 10;
-        result[i++] = rem + '0'; // Convertir el dígito a carácter y almacenar en el resultado
-        num = num / 10;
-    }
+	int i = 0;
+	while (num != 0) {
+		int rem = num % 10;
+		result[i++] = rem + '0';  // Convertir el dígito a carácter y almacenar en el resultado
+		num = num / 10;
+	}
 
-    // Agregar el signo negativo si es necesario
-    if (isNegative) {
-        result[i++] = '-';
-    }
+	// Agregar el signo negativo si es necesario
+	if (isNegative) {
+		result[i++] = '-';
+	}
 
-    // Agregar el terminador nulo
-    result[i] = '\0';
+	// Agregar el terminador nulo
+	result[i] = '\0';
 
-    // Invertir la cadena para obtener la representación correcta
-    reverse(result, i);
+	// Invertir la cadena para obtener la representación correcta
+	reverse(result, i);
 }
 
 void
@@ -107,7 +111,6 @@ run_philos(int argc, char* argv[])
 
 	for (int i = 0; i < MIN; i++) {
 		add_philo();
-		puts("Agrego phylo\n", 0xf0f0f0);
 	}
 	char* args[] = { "printer_assistant" };
 	process_initialization p;
@@ -171,10 +174,11 @@ add_philo()
 	}
 	// process_initialization p;
 	char c[5];
-    myIntToArray(phylo_id,c,5);
+	myIntToArray(phylo_id, c, 5);
 	phylo_id++;
 
-    char* args[] = { c, NULL };
+	char* args[] = { c, NULL };
+
 	process_initialization p;
 	int fd[3] = { 0, 1, 2 };
 	p.name = args[0];
@@ -182,11 +186,9 @@ add_philo()
 	p.file_descriptors = fd;
 	p.priority = 4;
 	p.unkillable = 0;
-	p.code = &lifecycle;
+	p.code = lifecycle;
 
-	
 	aux_philo->pid = asm_init_process(&p);
-
 
 	aux_philo->philo_state = THINKING;
 	aux_philo->sem = asm_sem_open(SEM_ID + current_philos, 1);
@@ -218,11 +220,11 @@ remove_philo()
 void
 lifecycle(int argc, char* argv[])
 {
-	// puts("lifecycle for: ", 0xf0f00f);
-	// puts(argv[1], 0xf0f00f);
-	// puts("\n", 0xf0f00f);
-	int idx = customAtoi(argv[1]);
+	int idx = customAtoi(argv[0]);
 	while (working) {
+		puts("Soy el : ", 0xf0f00f);
+		puts(argv[0], 0xf0f00f);
+		puts("\n", 0xf0f00f);
 		attempt_for_forks(idx);
 
 		asm_sleep(5);
@@ -236,6 +238,12 @@ lifecycle(int argc, char* argv[])
 void
 attempt_for_forks(int i)
 {
+	char c[10];
+	uint_to_base(i, c, 10);
+	puts("pedi el fork y soy el : ", 0xf0f00f);
+	puts(c, 0xf0f00f);
+	puts("\n", 0xf0f00f);
+
 	asm_sem_wait(table_mutex);
 
 	philos[i]->philo_state = HUNGRY;
@@ -249,6 +257,12 @@ attempt_for_forks(int i)
 void
 release_forks(int i)
 {
+	char c[10];
+	uint_to_base(i, c, 10);
+	puts("deje el fork y soy el : ", 0xf0f00f);
+	puts(c, 0xf0f00f);
+	puts("\n", 0xf0f00f);
+
 	asm_sem_wait(table_mutex);
 	philos[i]->philo_state = THINKING;
 	check_for_forks(LEFT(i));
@@ -270,13 +284,13 @@ void
 printer_assistant(int argc, char* argv[])
 {
 	while (working) {
-        // puts("Imprimiendo... cant de philos ",0xff00f0);
+		// puts("Imprimiendo... cant de philos ",0xff00f0);
 		// asm_putchar(current_philos+'0',0xff00f0);
-			
-        asm_sem_wait(table_mutex);
-        
+
+		asm_sem_wait(table_mutex);
+
 		for (int i = 0; i < current_philos; i++) {
-            if (philos[i]->philo_state == EATING) {
+			if (philos[i]->philo_state == EATING) {
 				putchar('E', 0xff0000);
 			} else {
 				putchar('.', 0xff0000);

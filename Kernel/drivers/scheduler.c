@@ -460,6 +460,14 @@ kill_process(uint16_t pid, int32_t ret_value)
 			set_status(process_to_kill->parent_pid, READY);
 		}
 	}
+	process* p_aux;
+	int cant = scheduler->qty_processes;
+	for (int k = 0; k < cant; k++) {
+		p_aux = scheduler->processes[k]->data;
+		if (p_aux->parent_pid == pid) {
+			kill_process(p_aux->pid, ret_value);
+		}
+	}
 
 	scheduler->qty_processes--;
 	scheduler->next_unused_pid = pid;
@@ -510,26 +518,28 @@ kill_foreground_process()
 	return 0;
 }
 
-int waitpid(uint16_t pid){
+int
+waitpid(uint16_t pid)
+{
 	scheduler_ADT scheduler = get_address();
-	
-	process * parent;
-	process * child;
-	node * parent_node;
+
+	process* parent;
+	process* child;
+	node* parent_node;
 	node* child_node = scheduler->processes[pid];
-	if(child_node == NULL){
+	if (child_node == NULL) {
 		return -1;
 	}
 	child = child_node->data;
 	parent_node = scheduler->processes[child->parent_pid];
-	if(parent_node == NULL){
+	if (parent_node == NULL) {
 		return -1;
 	}
 	parent = parent_node->data;
-	parent->waiting_for_pid=child->pid;
+	parent->waiting_for_pid = child->pid;
 	block_process(parent->pid);
 
-	if(child->parent_pid == scheduler->current_pid){
+	if (child->parent_pid == scheduler->current_pid) {
 		yield();
 	}
 	return 1;
