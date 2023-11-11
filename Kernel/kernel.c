@@ -15,6 +15,7 @@
 #include <text.h>
 #include <time.h>
 #include <video.h>
+#include <pipesADT.h>
 
 #define BLACK 0x000000
 #define WHITE 0xffffff
@@ -87,7 +88,7 @@ main()
 	p_idle.unkillable = 1;
 	p_idle.priority = 4;
 
-	int pid_idle = create_process(&p_idle);
+	create_process(&p_idle);
 
 	// process_initialization p_idle1;
 
@@ -104,7 +105,7 @@ main()
 	// pid_idle = create_process(&p_idle1);
 
 	// creo la shell
-	int fd_shell[3] = { STDIN, STDOUT, STDERR };
+	int16_t fd_shell[3] = { STDIN, STDOUT, STDERR };
 	char* args_shell[2] = { "shell", NULL };
 
 	process_initialization p_shell;

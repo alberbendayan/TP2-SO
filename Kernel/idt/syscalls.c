@@ -145,7 +145,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_FREE: {
-			mm_free(rsi);
+			mm_free((void*)rsi);
 		} break;
 
 		case SYS_TOTAL_HEAP: {
@@ -161,7 +161,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_CREATE_PROCESS: {
-			return create_process(rsi);
+			return create_process((void *)rsi);
 		} break;
 
 		case SYS_KILL_PROCESS: {
@@ -173,7 +173,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_GET_SNAPSHOTS_INFO: {
-			return get_snapshots_info();
+			return (char*) get_snapshots_info();
 		} break;
 
 		case SYS_GET_CURRENT_ID: {
@@ -230,11 +230,11 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_READ_FD: {
-			return read(rsi, rdx, rcx);
+			return read(rsi, (char *)rdx, rcx);
 		} break;
 
 		case SYS_WRITE_FD: {
-			return write(rsi, rdx, rcx, r8);
+			return write(rsi, rdx,(char *) rcx, r8);
 		} break;
 
 		case SYS_WAIT_PID: {

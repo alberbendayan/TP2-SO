@@ -4,7 +4,6 @@
 #include <scheduler.h>
 #include <semaphore.h>
 
-#define NULL (void*)0
 
 typedef struct semaphore_CDT
 {
@@ -98,7 +97,7 @@ sem_close(uint32_t id)
 	}
 
 	remove_node(sem_adt->semaphores, sem_to_close);
-	mm_free(sem_to_close);
+	mm_free((void*)sem_to_close);
 	return 0;
 }
 

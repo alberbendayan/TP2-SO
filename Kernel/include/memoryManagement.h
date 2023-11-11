@@ -14,4 +14,10 @@ void mm_free(void *ptr);
 
 void mm_status(unsigned int *status);
 
+uint64_t mm_heap_size();
+
+uint64_t mm_heap_left();
+
+uint64_t mm_used_heap();
+
 #endif
