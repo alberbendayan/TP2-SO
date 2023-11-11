@@ -99,6 +99,7 @@ static uint32_t nice(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground
 static uint32_t loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 //static uint32_t cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 //static uint32_t filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+//static uint32_t wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 static uint32_t yield();
 static uint32_t phylos(char* args[MAX_ARGS],
                        uint32_t args_len,
@@ -639,18 +640,18 @@ loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enu
 }
 /*
 void 
-func_cat(){
+func_cat(int args_len, char* args[MAX_ARGS]){
 	char buffer = {0};
 	int len;
 
 	while(1){
-		len = asm_read_fd(STDIN,buffer,1);
+		len = gets(buffer,1);
 
 		if(len == EOF ){
 			return;
 		}
 		
-		putchar(buffer,color.output);
+		puts(buffer,color.output);
 	}	
 }
 static uint32_t
@@ -662,12 +663,12 @@ cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum
 }
 
 void 
-func_filter(){
+func_filter(int args_len, char* args[MAX_ARGS]){
 	char buffer[] = {0};
 	int len;
 
 	while(1){
-		len =asm_read_fd(STDIN,buffer,1) ;
+		len =gets(buffer,1) ;
 
 		if(len == EOF){
 			return;
@@ -683,6 +684,33 @@ static uint32_t
 filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
 	uint32_t pid= create_process(args, fd, "filter", 0, 4, &func_filter, foreground);
+
+	return 0;
+}
+
+void func_wc(char argc, char **argv)
+{
+    int count = 1;
+    int len;
+    while(1){
+		len =gets(buffer,1) ;
+
+		if(len == EOF){
+			return;
+		}
+
+        if (len == '\n')
+        {
+            count++;
+        }
+    }
+    puts("Cantidad de lineas: %d\n", count);
+    return 0;
+}
+static uint32_t
+wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+{
+	uint32_t pid= create_process(args, fd, "wc", 0, 4, &func_wc, foreground);
 
 	return 0;
 }
