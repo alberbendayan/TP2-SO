@@ -170,9 +170,9 @@ load_commands()
 	load_command((main_function)unblock, "unblock", "          Unblock a process by id");
 	load_command((main_function)nice, "nice", "             Change process priority by id");
 	load_command((main_function)loop, "loop", "             Print current process id");
-	load_command((main_function)cat, "cat", "             Print current process id");
-	load_command((main_function)filter, "filter", "             Print current process id");
-	load_command((main_function)wc, "wc", "             Print current process id");
+	load_command((main_function)cat, "cat", "              Print STDIN");
+	load_command((main_function)filter, "filter", "           Filter vowels");
+	load_command((main_function)wc, "wc", "               Print the number of lines");
 	load_command((main_function)yield, "yield", "            Renounce CPU");
 	load_command((main_function)phylos, "phylos", "           Phylos");
 	load_command((main_function)testmm, "testmm", "           test Memory Manager");
