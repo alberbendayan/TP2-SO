@@ -78,7 +78,8 @@ enum syscalls
 	SYS_WAITING_FOR_PID,
 	SYS_WAIT_PID,
 
-	SYS_GET_LAST_FREE_PIPE
+	SYS_GET_LAST_FREE_PIPE,
+	SYS_GET_FDS
 
 };
 
@@ -240,8 +241,13 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		case SYS_WAIT_PID: {
 			return waitpid(rsi);
 		} break;
+
 		case SYS_GET_LAST_FREE_PIPE:{
 			return get_last_free_pipe();
+		}break;
+
+		case SYS_GET_FDS:{
+			return get_file_descriptors();
 		}break;
 			
 	}

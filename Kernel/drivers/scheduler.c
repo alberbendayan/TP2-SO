@@ -570,3 +570,16 @@ waitpid(uint16_t pid)
 	}
 	return 1;
 }
+
+
+int * get_file_descriptors(){
+	process *p = get_process_by_pid(get_pid());
+	if(p==NULL){
+		return NULL;
+	}
+	int to_ret =  mm_malloc(3 *sizeof(int));
+	for(int i = 0;i<3;i++){
+		to_ret[i]=p->file_descriptors[i];
+	}
+	return to_ret;
+}

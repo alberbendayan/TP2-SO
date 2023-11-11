@@ -46,4 +46,6 @@ void keyboard_interruption();
 int wait_process(uint16_t my_pid,uint16_t pid_to_wait);
 
 int waitpid(uint16_t pid);
+
+int * get_file_descriptors(int pid);
 #endif

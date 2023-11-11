@@ -39,6 +39,7 @@ global asm_pipe_close_for_pid
 global asm_read_fd
 global asm_write_fd
 global asm_get_last_free_pipe
+global asm_get_fds
 
 sys_read         equ 1
 sys_write        equ 2
@@ -107,6 +108,8 @@ sys_waiting_for_pid     equ 37
 sys_wait_pid            equ 38
 
 sys_get_last_free_pipe  equ 39
+
+sys_get_fds             equ 40
 
 %macro syscall_handler 1
     push rbp
@@ -238,3 +241,6 @@ asm_wait_pid:
 
 asm_get_last_free_pipe:
     syscall_handler sys_get_last_free_pipe
+
+asm_get_fds:
+    syscall_handler sys_get_fds
