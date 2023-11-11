@@ -55,8 +55,11 @@ gets(char* buff, uint32_t size, uint32_t color)
 	}
 	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
 		putchar('B',0xfff);
-		asm_read_pipe(fd[READ], buff, size);
+		asm_pipe_open(fd[READ],READ);
+		int lens=asm_read_pipe(fd[READ], buff, size);
 		puts(buff,color);
+		asm_pipe_close(fd[READ]);
+		return lens;
 	}
 	
 	
@@ -91,8 +94,10 @@ puts(char* str, uint32_t color)
 	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
 	{
 				putchar('D',0xfff);
-
-		return asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
+		asm_pipe_open(fd[WRITE],WRITE);
+		asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
+		asm_pipe_close(fd[WRITE]);
+		return ;
 	}
 	
 }
