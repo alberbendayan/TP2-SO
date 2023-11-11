@@ -219,7 +219,7 @@ process_input(char* buff, int size)
 
 	int pipe_pos = NO_PIPE;
 	for (int i = 0; pipe_pos == NO_PIPE && i < args_len; i++) {
-		if (strcmp(args[i], "=")) {
+		if (strcmp(args[i], "|")) {
 			pipe_pos = i;
 			args[i] = NULL;
 		}
