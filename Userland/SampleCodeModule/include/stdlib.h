@@ -11,7 +11,7 @@ typedef struct process_initialization
 	char** args;
 	char* name;
 	uint8_t priority;
-	int16_t* file_descriptors;
+	int* file_descriptors;
 	uint8_t unkillable;
 } process_initialization;
 

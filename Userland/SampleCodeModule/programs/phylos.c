@@ -178,7 +178,7 @@ add_philosopher(int index)
 		return -1;
 	my_int_to_array(index, philo_number_buffer, 10);
 	char* params[] = { "philosopher", philo_number_buffer, NULL };
-	int16_t file_descriptors[] = { -1, 1, 2 };
+	int file_descriptors[] = { -1, 1, 2 };
 
 	process_initialization p;
 	p.code = philosopher;

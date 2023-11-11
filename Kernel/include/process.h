@@ -34,7 +34,7 @@ typedef struct process
 	uint8_t unkillable;
 	uint8_t priority;
 	process_status status;
-	int16_t file_descriptors[BUILT_IN_DESCRIPTORS];
+	int file_descriptors[BUILT_IN_DESCRIPTORS];
 	int32_t ret_value;
 } process;
 
@@ -58,7 +58,7 @@ typedef struct process_initialization
 	char** args;
 	char* name;
 	uint8_t priority;
-	int16_t* file_descriptors;
+	int* file_descriptors;
 	uint8_t unkillable;
 } process_initialization;
 
@@ -69,7 +69,7 @@ void init_process(process* proc,
                   char** args,
                   char* name,
                   uint8_t priority,
-                  int16_t file_descriptors[],
+                  int file_descriptors[],
                   uint8_t unkillable);
 
 int load_snapshot(process_snapshot* snapshot, process* proc);

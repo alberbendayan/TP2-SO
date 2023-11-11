@@ -77,14 +77,17 @@ main()
 
 	// creo el proceso idle
 	char* args_idle[3] = { "idle", NULL };
-	int16_t fd_idle[] = { DEV_NULL, DEV_NULL, STDERR };
+	int fd_idle[] = { DEV_NULL, DEV_NULL, STDERR };
 
 	process_initialization p_idle;
 
 	p_idle.args = args_idle;
 	p_idle.name = "idle";
 	p_idle.code = &idle;
-	p_idle.file_descriptors = fd_idle;
+	p_idle.file_descriptors=mm_malloc(3*sizeof(int));
+	for(int i=0;i<BUILT_IN_DESCRIPTORS;i++){
+		p_idle.file_descriptors[i] = fd_idle[i];
+	}
 	p_idle.unkillable = 1;
 	p_idle.priority = 4;
 
@@ -105,13 +108,16 @@ main()
 	// pid_idle = create_process(&p_idle1);
 
 	// creo la shell
-	int16_t fd_shell[3] = { STDIN, STDOUT, STDERR };
+	int fd_shell[3] = { STDIN, STDOUT, STDERR };
 	char* args_shell[2] = { "shell", NULL };
 
 	process_initialization p_shell;
 
 	p_shell.args = args_shell;
-	p_shell.file_descriptors = fd_shell;
+	p_shell.file_descriptors=mm_malloc(3*sizeof(int));
+	for(int i=0;i<BUILT_IN_DESCRIPTORS;i++){
+		p_shell.file_descriptors[i] = fd_shell[i];
+	}
 	p_shell.name = "shell";
 	p_shell.unkillable = 0;
 	p_shell.priority = 4;

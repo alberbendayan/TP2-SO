@@ -72,7 +72,7 @@ sys_used_heap   equ 17
 
 ; process
 
-sys_init_process                    equ 18
+sys_create_process                    equ 18
 sys_kill_process                    equ 19
 sys_kill_current_process            equ 20
 sys_get_snapshots_info              equ 21
@@ -174,7 +174,7 @@ asm_used_heap:
     syscall_handler sys_used_heap
 
 asm_init_process:
-    syscall_handler sys_init_process
+    syscall_handler sys_create_process
 
 asm_kill_process:
     syscall_handler sys_kill_process

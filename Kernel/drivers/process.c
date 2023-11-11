@@ -12,8 +12,8 @@
 
 static int array_len(char** array);
 static char** alloc_arguments();
-static void assign_file_descriptor(process* proc, uint8_t fd_index, int16_t fd_value, uint8_t mode);
-static void close_file_descriptor(uint16_t pid, int16_t fd_value);
+static void assign_file_descriptor(process* proc, uint8_t fd_index, int fd_value, uint8_t mode);
+static void close_file_descriptor(uint16_t pid, int fd_value);
 
 static int
 array_len(char** array)
@@ -40,7 +40,7 @@ init_process(process* proc,
              char** args,
              char* name,
              uint8_t priority,
-             int16_t file_descriptors[],
+             int file_descriptors[],
              uint8_t unkillable)
 {
 	proc->pid = pid;
@@ -62,7 +62,7 @@ init_process(process* proc,
 }
 
 static void
-assign_file_descriptor(process* proc, uint8_t fd_index, int16_t fd_value, uint8_t mode)
+assign_file_descriptor(process* proc, uint8_t fd_index, int fd_value, uint8_t mode)
 {
 	proc->file_descriptors[fd_index] = fd_value;
 	if (fd_value >= BUILT_IN_DESCRIPTORS) {
@@ -79,7 +79,7 @@ close_file_descriptors(process* proc)
 }
 
 static void
-close_file_descriptor(uint16_t pid, int16_t fd_value)
+close_file_descriptor(uint16_t pid, int fd_value)
 {
 	if (fd_value >= BUILT_IN_DESCRIPTORS) {
 		pipe_close_for_pid(pid, fd_value);  // tenemos q hacer esta func
