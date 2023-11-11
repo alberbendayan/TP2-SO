@@ -265,7 +265,7 @@ prompt(int32_t status)
 	asm_sleep(6);
 	puts(">>>", color.prompt);
 	putchar(' ', color.fg);
-	asm_block_process(1);
+	//asm_block_process(1);
 }
 
 static uint32_t
@@ -718,7 +718,7 @@ wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum 
 static uint32_t
 phylos(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid= create_process(args, fd, "phylos", 0, 4, &run_phylos, foreground);
+	uint32_t pid= create_process(args, fd, "phylos", 0, 4, &run_philosophers, foreground);
 
 	return 0;
 }

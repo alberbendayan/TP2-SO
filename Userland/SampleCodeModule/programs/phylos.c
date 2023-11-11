@@ -98,7 +98,7 @@ static const char* philosopher_names[] = {
 int
 run_philosophers(int argc, char** argv)
 {
-	puts("Bienvenido al programa de los filosofos version futbolera\n Es como el problema de los filosofos con una "
+	puts("Bienvenido al programa de los filosofos version futbolera\n Es como el problema de los filosofos con la"
 	     "leve modificacion que hay jugadores en ronda y hay un botin entre cada jugador\n un jugador para hacer el "
 	     "gol necesita los dos botines\n - Con el a se agrega un jugador\n - Con la r (de 'Roja directa') echamos un "
 	     "jugador\n - Con q terminamos el juego\n",
