@@ -97,9 +97,9 @@ static uint32_t unblock(char* args[MAX_ARGS],
                         enum pipe_flag pipe_flag);
 static uint32_t nice(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 static uint32_t loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-//static uint32_t cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-//static uint32_t filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-//static uint32_t wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static uint32_t cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static uint32_t filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static uint32_t wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
 static uint32_t yield();
 static uint32_t phylos(char* args[MAX_ARGS],
                        uint32_t args_len,
@@ -170,6 +170,9 @@ load_commands()
 	load_command((main_function)unblock, "unblock", "          Unblock a process by id");
 	load_command((main_function)nice, "nice", "             Change process priority by id");
 	load_command((main_function)loop, "loop", "             Print current process id");
+	load_command((main_function)cat, "cat", "             Print current process id");
+	load_command((main_function)filter, "filter", "             Print current process id");
+	load_command((main_function)wc, "wc", "             Print current process id");
 	load_command((main_function)yield, "yield", "            Renounce CPU");
 	load_command((main_function)phylos, "phylos", "           Phylos");
 	load_command((main_function)testmm, "testmm", "           test Memory Manager");
@@ -638,14 +641,14 @@ loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enu
 
 	return 0;
 }
-/*
+
 void 
 func_cat(int args_len, char* args[MAX_ARGS]){
-	char buffer = {0};
+	char buffer[20] = {0};
 	int len;
 
 	while(1){
-		len = gets(buffer,1);
+		len = gets(buffer,1,color.output);
 
 		if(len == EOF ){
 			return;
@@ -664,20 +667,26 @@ cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum
 
 void 
 func_filter(int args_len, char* args[MAX_ARGS]){
-	char buffer[] = {0};
+	char buffer[20] = {0};
 	int len;
+	uint8_t state;
 
 	while(1){
-		len =gets(buffer,1) ;
+		//puts("entre al while", color.output);
+		while(!(state==PRESSED)){
+		buffer[0]=getchar(&state);}
 
-		if(len == EOF){
+		if(buffer[0] == 'z'){
+			putchar('\n',color.output);
 			return;
 		}
 
 		int len2 = removeVocals(buffer, len);
-		
+		if(len2!=0){
+		putchar(buffer[0],color.output);}
+		state=0;
 
-		puts(buffer,color.output);
+		//puts(buffer,color.output);
 	}
 }
 static uint32_t
@@ -690,10 +699,11 @@ filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], e
 
 void func_wc(char argc, char **argv)
 {
+	char buffer[20] = {0};
     int count = 1;
     int len;
     while(1){
-		len =gets(buffer,1) ;
+		len =gets(buffer,1,color.output) ;
 
 		if(len == EOF){
 			return;
@@ -714,7 +724,7 @@ wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum 
 
 	return 0;
 }
-*/
+
 static uint32_t
 phylos(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
