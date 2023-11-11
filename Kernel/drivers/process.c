@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <video.h>
+#include <scheduler.h>
 
 #define STACK_SIZE (4096)
 

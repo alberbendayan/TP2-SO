@@ -1,6 +1,7 @@
 #include <keyboard.h>
 #include <stdint.h>
 #include <time.h>
+#include <scheduler.h>
 
 enum irq
 {

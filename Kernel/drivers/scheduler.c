@@ -157,14 +157,12 @@ get_all_proccesses_snapshot()
 static void
 get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 {
-	scheduler_ADT scheduler = get_address();
 	int j = 0;
 	char aux_id[8];
 	char aux_pri[14];
 	char aux_sp[8];
 	char aux_bp[8];
-	char aux_fg[8];
-
+	
 	j += strlen(snapshot->name);
 	memcpy(to_ret, snapshot->name, j);
 	while (j < 18) {
@@ -187,7 +185,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 		to_ret[j++] = ' ';
 	}
 
-	uint_to_base(snapshot->stack_pos, aux_sp, 10);
+	uint_to_base((char*)snapshot->stack_pos, aux_sp, 10);
 	memcpy((to_ret + j), aux_sp, strlen(aux_sp));
 	j += strlen(aux_sp);
 
@@ -195,7 +193,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 		to_ret[j++] = ' ';
 	}
 
-	uint_to_base(snapshot->stack_base, aux_bp, 10);
+	uint_to_base((char*)snapshot->stack_base, aux_bp, 10);
 	memcpy((to_ret + j), aux_bp, strlen(aux_bp));
 	j += strlen(aux_sp);
 
@@ -374,7 +372,6 @@ keyboard_interruption()
 void*
 schedule(void* prev_stack_pointer)
 {
-	static int flag_is_first = 1;
 	scheduler_ADT scheduler = get_address();
 	// process* aux = scheduler->processes[scheduler->current_pid]->data;
 	// tx_put_word(aux->name,0xff0000);

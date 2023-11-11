@@ -8,7 +8,7 @@
 
 #define MAX_PIPES 4096
 
-#define PIPE_ADDRESS 0x80000
+#define PIPE_ADDRESS (void *) 0x80000
 // read = 0, write = 1 (esta en process el define)
 
 typedef struct pipe
