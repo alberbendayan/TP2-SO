@@ -46,6 +46,7 @@ static uint32_t buffer_size = 0;
 
 static uint8_t get_scancode(uint8_t key);
 static void put_buffer(uint8_t code, uint8_t state);
+static void eof();
 
 int waiting_processes[4096];
 int i = 0;
@@ -81,8 +82,7 @@ keyboard_handler()
 		} else if (control && (code == 'c' || code == 'C')) {
 			return kill_foreground_process();
 		} else if (control && (code == 'd' || code == 'D')) {
-			// hacer el EOF
-			return 1;
+			eof();
 		} else if (key >= 0 && key < keys && code != 0) {
 			put_buffer(code, state);
 		}
@@ -96,8 +96,8 @@ kb_getchar(uint8_t* state)
 	if (buffer_size <= 0) {
 		// if (i < 4096) {
 		// 	// tx_put_word("Bloqueo\n",0xff0000);
-		// 	waiting_processes[i++] = get_pid();		
-		// 	block_process(get_pid());			
+		// 	waiting_processes[i++] = get_pid();
+		// 	block_process(get_pid());
 		// }
 		return 0;
 	}
@@ -141,4 +141,11 @@ put_buffer(uint8_t code, uint8_t state)
 		// }
 		// i = 0;
 	}
+}
+#define EOF -1
+static void
+eof()
+{
+	put_buffer(EOF, PRESSED);
+	put_buffer(EOF, RELEASED);
 }
