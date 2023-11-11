@@ -230,6 +230,7 @@ process_input(char* buff, uint32_t size)
 		int pipe_id = asm_get_last_free_pipe();
 		int fd_left[3] = { STDIN, pipe_id, STDERR };
 		int fd_right[3] = { pipe_id, STDOUT, STDERR };
+		/*
 		for (int i = 0; i < pipe_pos; i++) {
 			puts(args[i], 0xffffff);
 			puts(" ", 0xffffff);
@@ -239,7 +240,7 @@ process_input(char* buff, uint32_t size)
 			puts(args[pipe_pos + 1 + i], 0xffffff);
 			puts(" ", 0xffffff);
 		}
-		puts("\n", 0xffffff);
+		puts("\n", 0xffffff);*/
 		process_commands(args, pipe_pos, foreground, fd_left, PIPED_COMMAND_LEFT);
 		process_commands(args + pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right, PIPED_COMMAND_RIGHT);
 		return -1;

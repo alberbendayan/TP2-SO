@@ -21,7 +21,9 @@ gets(char* buff, uint32_t size, uint32_t color)
 	uint32_t len = 0;
 	int* fd;
 	fd=asm_get_fds();
+
 	if(fd[READ]==STDIN){
+		putchar('A',0xfff);
 		while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
 		if (c && state == PRESSED) {
 			if (c != '\b') {
@@ -52,7 +54,9 @@ gets(char* buff, uint32_t size, uint32_t color)
 		return -1;
 	}
 	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
-		return asm_read_pipe(fd[READ], buff, size);
+		putchar('B',0xfff);
+		asm_read_pipe(fd[READ], buff, size);
+		puts(buff,color);
 	}
 	
 	
@@ -71,6 +75,8 @@ puts(char* str, uint32_t color)
 	int* fd;
 	fd=asm_get_fds();
 	if(fd[WRITE]==STDOUT || fd[WRITE]==STDERR){
+				putchar('C',0xfff);
+
 		for (int i = 0; i < len; i++)
 		putchar(str[i], color);
 	}
@@ -83,9 +89,11 @@ puts(char* str, uint32_t color)
 		return -1;
 	}
 	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
-		{
-			return asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
-		}
+	{
+				putchar('D',0xfff);
+
+		return asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
+	}
 	
 }
 

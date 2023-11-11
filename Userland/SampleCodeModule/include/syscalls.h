@@ -148,9 +148,9 @@ extern uint8_t asm_pipe_close(uint16_t id);
 
 extern uint8_t asm_pipe_pipe_close_for_pid(uint16_t pid, uint16_t id);
 
-extern uint64_t asm_read_fd(uint64_t fd, char *destination_buffer, uint64_t len);
+extern uint64_t asm_read_pipe(uint64_t fd, char *destination_buffer, uint64_t len);
 
-extern uint64_t asm_write_fd(uint64_t pid, uint64_t fd, char *source_buffer, uint64_t len);
+extern uint64_t asm_write_pipe(uint64_t pid, uint64_t fd, char *source_buffer, uint64_t len);
 
 extern uint64_t asm_waiting_for_pid(uint32_t my_id,uint32_t id);
 
