@@ -516,9 +516,7 @@ static uint32_t
 func_kill(int args_len, char* args[MAX_ARGS])
 {
 
-	if (args_len == 1) {
-		asm_kill_current_process(0);
-	} else if (args_len == 2) {
+	if (args_len == 2) {
 		int arg = customAtoi(args[1]);
 
 		asm_kill_process(arg, 0);
