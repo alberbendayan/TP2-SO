@@ -98,7 +98,7 @@ initialize_pipe()
 int8_t
 pipe_open_for_pid(uint16_t pid, uint16_t id, uint8_t mode)
 {
-	int16_t index = (int16_t)id;  // hay debate con jc si hay q restar BUILT_IN_DESCRIPTORS
+	int16_t index = (int16_t)id - BUILT_IN_DESCRIPTORS;  // hay debate con jc si hay q restar BUILT_IN_DESCRIPTORS
 	if (index < 0 || index >= MAX_PIPES) {
 		return -1;
 	}
@@ -131,7 +131,7 @@ pipe_close_for_pid(uint16_t pid, uint16_t id)
 {
 	pipe_ADT pipe_adt = PIPE_ADDRESS;
 
-	int16_t index = (int16_t)id;  // hay debate con jc si hay q restar BUILT_IN_DESCRIPTORS
+	int16_t index = (int16_t)id - BUILT_IN_DESCRIPTORS;  // hay debate con jc si hay q restar BUILT_IN_DESCRIPTORS
 	if (index < 0 || index >= MAX_PIPES) {
 		return -1;
 	}
