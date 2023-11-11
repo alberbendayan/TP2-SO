@@ -20,4 +20,5 @@ uint32_t uint_to_base(uint64_t value, char* buff, uint32_t base);
 void up(int* mutex);
 void down(int* mutex);
 
+uint32_t strcmp(char* s1, char* s2);
 #endif

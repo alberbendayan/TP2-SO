@@ -5,7 +5,7 @@
 #include <tests.h>
 
 #define NULL (void*)0
-#define SEM_ID "sem"
+#define SEM_ID 98
 #define TOTAL_PAIR_PROCESSES 2
 
 int64_t global;  // shared memory

@@ -71,5 +71,5 @@ test_mm(uint64_t argc, char* argv[])
 				asm_free(mm_rqs[i].address);
 		}
 	}
-	puts("Todo bien\n",0xff0000);
+	puts("Todo no tan bien\n",0xff0000);
 }

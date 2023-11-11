@@ -3,10 +3,10 @@
 #include <libasm.h>
 #include <libc.h>
 #include <naiveConsole.h>
+#include <scheduler.h>
 #include <stdint.h>
 #include <text.h>
 #include <video.h>
-#include <scheduler.h>
 
 #define KC_L_SHIFT 42
 #define KC_R_SHIFT 54
@@ -47,6 +47,9 @@ static uint32_t buffer_size = 0;
 static uint8_t get_scancode(uint8_t key);
 static void put_buffer(uint8_t code, uint8_t state);
 
+int waiting_processes[4096];
+int i = 0;
+
 int
 keyboard_handler()
 {
@@ -75,13 +78,12 @@ keyboard_handler()
 		// handle para casos especiales
 		if (control && (code == 'r' || code == 'R')) {
 			return REGISTER_CAPTURE;
-		} else if(control && (code == 'c' || code == 'C')){
+		} else if (control && (code == 'c' || code == 'C')) {
 			return kill_foreground_process();
-		} else if(control && (code == 'd' || code == 'D')){
+		} else if (control && (code == 'd' || code == 'D')) {
 			// hacer el EOF
 			return 1;
-		}
-		else if (key >= 0 && key < keys && code != 0) {
+		} else if (key >= 0 && key < keys && code != 0) {
 			put_buffer(code, state);
 		}
 	}
@@ -91,8 +93,14 @@ keyboard_handler()
 char
 kb_getchar(uint8_t* state)
 {
-	if (buffer_size <= 0)
+	if (buffer_size <= 0) {
+		// if (i < 4096) {
+		// 	// tx_put_word("Bloqueo\n",0xff0000);
+		// 	waiting_processes[i++] = get_pid();		
+		// 	block_process(get_pid());			
+		// }
 		return 0;
+	}
 
 	// agarramos el primero agregado (como una queue)
 	uint8_t key = buffer_chars[0];
@@ -128,5 +136,9 @@ put_buffer(uint8_t code, uint8_t state)
 	if (buffer_size < BUFFER_MAX) {
 		buffer_chars[buffer_size] = code;
 		buffer_states[buffer_size++] = state;
+		// for (int h = 0; h < i; h++) {
+		// 	unblock_process(waiting_processes[h]);
+		// }
+		// i = 0;
 	}
 }

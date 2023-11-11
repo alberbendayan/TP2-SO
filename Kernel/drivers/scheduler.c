@@ -360,6 +360,9 @@ keyboard_interruption()
 	uint8_t flag = 1;
 	for (int i = 2; i < scheduler->qty_processes; i++) {
 		p = scheduler->processes[i]->data;
+		// if(strcmp(p->name,"phylos")){
+		// 	unblock_process(p->pid);
+		// }
 		if ((p->file_descriptors[STDIN] == STDIN && (p->status == READY || p->status == RUNNING))) {
 			flag = 0;
 		}
@@ -368,6 +371,32 @@ keyboard_interruption()
 		unblock_process(SHELL_PID);
 	}
 }
+
+// void
+// keyboard_interruption()
+// {
+// 	scheduler_ADT scheduler = get_address();
+// 	process* shell = scheduler->processes[SHELL_PID]->data;
+// 	process* p;
+// 	uint8_t flag = 1;
+// 	for (int i = 2; i < scheduler->qty_processes; i++) {
+// 		p = scheduler->processes[i]->data;
+// 		if ((p->file_descriptors[STDIN] == STDIN && (p->status == READY || p->status == RUNNING)) ||
+// 		    process_is_waiting(shell, p->pid)) {
+// 			flag = 0;
+// 		}
+// 	}
+// 	if (flag) {
+// 		for (int i = 2; i < scheduler->qty_processes; i++) {
+// 			p = scheduler->processes[i]->data;
+// 			if (p->file_descriptors[STDIN] == STDIN) {
+// 				unblock_process(p->pid);
+// 				return;
+// 			}
+// 		}
+// 		unblock_process(SHELL_PID);
+// 	}
+// }
 
 void*
 schedule(void* prev_stack_pointer)

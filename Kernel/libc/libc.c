@@ -96,3 +96,13 @@ down(int* mutex)
 {
 	asm_xchg(mutex, 0);
 }
+
+uint32_t
+strcmp(char* s1, char* s2)
+{
+	while (*s1 != 0 && *s2 != 0 && *s1 == *s2) {
+		s1++;
+		s2++;
+	}
+	return *s1 == 0 && *s2 == 0;
+}

@@ -4,42 +4,45 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-// typedef int (*main_function)(int argc, char** args);
+#define MAX_QTY 15
+#define MIN_QTY 3
+#define MUTEX_SEM_ID 42
+#define MAX_PHILO_NUMBER_BUFFER 3
 
-// typedef struct process_initialization
-// {
-// 	main_function code;
-// 	char** args;
-// 	char* name;
-// 	uint8_t priority;
-// 	int16_t* file_descriptors;
-// 	uint8_t unkillable;
-// } process_initialization;
+#define EAT_TIME 3
+#define THINK_TIME 2
+
+#define COMMAND_QUIT 'q'
+#define COMMAND_ADD 'a'
+#define COMMAND_REMOVE 'r'
+#define COMMAND_CLEAR 'c'
 
 #define NULL (void*)0
 
-#define MAX 8
-#define MIN 4
-#define MUTEX_ID 999
-#define SEM_ID 1000
+#define left(i) (((i) + qty_philosophers - 1) % qty_philosophers)
+#define right(i) (((i) + 1) % qty_philosophers)
+#define philosopher_semaphore(i) (MUTEX_SEM_ID + (i) + 1)
 
-phylosopher* phylos[MAX];
-static int current_phylos = 0;
-static int table_mutex;
-static int working;
-int flag_change_state = 0;
+typedef enum
+{
+	NONE = 0,
+	EATING,
+	HUNGRY,
+	THINKING
+} PHILOSOPHER_STATE;
 
-#define RIGHT(i) ((i) + 1) % (current_phylos)
-#define LEFT(i) ((i) + current_phylos - 1) % (current_phylos)
+static uint8_t qty_philosophers = 0;
+static PHILOSOPHER_STATE philosopher_states[MAX_QTY];
+static int16_t philosopher_pids[MAX_QTY];
+static uint8_t single_line = 0;
 
-void run_phylo(int argc, char* argv[]);
-int add_phylo();
-int remove_phylo();
-void attempt_for_forks(int i);
-void release_forks(int i);
-void check_for_forks(int i);
-void printer_assistant();
-void lifecycle(int argc, char* argv[]);
+static void render();
+static int philosopher(int argc, char** argv);
+static int8_t add_philosopher(int index);
+static int8_t remove_philosopher(int index);
+static void take_forks(int i);
+static void put_forks(int i);
+static void test(int i);
 
 void
 reverse(char str[], int length)
@@ -87,216 +90,184 @@ my_int_to_array(int num, char result[], int buffer_size)
 	reverse(result, i);
 }
 
-void
-run_phylos(int argc, char* argv[])
+static const char* philosopher_names[] = {
+	"Wancho",  "Coccaro", "Mazzanti", "Pusseto", "Tobio", "Alfonso", "Fattori",  "Echeverria",
+	"Alarcon", "Fertoli", "Pereyra",  "Carrizo", "Souto", "Toranzo", "Espinoza",
+};
+
+int
+run_philosophers(int argc, char** argv)
 {
-	working = 1;
-	table_mutex = asm_sem_open(MUTEX_ID, 1);
-	if (table_mutex == -1) {
-		puts("\nError opening semaphores! Returning...\n", 0xff0000);
-		return;
-	}
-	puts("Problema de los filosofos.\n", 0x00ff00);
-	puts("Instrucciones:\n- 'a': Agrega un filosofo\n- 'r': Borra un filosofo\n- 'q': Cierra el programa\nComencemos "
-	     ":)\n\n",
-	     0x00ff00);
-	asm_sleep(18);
+	puts("Bienvenido al programa de los filosofos version futbolera\n Es como el problema de los filosofos con una "
+	     "leve modificacion que hay jugadores en ronda y hay un botin entre cada jugador\n un jugador para hacer el "
+	     "gol necesita los dos botines\n - Con el a se agrega un jugador\n - Con la r (de 'Roja directa') echamos un "
+	     "jugador\n - Con q terminamos el juego\n",
+	     0xf0f0f0);
+	qty_philosophers = 0;
+	single_line = 0;
+	if (asm_sem_open(MUTEX_SEM_ID, 1) == -1)
+		return -1;
 
-	for (int i = 0; i < MIN+2; i++) {
-		add_phylo();
+	for (int i = 0; i < MAX_QTY; i++) {
+		philosopher_states[i] = NONE;
+		philosopher_pids[i] = -1;
 	}
 
-	while (working) {
-		int var;
-		char key = asm_getchar(&var);
-		// puts("getchar: ", 0x00ff00);
-		// asm_putchar(key, 0x00ff00);
-		// puts(" \n", 0x00ff00);
-		switch (key) {
-			case 'A':
-			case 'a': {
-				// puts("Apretaste la A para agregar un filosofo\n", 0x00ff00);
-				if (add_phylo() == -1) {
-					puts("No se puede agregar (maximo 8)\n", 0x00ff00);
-				} else {
-					flag_change_state = 1;
-					puts("Agregando filosofo...\n", 0x00ff00);
-				}
-			} break;
-			case 'R':
-			case 'r': {
-				puts("Apretaste la R para matar un filosofo\n", 0x00ff00);
-				if (remove_phylo() == -1) {
-					puts("No se puede remover (minimo 4)\n", 0x00ff00);
-				} else {
-					puts("Removiendo filosofo...\n", 0x00ff00);
-				}
-			} break;
-			case 'q': {
-				puts("\nFinalizando.vuelva prontos\n\n", 0x00ff00);
-				working = 0;
-			} break;
-			default:
+	for (int i = 0; i < MIN_QTY + 2; i++)
+		add_philosopher(i);
+
+	char command = '\0';
+	int aux;
+	while ((command = asm_getchar(&aux)) != COMMAND_QUIT) {
+		if (aux == 0) {
+			continue;
+		}
+		switch (command) {
+			case COMMAND_ADD:
+				if (qty_philosophers < MAX_QTY) {
+					if (add_philosopher(qty_philosophers) == -1)
+						puts("No se pudo agregar un jugador\n", 0xf0f0f0);
+				} else
+					puts("La cancha esta llena\n", 0xf0f0f0);
+				break;
+			case COMMAND_REMOVE:
+				if (qty_philosophers > MIN_QTY)
+					remove_philosopher(qty_philosophers - 1);
+				else
+					puts("Como minimo debe haber 3 jugadores para empezar a patear\n", 0xf0f0f0);
+				break;
+			case COMMAND_CLEAR:
+				single_line = !single_line;
 				break;
 		}
-		key = 0;
+	}
 
-		if (flag_change_state) {
-			for (int i = 0; i < current_phylos; i++) {
-				if (phylos[i]->philo_state == EATING) {
-					putchar('E', 0xff0000);
-				} else {
-					putchar('.', 0xff0000);
-				}
-				putchar(' ', 0xff0000);
+	for (int i = qty_philosophers - 1; i >= 0; i--) {
+		remove_philosopher(i);
+	}
+	asm_sem_close(MUTEX_SEM_ID);
+	return 0;
+}
+
+static void
+render()
+{
+	const static char letters[] = { ' ', 'E', '.', '.' };
+	uint8_t something_to_write = 0;
+	for (int i = 0; i < qty_philosophers; i++) {
+		if (letters[philosopher_states[i]] != ' ') {
+			something_to_write = 1;
+			if (philosopher_states[i] == EATING) {
+				puts("G ", 0xff0000);
+			} else {
+				puts(". ", 0xff0000);
 			}
-			putchar('\n', 0xff0000);
-			flag_change_state = 0;
 		}
 	}
-
-	for (int i = 0; i < current_phylos; i++) {
-		asm_sem_close(phylos[i]->sem);
-		asm_kill_process(phylos[i]->pid, 0);
-		asm_free(phylos[i]);
-	}
-	asm_sem_close(MUTEX_ID);
+	if (something_to_write)
+		putchar('\n', 0xfffff);
+	// sleep(1);
 }
 
-int
-add_phylo()
+static int8_t
+add_philosopher(int index)
 {
-	if (current_phylos == MAX) {
-		puts("return -1\n", 0xff0000);
+	asm_sem_wait(MUTEX_SEM_ID);
+	char philo_number_buffer[MAX_PHILO_NUMBER_BUFFER] = { 0 };
+	if (asm_sem_open(philosopher_semaphore(index), 0) == -1)
 		return -1;
-	}
-	// puts("entre al add\n", 0xff0000);
-	asm_sem_wait(table_mutex);
-	phylosopher* aux_phylo = asm_malloc(sizeof(phylosopher));
-	// puts("hice el malloc\n", 0xff0000);
-	if (aux_phylo == NULL) {
-		puts("malloc es null\n", 0xff0000);
-		return -1;
-	}
-	char c[5];
-	my_int_to_array(current_phylos, c, 5);
-	aux_phylo->id_phylo = current_phylos;
-	puts(c, 0xff0000);
-	char* args[] = { c, NULL };
+	my_int_to_array(index, philo_number_buffer, 10);
+	char* params[] = { "philosopher", philo_number_buffer, NULL };
+	int16_t file_descriptors[] = { -1, 1, 2 };
 
 	process_initialization p;
-	int fd[3] = { -1, -1, 2 };  // corro los pibes en back
-	p.name = args[0];
-	p.args = args;
-	p.file_descriptors = fd;
+	p.code = philosopher;
+
+	p.name = params[0];
+	p.args = params;
+	p.file_descriptors = file_descriptors;
 	p.priority = 4;
 	p.unkillable = 0;
-	p.code = lifecycle;
 
-	aux_phylo->pid = asm_init_process(&p);
-	// puts("Proceso inicializado\n",0xff0000);
-	aux_phylo->philo_state = THINKING;
-	aux_phylo->sem = asm_sem_open(SEM_ID + current_phylos, 1);
-	// puts("sem abierto\n",0xff0000);
-	phylos[current_phylos++] = aux_phylo;
+	philosopher_pids[index] = asm_init_process(&p);
+	if (philosopher_pids[index] != -1)
+		qty_philosophers++;
+	render();
+	asm_sem_post(MUTEX_SEM_ID);
+	return -1 * !(philosopher_pids[index] + 1);
+}
 
-	asm_sem_post(table_mutex);
+static int8_t
+remove_philosopher(int index)
+{
+	puts("Roja directa para: ", 0xff0000);
+	puts(philosopher_names[index], 0xff00ff);
+	puts("\n", 0xffffff);
 
+	asm_sem_wait(MUTEX_SEM_ID);
+
+	while (philosopher_states[left(index)] == EATING && philosopher_states[right(index)] == EATING) {
+		asm_sem_post(MUTEX_SEM_ID);
+		asm_sem_wait(philosopher_semaphore(index));
+		asm_sem_wait(MUTEX_SEM_ID);
+	}
+
+	asm_kill_process(philosopher_pids[index], 0);
+	asm_wait_pid(philosopher_pids[index]);
+	asm_sem_close(philosopher_semaphore(index));
+	philosopher_pids[index] = -1;
+	philosopher_states[index] = NONE;
+	qty_philosophers--;
+	asm_sem_post(MUTEX_SEM_ID);
+	render();
 	return 0;
 }
 
-int
-remove_phylo()
+static int
+philosopher(int argc, char** argv)
 {
-	if (current_phylos == MIN) {
-		return -1;
+	int i = customAtoi(argv[1]);
+	puts("Entre en el primer equipo del club atletico huracan: ", 0xff0000);
+	puts(philosopher_names[i], 0xff00ff);
+	puts("\n", 0xffffff);
+	philosopher_states[i] = THINKING;
+	while (1) {
+		asm_sleep(18 * THINK_TIME);
+		take_forks(i);
+		asm_sleep(18 * EAT_TIME);
+		put_forks(i);
 	}
-
-	phylosopher* chosen_philo = phylos[current_phylos];
-	current_phylos--;
-	asm_sem_close(chosen_philo->sem);
-	asm_kill_process(chosen_philo->pid, 0);
-	asm_free(chosen_philo);
-	asm_sem_post(table_mutex);
-
 	return 0;
 }
 
-void
-lifecycle(int argc, char* argv[])
+static void
+take_forks(int i)
 {
-	// puts("Soy el wancho nro ", 0xff0000);
-	// puts(argv[0], 0xff0000);
-	// puts("\n", 0xff0000);
-
-	int idx = customAtoi(argv[0]);
-	while (working) {
-		attempt_for_forks(idx);
-
-		// puts("tengo el fork y Soy el : ", 0xf0f00f);
-		// puts(argv[0], 0xf0f00f);
-		// puts("\n", 0xf0f00f);
-
-		asm_sleep(1);
-
-		release_forks(idx);
-
-		// puts("deje el fork y Soy el : ", 0xf0f00f);
-		// puts(argv[0], 0xf0f00f);
-		// puts("\n", 0xf0f00f);
-
-		asm_sleep(1);
-	}
+	asm_sem_wait(MUTEX_SEM_ID);
+	philosopher_states[i] = HUNGRY;
+	test(i);
+	asm_sem_post(MUTEX_SEM_ID);
+	asm_sem_wait(philosopher_semaphore(i));
 }
 
-void
-attempt_for_forks(int i)
+static void
+put_forks(int i)
 {
-	// char c[10];
-	// uint_to_base(i, c, 10);
-	// puts("pedi el fork y soy el : ", 0xf0f00f);
-	// puts(c, 0xf0f00f);
-	// puts("\n", 0xf0f00f);
-
-	asm_sem_wait(table_mutex);
-
-	phylos[i]->philo_state = HUNGRY;
-	check_for_forks(i);
-	flag_change_state = 1;
-	asm_sem_post(table_mutex);
-
-	asm_sem_wait(phylos[i]->sem);
+	asm_sem_wait(MUTEX_SEM_ID);
+	philosopher_states[i] = THINKING;
+	render();
+	test(left(i));
+	test(right(i));
+	asm_sem_post(MUTEX_SEM_ID);
 }
 
-void
-release_forks(int i)
+static void
+test(int i)
 {
-	char c[10];
-	uint_to_base(i, c, 10);
-	// puts("deje el fork y soy el : ", 0xf0f00f);
-	// puts(c, 0xf0f00f);
-	// puts("\n", 0xf0f00f);
-
-	asm_sem_wait(table_mutex);
-	phylos[i]->philo_state = THINKING;
-	check_for_forks(LEFT(i));
-	check_for_forks(RIGHT(i));
-	flag_change_state = 1;
-	asm_sem_post(table_mutex);
-}
-
-void
-check_for_forks(int i)
-{
-	// char c[10];
-	// uint_to_base(i, c, 10);
-	// puts("checkeo el fork y soy el : ", 0xf0f00f);
-	// puts(c, 0xf0f00f);
-	// puts("\n", 0xf0f00f);
-	if (phylos[i]->philo_state == HUNGRY && phylos[LEFT(i)]->philo_state != EATING &&
-	    phylos[RIGHT(i)]->philo_state != EATING) {
-		phylos[i]->philo_state = EATING;
-		flag_change_state = 1;
-		asm_sem_post(phylos[i]->sem);
+	if (philosopher_states[i] == HUNGRY && philosopher_states[left(i)] != EATING &&
+	    philosopher_states[right(i)] != EATING) {
+		philosopher_states[i] = EATING;
+		render();
+		asm_sem_post(philosopher_semaphore(i));
 	}
 }
