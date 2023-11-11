@@ -18,6 +18,11 @@
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
+#define DEV_NULL -1
+
+#define READ 0
+#define WRITE 1
+#define ERROR 2
 
 
 #endif

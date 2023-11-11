@@ -36,8 +36,8 @@ global asm_pipe_open
 global asm_pipe_open_for_pid
 global asm_pipe_close
 global asm_pipe_close_for_pid
-global asm_read_fd
-global asm_write_fd
+global asm_read_pipe
+global asm_write_pipe
 global asm_get_last_free_pipe
 global asm_get_fds
 
@@ -96,8 +96,8 @@ sys_pipe_open           equ 31
 sys_pipe_open_for_pid   equ 32
 sys_pipe_close          equ 33
 sys_pipe_close_for_pid  equ 34
-sys_read_fd             equ 35
-sys_write_fd            equ 36
+sys_read_pipe             equ 35
+sys_write_pipe            equ 36
 
 
 
@@ -227,11 +227,11 @@ asm_pipe_close:
 asm_pipe_pipe_close_for_pid:
     syscall_handler sys_pipe_close_for_pid
 
-asm_read_fd:
-    syscall_handler sys_read_fd
+asm_read_pipe:
+    syscall_handler sys_read_pipe
 
-asm_write_fd:
-    syscall_handler sys_write_fd
+asm_write_pipe:
+    syscall_handler sys_write_pipe
 
 asm_waiting_for_pid:
     syscall_handler sys_waiting_for_pid

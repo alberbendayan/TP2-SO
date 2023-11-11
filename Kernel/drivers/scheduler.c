@@ -577,7 +577,7 @@ int * get_file_descriptors(){
 	if(p==NULL){
 		return NULL;
 	}
-	int to_ret =  mm_malloc(3 *sizeof(int));
+	int* to_ret =  mm_malloc(3 *sizeof(int));
 	for(int i = 0;i<3;i++){
 		to_ret[i]=p->file_descriptors[i];
 	}

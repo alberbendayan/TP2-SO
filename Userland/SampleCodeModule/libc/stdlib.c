@@ -1,14 +1,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <syscalls.h>
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+#define DEV_NULL -1
+
+#define READ 0
+#define WRITE 1
+#define ERROR 2
+
+#define EOF -1
+
+#define BUILT_IN_DESCRIPTORS 3
 
 uint32_t
 gets(char* buff, uint32_t size, uint32_t color)
 {
 	uint8_t c, state;
 	uint32_t len = 0;
-
-	while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
+	int* fd;
+	fd=asm_get_fds();
+	if(fd[READ]==STDIN){
+		while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
 		if (c && state == PRESSED) {
 			if (c != '\b') {
 				if (len < size - 1) {
@@ -27,6 +41,21 @@ gets(char* buff, uint32_t size, uint32_t color)
 	putchar('\n', color);
 	buff[len] = 0;
 	return len;
+	}
+	else 	if (fd[READ] == DEV_NULL) 
+	{
+		buff[0] = EOF;
+		return 0;
+	}
+	else if (fd[READ] < DEV_NULL)
+	{
+		return -1;
+	}
+	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
+		return asm_read_pipe(fd[READ], buff, size);
+	}
+	
+	
 }
 
 uint8_t
@@ -39,8 +68,25 @@ void
 puts(char* str, uint32_t color)
 {
 	uint64_t len = strlen(str);
-	for (int i = 0; i < len; i++)
+	int* fd;
+	fd=asm_get_fds();
+	if(fd[WRITE]==STDOUT || fd[WRITE]==STDERR){
+		for (int i = 0; i < len; i++)
 		putchar(str[i], color);
+	}
+	else if (fd[WRITE] == DEV_NULL)
+	{
+		return 0;
+	}
+	else if (fd[WRITE] < DEV_NULL)
+	{
+		return -1;
+	}
+	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
+		{
+			return asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
+		}
+	
 }
 
 void

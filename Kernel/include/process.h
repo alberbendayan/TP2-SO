@@ -21,7 +21,7 @@ typedef enum
 
 #define READ 0
 #define WRITE 1
-
+#define ERROR 2
 typedef struct process
 {
 	uint16_t pid;
