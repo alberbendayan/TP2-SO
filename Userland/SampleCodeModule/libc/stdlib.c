@@ -310,22 +310,13 @@ customAtoi(const char* str)
 
 	return result * sign;
 }
-int
-removeVocals(char* buf, int length)
+uint8_t
+is_vocal(char buf)
 {
-	int i = 0;
-	for (int j = 0; j < length; j++) {
-		while (j < length && ((buf[j] == 'a' || buf[j] == 'e' || buf[j] == 'i' || buf[j] == 'o' || buf[j] == 'u') ||
-		                      (buf[j] == 'A' || buf[j] == 'E' || buf[j] == 'I' || buf[j] == 'O' || buf[j] == 'U'))) {
-			j++;
-		}
-		if (j < length) {
-			buf[i] = buf[j];
-			i++;
-		}
-	}
-	buf[i] = 0;
-	return i;
+	return ((buf == 'a' || buf == 'e' || buf == 'i' || buf == 'o' || buf == 'u') ||
+		                      (buf == 'A' || buf == 'E' || buf == 'I' || buf== 'O' || buf == 'U'));
+			
+		
 }
 
 void*

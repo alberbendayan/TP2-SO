@@ -219,7 +219,7 @@ process_input(char* buff, int size)
 
 	int pipe_pos = NO_PIPE;
 	for (int i = 0; pipe_pos == NO_PIPE && i < args_len; i++) {
-		if (strcmp(args[i], "|")) {
+		if (strcmp(args[i], "=")) {
 			pipe_pos = i;
 			args[i] = NULL;
 		}
@@ -625,17 +625,21 @@ loop(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pip
 void
 func_cat(int args_len, char* args[MAX_ARGS])
 {
-	char buffer[20] = { 0 };
-	int len;
+	char buffer= 0 ;
+	uint8_t state;
 
 	while (1) {
-		len = gets(buffer, 1, color.output);
+		while (state != PRESSED) {
+			buffer = getchar(&state);
+		}
 
-		if (len == EOF) {
+		if (buffer == EOF) {
+			putchar('\n', color.output);
 			return;
 		}
 
-		puts(buffer, color.output);
+		putchar(buffer, color.output);
+		state=0;
 	}
 }
 static int
@@ -648,28 +652,24 @@ cat(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe
 void
 func_filter(int args_len, char* args[MAX_ARGS])
 {
-	char buffer[1] = { 0 };
-	int len;
+	char buffer = 0;
 	uint8_t state;
 
 	while (1) {
-		// puts("entre al while", color.output);
 		while (state != PRESSED) {
-			buffer[0] = getchar(&state);
+			buffer = getchar(&state);
 		}
 
-		if (buffer[0] == EOF) {
+		if (buffer == EOF) {
 			putchar('\n', color.output);
 			return;
 		}
 
-		int len2 = removeVocals(buffer, len);
-		if (len2 != 0) {
-			putchar(buffer[0], color.output);
+		
+		if (!is_vocal(buffer)) {
+			putchar(buffer, color.output);
 		}
 		state = 0;
-
-		// puts(buffer,color.output);
 	}
 }
 static int
@@ -681,21 +681,25 @@ filter(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum p
 void
 func_wc(char argc, char** argv)
 {
-	char buffer[20] = { 0 };
-	int count = 1;
-	int len;
-	while (1) {
-		len = gets(buffer, 1, color.output);
-
-		if (len == EOF) {
-			return;
+	char buffer = 0 ;
+	uint64_t count = 1;
+	uint8_t state;
+	
+	while (!(buffer == EOF)) {
+		while (state != PRESSED) {
+			buffer = getchar(&state);
 		}
-
-		if (len == '\n') {
+		if (buffer == '\n') {
 			count++;
 		}
+		state=0;
 	}
-	puts("Cantidad de lineas: %d\n", count);
+	putchar('\n', color.output);
+	puts("Cantidad de lineas: ", color.output);
+	char aux[10];
+	uint_to_base(count,aux,10);
+	puts(aux,color.output);
+	putchar('\n', color.output);
 	return 0;
 }
 static int

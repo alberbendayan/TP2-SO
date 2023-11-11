@@ -69,4 +69,6 @@ uint8_t is_hex_color_code(char* code);
  */
 uint32_t hex_to_uint(char* code);
 
+uint8_t is_vocal(char buf);
+
 #endif
