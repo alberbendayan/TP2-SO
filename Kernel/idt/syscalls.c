@@ -18,8 +18,6 @@
 #define EOF -1
 
 
-static uint64_t write(uint64_t pid, uint64_t fd, char *source_buffer, uint64_t len);
-static uint64_t read(uint64_t fd, char *destination_buffer, uint64_t len);
 
 enum syscalls
 {

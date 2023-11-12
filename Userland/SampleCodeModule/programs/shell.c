@@ -550,14 +550,13 @@ loop(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 void
 func_cat(int args_len, char* args[MAX_ARGS])
 {
-	char buffer[1024], val;
-	int len, state;
+	char buffer[1024];
+	int len;
 
 	while (1) {
 		len = gets(buffer, 1024, color.fg);
 
 		if (buffer[len + 1] == EOF) {
-			puts("EOF desde cat\n", color.output);
 			return;
 		}
 

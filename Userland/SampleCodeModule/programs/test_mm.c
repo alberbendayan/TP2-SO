@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <test_util.h>
 #include <syscalls.h>
+#include <loader.h>
 
 #define MAX_BLOCKS 128
 
