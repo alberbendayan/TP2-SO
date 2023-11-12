@@ -57,7 +57,7 @@ static process*
 get_process_by_pid(uint32_t pid)
 {
 	scheduler_ADT scheduler = get_address();
-	for (int8_t i = 0; i <= scheduler->max_pid && i<=MAX_PROCESSES; i++) {
+	for (int8_t i = 0; i <= scheduler->max_pid; i++) {
 		process* proc = (process*)scheduler->processes[i]->data;
 		if (pid == proc->pid) {
 			return proc;
@@ -361,19 +361,33 @@ void
 keyboard_interruption()
 {
 	scheduler_ADT scheduler = get_address();
-	process* p;
-	uint8_t flag = 1;
-	for (int i = 2; i < scheduler->qty_processes; i++) {
-		p = scheduler->processes[i]->data;
-		// if(strcmp(p->name,"phylos")){
-		// 	unblock_process(p->pid);
-		// }
-		if ((p->file_descriptors[STDIN] == STDIN && (p->status == READY || p->status == RUNNING))) {
-			unblock_process(p->pid);
-			flag = 0;
+	process* p,*p2;
+	uint8_t flag = 1,flag_p=1;
+	for (int i = 2; i < scheduler->max_pid; i++) {
+		if(scheduler->processes[i]!=NULL){
+			p=(process*) scheduler->processes[i]->data;
+			for(int j=2;j < scheduler->max_pid; j++)
+			{
+				if(scheduler->processes[j]!=NULL)
+				{
+					p2 =(process*) scheduler->processes[j]->data;
+					if(process_is_waiting(p,p2->pid)){
+						flag_p=0;
+					}
+
+				}
+			}
+			if((flag_p && p->file_descriptors[STDIN] == STDIN)) 
+			{
+				unblock_process(p->pid);
+				return;
+			}
+		}
+		if(process_is_waiting((process*) scheduler->processes[i]->data,p->pid)){
+			flag=0;
 		}
 	}
-	if (flag) {
+	if (flag ) {
 		unblock_process(SHELL_PID);
 	}
 }
