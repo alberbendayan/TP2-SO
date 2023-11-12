@@ -25,7 +25,7 @@
 #define NULL (void*)0
 typedef struct
 {
-	uint32_t (*fn)();
+	int (*fn)();
 	char *name, *desc;
 } Command;
 
@@ -45,91 +45,91 @@ enum fds_positions
 
 static Command commands[MAX_COMMANDS];
 static char input_buffer[INPUT_SIZE];
-static uint32_t commands_len = 0;
+static int commands_len = 0;
 static uint8_t running = 1;
 
 static void load_commands();
-static void load_command(uint32_t (*fn)(), char* name, char* desc);
-static int32_t process_input(char* buff, uint32_t size);
+static void load_command(int (*fn)(), char* name, char* desc);
+static int32_t process_input(char* buff, int size);
 static int32_t process_commands(char* args[MAX_ARGS],
-                                uint32_t args_len,
+                                int args_len,
                                 uint8_t foreground,
                                 int fd[3],
                                 enum pipe_flag pipe_flag);
 static void prompt(int32_t status);
 
-static uint32_t
+static int
 create_process(char** args, int* fd, char* name, int unkillable, int priority, void* code, uint8_t foreground);
 
 // commands
-static uint32_t help(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t datetime(char* args[MAX_ARGS],
-                         uint32_t args_len,
+static int help(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int datetime(char* args[MAX_ARGS],
+                         int args_len,
                          uint8_t foreground,
                          int fd[3],
                          enum pipe_flag pipe_flag);
-static uint32_t exit();
-static uint32_t printreg(char* args[MAX_ARGS],
-                         uint32_t args_len,
+static int exit();
+static int printreg(char* args[MAX_ARGS],
+                         int args_len,
                          uint8_t foreground,
                          int fd[3],
                          enum pipe_flag pipe_flag);
-static uint32_t clear();
-static uint32_t testioe();
-static uint32_t testzde();
-static uint32_t pong();
-static uint32_t setcolor(char* args[MAX_ARGS],
-                         uint32_t args_len,
+static int clear();
+static int testioe();
+static int testzde();
+static int pong();
+static int setcolor(char* args[MAX_ARGS],
+                         int args_len,
                          uint8_t foreground,
                          int fd[3],
                          enum pipe_flag pipe_flag);
-static uint32_t switchcolors();
-static uint32_t memstatus(char* args[MAX_ARGS],
-                          uint32_t args_len,
+static int switchcolors();
+static int memstatus(char* args[MAX_ARGS],
+                          int args_len,
                           uint8_t foreground,
                           int fd[3],
                           enum pipe_flag pipe_flag);
-static uint32_t ps(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t pid(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t kill(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t block(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t unblock(char* args[MAX_ARGS],
-                        uint32_t args_len,
+static int ps(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int pid(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int kill(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int block(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int unblock(char* args[MAX_ARGS],
+                        int args_len,
                         uint8_t foreground,
                         int fd[3],
                         enum pipe_flag pipe_flag);
-static uint32_t nice(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t filter(char* args[MAX_ARGS],
-                       uint32_t args_len,
+static int nice(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int loop(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int cat(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int filter(char* args[MAX_ARGS],
+                       int args_len,
                        uint8_t foreground,
                        int fd[3],
                        enum pipe_flag pipe_flag);
-static uint32_t wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
-static uint32_t yield();
-static uint32_t phylos(char* args[MAX_ARGS],
-                       uint32_t args_len,
+static int wc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag);
+static int yield();
+static int phylos(char* args[MAX_ARGS],
+                       int args_len,
                        uint8_t foreground,
                        int fd[3],
                        enum pipe_flag pipe_flag);
-static uint32_t testmm(char* args[MAX_ARGS],
-                       uint32_t args_len,
+static int testmm(char* args[MAX_ARGS],
+                       int args_len,
                        uint8_t foreground,
                        int fd[3],
                        enum pipe_flag pipe_flag);
-static uint32_t testprio(char* args[MAX_ARGS],
-                         uint32_t args_len,
+static int testprio(char* args[MAX_ARGS],
+                         int args_len,
                          uint8_t foreground,
                          int fd[3],
                          enum pipe_flag pipe_flag);
-static uint32_t testproc(char* args[MAX_ARGS],
-                         uint32_t args_len,
+static int testproc(char* args[MAX_ARGS],
+                         int args_len,
                          uint8_t foreground,
                          int fd[3],
                          enum pipe_flag pipe_flag);
-static uint32_t testsync(char* args[MAX_ARGS],
-                         uint32_t args_len,
+static int testsync(char* args[MAX_ARGS],
+                         int args_len,
                          uint8_t foreground,
                          int fd[3],
                          enum pipe_flag pipe_flag);
@@ -186,7 +186,7 @@ load_commands()
 }
 
 static void
-load_command(uint32_t (*fn)(), char* name, char* desc)
+load_command(int (*fn)(), char* name, char* desc)
 // load_command(, char* name, char* desc)
 {
 	if (commands_len >= MAX_COMMANDS)
@@ -198,11 +198,11 @@ load_command(uint32_t (*fn)(), char* name, char* desc)
 }
 
 static int32_t
-process_input(char* buff, uint32_t size)
+process_input(char* buff, int size)
 {
 	char* args[MAX_ARGS];
 	uint8_t foreground;
-	uint32_t args_len = 0;
+	int args_len = 0;
 	args_len = strtok(buff, ' ', args, MAX_ARGS);
 	args[args_len] = NULL;
 
@@ -232,7 +232,7 @@ process_input(char* buff, uint32_t size)
 		int pipe_id = asm_get_last_free_pipe();
 		int fd_left[3] = { STDIN, pipe_id, STDERR };
 		int fd_right[3] = { pipe_id, STDOUT, STDERR };
-		/*
+		
 		for (int i = 0; i < pipe_pos; i++) {
 			puts(args[i], 0xffffff);
 			puts(" ", 0xffffff);
@@ -242,16 +242,16 @@ process_input(char* buff, uint32_t size)
 			puts(args[pipe_pos + 1 + i], 0xffffff);
 			puts(" ", 0xffffff);
 		}
-		puts("\n", 0xffffff);*/
-		process_commands(args, pipe_pos, foreground, fd_left, PIPED_COMMAND_LEFT);
-		
+		puts("\n", 0xffffff);
+		int left=process_commands(args, pipe_pos, foreground, fd_left, PIPED_COMMAND_LEFT);
+		asm_wait_pid(left);
 		process_commands(args + pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right, PIPED_COMMAND_RIGHT);
 		return -1;
 	}
 }
 
 static int32_t
-process_commands(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+process_commands(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
 	for (int i = 0; i < commands_len; i++) {
 		if (strcmp(args[0], commands[i].name)) {
@@ -274,7 +274,7 @@ prompt(int32_t status)
 	// asm_block_process(1);
 }
 
-static uint32_t
+static int
 create_process(char** args, int* fd, char* name, int unkillable, int priority, void* code, uint8_t foreground)
 {
 	process_initialization p;
@@ -297,7 +297,7 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 	return ret;
 }
 
-static uint32_t
+static int
 func_help(int args_len, char* args[MAX_ARGS])
 {	
 	for (int i = 0; i < commands_len; i++) {
@@ -308,38 +308,38 @@ func_help(int args_len, char* args[MAX_ARGS])
 	return 0;
 }
 
-static uint32_t
-help(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+help(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "help", 0, 4, &func_help, foreground);
+	return create_process(args, fd, "help", 0, 4, &func_help, foreground);
 
-	return 0;
+	
 }
 
-static uint32_t
+static int
 func_datetime(int args_len, char* args[MAX_ARGS])
 {
 	asm_datetime(color.output);
 	return 0;
 }
 
-static uint32_t
-datetime(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+datetime(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "datetime", 0, 4, &func_datetime, foreground);
+	return  create_process(args, fd, "datetime", 0, 4, &func_datetime, foreground);
 
-	return 0;
+	
 }
 
 // el clear lo dejo como builtin de la shell
-static uint32_t
+static int
 clear()
 {
 	asm_clear(color.bg);
 	return 0;
 }
 // finaliza proceso
-static uint32_t
+static int
 exit()
 {
 	puts("Shell has finished", color.output);
@@ -347,38 +347,36 @@ exit()
 	return 0;
 }
 
-static uint32_t
+static int
 func_printreg(int args_len, char* args[MAX_ARGS])
 {
 	asm_printreg(color.output);
 	return 0;
 }
 
-static uint32_t
-printreg(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+printreg(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	int pid = create_process(args, fd, "printreg", 0, 4, &func_printreg, foreground);
-
-	return 0;
+	return  create_process(args, fd, "printreg", 0, 4, &func_printreg, foreground);
 }
 
 // las excepciones las dejamos asi xq no son requisito del tp
-static uint32_t
+static int
 testioe()
 {
 	asm_testioe();
 	return 0;
 }
 
-static uint32_t
+static int
 testzde()
 {
 	asm_testzde();
 	return 0;
 }
 // builtin de la shell
-static uint32_t
-setcolor(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+setcolor(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
 	if (args_len != 3) {
 		puts("USAGE: setcolor <target> <color>\n<target>   fg | bg | output | prompt | error\n<color>    The color in "
@@ -395,11 +393,11 @@ setcolor(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3],
 	}
 
 	char* targets[] = { "fg", "bg", "output", "prompt", "error" };
-	uint32_t targets_len = sizeof(targets) / sizeof(targets[0]);
+	int targets_len = sizeof(targets) / sizeof(targets[0]);
 
 	for (int i = 0; i < targets_len; i++) {
 		if (strcmp(targets[i], args[1])) {
-			uint32_t col = hex_to_uint(args[2]);
+			int col = hex_to_uint(args[2]);
 			switch (i) {
 				case 0: {
 					color.fg = col;
@@ -432,17 +430,17 @@ setcolor(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3],
 	return -1;
 }
 // builtin de la shell
-static uint32_t
+static int
 switchcolors()
 {
-	uint32_t aux = color.bg;
+	int aux = color.bg;
 	color.bg = color.fg;
 	color.fg = aux;
 	clear();
 	return 0;
 }
 
-static uint32_t
+static int
 func_memstatus(int args_len, char* args[MAX_ARGS])
 {
 	char c1[32], c2[32], c3[32];
@@ -460,16 +458,14 @@ func_memstatus(int args_len, char* args[MAX_ARGS])
 	puts("\n", color.output);
 	return 0;
 }
-static uint32_t
-memstatus(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+memstatus(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	int pid = create_process(args, fd, "memstatus", 0, 4, &func_memstatus, foreground);
+	return create_process(args, fd, "memstatus", 0, 4, &func_memstatus, foreground);
 
-	// return asm_kill_process(pid,0);
-	return 0;
 }
 
-static uint32_t
+static int
 func_ps(int args_len, char* args[MAX_ARGS])
 {
 	char* string = asm_get_snapshots_info();
@@ -478,16 +474,14 @@ func_ps(int args_len, char* args[MAX_ARGS])
 	return 0;
 }
 
-static uint32_t
-ps(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+ps(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	int pid = create_process(args, fd, "ps", 0, 4, &func_ps, foreground);
+	return  create_process(args, fd, "ps", 0, 4, &func_ps, foreground);
 
-	// return asm_kill_process(pid,0);
-	return 0;
 }
 
-static uint32_t
+static int
 func_pid(int args_len, char* args[MAX_ARGS])
 {
 	char aux[6];
@@ -498,15 +492,13 @@ func_pid(int args_len, char* args[MAX_ARGS])
 	return 0;
 }
 
-static uint32_t
-pid(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+pid(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "pid", 0, 4, &func_pid, foreground);
-
-	return 0;
+	return create_process(args, fd, "pid", 0, 4, &func_pid, foreground);
 }
 
-static uint32_t
+static int
 func_kill(int args_len, char* args[MAX_ARGS])
 {
 	if (args_len == 2) {
@@ -525,15 +517,15 @@ func_kill(int args_len, char* args[MAX_ARGS])
 	return 0;
 }
 
-static uint32_t
-kill(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+kill(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "kill", 0, 4, &func_kill, foreground);
+	return  create_process(args, fd, "kill", 0, 4, &func_kill, foreground);
 
-	return 0;
+	
 }
 
-static uint32_t
+static int
 func_block(int args_len, char* args[MAX_ARGS])
 {
 	if (args_len == 2) {
@@ -547,10 +539,10 @@ func_block(int args_len, char* args[MAX_ARGS])
 	return asm_kill_current_process(1);
 }
 
-static uint32_t
-block(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+block(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "block", 0, 4, &func_block, foreground);
+	return create_process(args, fd, "block", 0, 4, &func_block, foreground);
 
 	return 0;
 }
@@ -569,10 +561,10 @@ func_unblock(int args_len, char* args[MAX_ARGS])
 	return asm_kill_current_process(1);
 }
 
-static uint32_t
-unblock(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+unblock(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "unblock", 0, 4, &func_unblock, foreground);
+	return create_process(args, fd, "unblock", 0, 4, &func_unblock, foreground);
 
 	return 0;
 }
@@ -593,15 +585,15 @@ func_nice(int args_len, char* args[MAX_ARGS])
 	return 1;
 }
 
-static uint32_t
-nice(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+nice(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
 	int pid = create_process(args, fd, "nice", 0, 4, &func_nice, foreground);
 
 	return asm_kill_process(pid, 0);
 }
 
-static uint32_t
+static int
 yield()
 {
 	asm_yield();
@@ -623,12 +615,11 @@ func_loop(int args_len, char* args[MAX_ARGS])
 	return 0;
 }
 
-static uint32_t
-loop(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+loop(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "loop", 0, 4, &func_loop, foreground);
+	return create_process(args, fd, "loop", 0, 4, &func_loop, foreground);
 
-	return 0;
 }
 
 void
@@ -647,12 +638,11 @@ func_cat(int args_len, char* args[MAX_ARGS])
 		puts(buffer, color.output);
 	}
 }
-static uint32_t
-cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+cat(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "cat", 0, 4, &func_cat, foreground);
+	return create_process(args, fd, "cat", 0, 4, &func_cat, foreground);
 
-	return 0;
 }
 
 void
@@ -682,12 +672,10 @@ func_filter(int args_len, char* args[MAX_ARGS])
 		// puts(buffer,color.output);
 	}
 }
-static uint32_t
-filter(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+filter(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "filter", 0, 4, &func_filter, foreground);
-
-	return 0;
+	return create_process(args, fd, "filter", 0, 4, &func_filter, foreground);
 }
 
 void
@@ -710,49 +698,41 @@ func_wc(char argc, char** argv)
 	puts("Cantidad de lineas: %d\n", count);
 	return 0;
 }
-static uint32_t
-wc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+wc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "wc", 0, 4, &func_wc, foreground);
-
-	return 0;
+	return create_process(args, fd, "wc", 0, 4, &func_wc, foreground);
 }
 
-static uint32_t
-phylos(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+phylos(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "phylos", 0, 4, &run_philosophers, foreground);
-
-	return 0;
+	return create_process(args, fd, "phylos", 0, 4, &run_philosophers, foreground);
 }
 
-static uint32_t
-testmm(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+testmm(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
 	puts("Testeando el memory\n", 0xff0000);
-	uint32_t pid = create_process(args, fd, "testmm", 0, 4, &test_mm, foreground);
+	return create_process(args, fd, "testmm", 0, 4, &test_mm, foreground);
 
-	return 0;
 }
-static uint32_t
-testprio(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+testprio(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "testprio", 0, 4, &test_prio, foreground);
+	return create_process(args, fd, "testprio", 0, 4, &test_prio, foreground);
 
-	return 0;
 }
-static uint32_t
-testproc(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+testproc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
-	uint32_t pid = create_process(args, fd, "testproc", 0, 4, &test_processes, foreground);
+	return create_process(args, fd, "testproc", 0, 4, &test_processes, foreground);
 
-	return 0;
 }
-static uint32_t
-testsync(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
+static int
+testsync(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3], enum pipe_flag pipe_flag)
 {
 	puts("Testeando sincronizacion\n", 0xff0000);
-	uint32_t pid = create_process(args, fd, "test_sync", 0, 4, &test_sync, foreground);
+	return create_process(args, fd, "test_sync", 0, 4, &test_sync, foreground);
 
-	return 0;
 }
