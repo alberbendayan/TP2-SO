@@ -10,6 +10,8 @@
 #define MAX_ARGS 8
 #define INPUT_SIZE 200
 
+#define BUFFER_SIZE 4096
+
 #define PONG_FG 0xf5ebbc
 #define PONG_BG 0x151f42
 
@@ -242,6 +244,7 @@ process_input(char* buff, uint32_t size)
 		}
 		puts("\n", 0xffffff);*/
 		process_commands(args, pipe_pos, foreground, fd_left, PIPED_COMMAND_LEFT);
+		
 		process_commands(args + pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right, PIPED_COMMAND_RIGHT);
 		return -1;
 	}
@@ -258,7 +261,7 @@ process_commands(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, in
 
 	puts("Command not found: ", color.output);
 	puts(args[0], color.output);
-	putchar('\n', color.output);
+	puts("\n", color.output);
 	return -1;
 }
 
@@ -267,7 +270,7 @@ prompt(int32_t status)
 {
 	asm_sleep(6);
 	puts(">>>", color.prompt);
-	putchar(' ', color.fg);
+	puts(" ", color.fg);
 	// asm_block_process(1);
 }
 
@@ -296,13 +299,12 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 
 static uint32_t
 func_help(int args_len, char* args[MAX_ARGS])
-{
+{	
 	for (int i = 0; i < commands_len; i++) {
 		puts(commands[i].name, color.output);
 		puts(commands[i].desc, color.output);
 		putchar('\n', color.output);
 	}
-
 	return 0;
 }
 
@@ -656,13 +658,13 @@ cat(char* args[MAX_ARGS], uint32_t args_len, uint8_t foreground, int fd[3], enum
 void
 func_filter(int args_len, char* args[MAX_ARGS])
 {
-	char buffer[20] = { 0 };
+	char buffer[1] = { 0 };
 	int len;
 	uint8_t state;
 
 	while (1) {
 		// puts("entre al while", color.output);
-		while (!(state == PRESSED)) {
+		while (state != PRESSED) {
 			buffer[0] = getchar(&state);
 		}
 

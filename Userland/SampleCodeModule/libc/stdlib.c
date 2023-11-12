@@ -23,7 +23,6 @@ gets(char* buff, uint32_t size, uint32_t color)
 	fd=asm_get_fds();
 
 	if(fd[READ]==STDIN){
-		putchar('A',0xfff);
 		while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
 		if (c && state == PRESSED) {
 			if (c != '\b') {
@@ -42,23 +41,24 @@ gets(char* buff, uint32_t size, uint32_t color)
 	}
 	putchar('\n', color);
 	buff[len] = 0;
+	asm_free(fd);
 	return len;
 	}
 	else 	if (fd[READ] == DEV_NULL) 
 	{
+		asm_free(fd);
 		buff[0] = EOF;
 		return 0;
 	}
 	else if (fd[READ] < DEV_NULL)
 	{
+		asm_free(fd);
 		return -1;
 	}
 	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
-		putchar('B',0xfff);
-		asm_pipe_open(fd[READ],READ);
 		int lens=asm_read_pipe(fd[READ], buff, size);
 		puts(buff,color);
-		asm_pipe_close(fd[READ]);
+		asm_free(fd);
 		return lens;
 	}
 	
@@ -68,7 +68,31 @@ gets(char* buff, uint32_t size, uint32_t color)
 uint8_t
 getchar(uint8_t* state)
 {
-	return asm_getchar(state);
+	int* fd;
+	fd=asm_get_fds();
+	char buff[2];
+	if(fd[READ]==STDIN){
+		char c= asm_getchar(state);
+		asm_free(fd);
+		return c;
+	}
+		else 	if (fd[READ] == DEV_NULL) 
+	{
+		asm_free(fd);
+		buff[0] = EOF;
+		return 0;
+	}
+	else if (fd[READ] < DEV_NULL)
+	{
+		asm_free(fd);
+		return -1;
+	}
+	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
+		int lens=asm_read_pipe(fd[READ], buff, 1);
+		*state=PRESSED;
+		asm_free(fd);
+		return buff[0];
+	}
 }
 
 void
@@ -78,34 +102,32 @@ puts(char* str, uint32_t color)
 	int* fd;
 	fd=asm_get_fds();
 	if(fd[WRITE]==STDOUT || fd[WRITE]==STDERR){
-				putchar('C',0xfff);
-
 		for (int i = 0; i < len; i++)
 		putchar(str[i], color);
 	}
-	else if (fd[WRITE] == DEV_NULL)
+	else if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
 	{
-		return 0;
-	}
-	else if (fd[WRITE] < DEV_NULL)
-	{
-		return -1;
-	}
-	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
-	{
-				putchar('D',0xfff);
-		asm_pipe_open(fd[WRITE],WRITE);
 		asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
-		asm_pipe_close(fd[WRITE]);
-		return ;
+		
 	}
-	
+	asm_free(fd);
 }
 
 void
 putchar(char c, uint32_t color)
 {
-	asm_putchar(c, color);
+	int* fd;
+	fd=asm_get_fds();
+	if(fd[WRITE]==STDOUT || fd[WRITE]==STDERR){
+		asm_putchar(c, color);
+
+	}
+	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
+	{
+		asm_write_pipe(asm_get_current_id(), fd[WRITE], &c, 1);
+		
+	}
+	asm_free(fd);
 }
 
 uint64_t
