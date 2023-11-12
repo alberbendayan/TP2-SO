@@ -142,7 +142,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_MALLOC: {
-			return mm_malloc(rsi);
+			return (uint64_t) mm_malloc(rsi);
 		} break;
 
 		case SYS_FREE: {
@@ -174,7 +174,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		} break;
 
 		case SYS_GET_SNAPSHOTS_INFO: {
-			return (char*) get_snapshots_info();
+			return (uint64_t) get_snapshots_info();
 		} break;
 
 		case SYS_GET_CURRENT_ID: {
@@ -247,7 +247,7 @@ syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint6
 		}break;
 
 		case SYS_GET_FDS:{
-			return get_file_descriptors();
+			return (uint64_t) get_file_descriptors();
 		}break;
 			
 	}

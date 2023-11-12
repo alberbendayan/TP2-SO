@@ -7,6 +7,8 @@
 #include <string.h>
 #include <video.h>
 #include <scheduler.h>
+#include <libasm.h>
+#include <pipesADT.h>
 
 #define STACK_SIZE (4096)
 
@@ -52,7 +54,7 @@ init_process(process* proc,
 	memcpy(proc->name, name, strlen(name) + 1);
 	proc->priority = priority;
 	void* stack_end = (void*)((uint64_t)proc->stack_base + STACK_SIZE);
-	proc->stack_pos = asm_initialize_stack(&process_wrapper, code, stack_end, (void*)proc->argv);
+	proc->stack_pos =  asm_initialize_stack(&process_wrapper, code, stack_end, (void*)proc->argv);
 	proc->status = READY;
 	proc->unkillable = unkillable;
 	proc->pointer_fd_to_free=file_descriptors;
@@ -78,7 +80,7 @@ close_file_descriptors(process* proc)
 	close_file_descriptor(proc->pid, proc->file_descriptors[STDIN]);   // esta en el .h
 	close_file_descriptor(proc->pid, proc->file_descriptors[STDOUT]);  // esta en el .h
 	close_file_descriptor(proc->pid, proc->file_descriptors[STDERR]);  // esta en el .h
-	//mm_free(proc->pointer_fd_to_free);
+	//mm_free(proc->pointer_fd_to_free); // sin este free me queda memoria sin liberar pero con este free se me rompen los filosofos
 }
 
 static void
@@ -114,7 +116,7 @@ void
 free_process(process* proc)
 {
 	mm_free(proc->stack_base);
-	mm_free(proc->argv);  // faltaba
+	mm_free(proc->argv);  
 	mm_free(proc->name);
 	mm_free(proc);
 }

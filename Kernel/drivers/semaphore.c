@@ -51,11 +51,7 @@ sem_open(uint32_t id, uint32_t init_val)
 static semaphore*
 get_sem(uint32_t id)
 {
-	char c[10];
-	// tx_put_word("pido el sem de id : ", 0x0000ff);
-	// uint_to_base(id, c, 10);
-	// tx_put_word(c, 0x0000ff);
-	// tx_put_word("\n", 0x0000ff);
+	
 
 	semaphore* my_sem = NULL;
 	semaphore * ret= NULL;
@@ -64,15 +60,6 @@ get_sem(uint32_t id)
 	while (has_next(sem_adt->semaphores)) {
 		my_sem = next(sem_adt->semaphores);
 
-		// tx_put_word("tengo el sem de id : ", 0x0000ff);
-		// uint_to_base(my_sem->id, c, 10);
-		// tx_put_word(c, 0x0000ff);
-		// tx_put_word("y soy el id : ", 0x0000ff);
-		// uint_to_base(id, c, 10);
-		// tx_put_word(c, 0x0000ff);
-
-		// tx_put_word("\n", 0x0000ff);
-
 		if (my_sem->id == id) {
 			ret= my_sem;
 		}
@@ -80,6 +67,7 @@ get_sem(uint32_t id)
 
 	return ret;
 }
+
 
 static semaphore*
 new_sem(uint32_t id, uint32_t val)
@@ -112,7 +100,7 @@ sem_close(uint32_t id)
 		return 0;
 	}
 
-	remove_node(sem_adt->semaphores, sem_to_close);
+	remove_node(sem_adt->semaphores, (node *) sem_to_close);
 	mm_free((void*)sem_to_close);
 	return 0;
 }
@@ -120,13 +108,7 @@ sem_close(uint32_t id)
 int
 sem_post(uint32_t id)
 {
-	if (id == 42) {
-		// tx_put_word("Hago un post de: ", 0x0000ff);
-		// char c[4];
-		// uint_to_base(id, c, 10);
-		// tx_put_word(c, 0x0000ff);
-		// tx_put_word("\n", 0x0000ff);
-	}
+
 	semaphore* sem = get_sem(id);
 	if (sem == NULL) {
 		return -1;
@@ -153,13 +135,7 @@ sem_post(uint32_t id)
 int
 sem_wait(uint32_t id)
 {
-	if (id == 42) {
-		// tx_put_word("Hago un wait de: ", 0x00ff00);
-		// char c[4];
-		// uint_to_base(id, c, 10);
-		// tx_put_word(c, 0x0000ff);
-		// tx_put_word("\n", 0x0000ff);
-	}
+
 	semaphore* sem = get_sem(id);
 	if (sem == NULL) {
 		return -1;

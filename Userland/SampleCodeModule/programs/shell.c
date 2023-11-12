@@ -6,6 +6,7 @@
 #include <syscalls.h>
 #include <tests.h>
 
+
 #define MAX_COMMANDS 30
 #define MAX_ARGS 8
 #define INPUT_SIZE 200
@@ -71,7 +72,6 @@ static int printreg(char* args[MAX_ARGS],
 static int clear();
 static int testioe();
 static int testzde();
-static int pong();
 static int setcolor(char* args[MAX_ARGS],
                          int args_len,
                          uint8_t foreground,
@@ -529,11 +529,12 @@ func_unblock(int args_len, char* args[MAX_ARGS])
 		int arg = customAtoi(args[1]);
 		asm_unblock_process(arg);
 		asm_unblock_process(1);
-		return asm_kill_current_process(0);
+		asm_kill_current_process(0);
+		return;
 	}
 	char* usage = "USAGE: unblock <pid> \n";
 	puts(usage, color.output);
-	return asm_kill_current_process(1);
+	asm_kill_current_process(1);
 }
 
 static int
@@ -552,12 +553,12 @@ func_nice(int args_len, char* args[MAX_ARGS])
 		int new_priority = customAtoi(args[2]);
 		asm_set_priority(pid, new_priority);
 		asm_unblock_process(1);
-		return 0;
+		return;
 	}
 	char* usage = "USAGE: nice <pid> <new status> \n";
 	puts(usage, color.output);
 	asm_unblock_process(1);
-	return 1;
+	return;
 }
 
 static int
@@ -587,7 +588,7 @@ func_loop(int args_len, char* args[MAX_ARGS])
 		puts("\n", color.bg);
 		asm_sleep(5 * 18);
 	}
-	return 0;
+	return ;
 }
 
 static int
@@ -676,7 +677,7 @@ func_wc(char argc, char** argv)
 	uint_to_base(count,aux,10);
 	puts(aux,color.output);
 	putchar('\n', color.output);
-	return 0;
+	return;
 }
 static int
 wc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])

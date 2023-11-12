@@ -90,7 +90,7 @@ my_int_to_array(int num, char result[], int buffer_size)
 	reverse(result, i);
 }
 
-static const char* philosopher_names[] = {
+static char* philosopher_names[] = {
 	"Wancho",  "Coccaro", "Mazzanti", "Pusseto", "Tobio", "Alfonso", "Fattori",  "Echeverria",
 	"Alarcon", "Fertoli", "Pereyra",  "Carrizo", "Souto", "Toranzo", "Espinoza",
 };
@@ -105,9 +105,10 @@ run_philosophers(int argc, char** argv)
 	     0xf0f0f0);
 	qty_philosophers = 0;
 	single_line = 0;
-	if (asm_sem_open(MUTEX_SEM_ID, 1) == -1)
+	if (asm_sem_open(MUTEX_SEM_ID, 1) == -1) {
 		return -1;
-
+	}
+	
 	for (int i = 0; i < MAX_QTY; i++) {
 		philosopher_states[i] = NONE;
 		philosopher_pids[i] = -1;
@@ -117,9 +118,9 @@ run_philosophers(int argc, char** argv)
 		add_philosopher(i);
 
 	char command = '\0';
-	int aux;
+	uint8_t aux;
 	while ((command = asm_getchar(&aux)) != COMMAND_QUIT) {
-		//asm_sleep(1);
+		// asm_sleep(1);
 		if (aux == 0) {
 			continue;
 		}
@@ -162,9 +163,10 @@ render()
 			}
 		}
 	}
-	if (something_to_write)
+	if (something_to_write) {
 		putchar('\n', 0xfffff);
-	// sleep(1);
+	}
+	
 }
 
 static int8_t
@@ -187,7 +189,6 @@ add_philosopher(int index)
 	p.file_descriptors = file_descriptors;
 	p.priority = 4;
 	p.unkillable = 0;
-	
 
 	philosopher_pids[index] = asm_init_process(&p);
 	if (philosopher_pids[index] != -1) {
@@ -214,8 +215,8 @@ remove_philosopher(int index)
 	}
 
 	asm_kill_process(philosopher_pids[index], 0);
-	
-	//asm_wait_pid(philosopher_pids[index]);
+
+	// asm_wait_pid(philosopher_pids[index]);
 	asm_sem_close(philosopher_semaphore(index));
 	philosopher_pids[index] = -1;
 	philosopher_states[index] = NONE;

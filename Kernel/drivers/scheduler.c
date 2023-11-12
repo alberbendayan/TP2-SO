@@ -14,7 +14,7 @@
 #define IDLE_PID 0
 #define SHELL_PID 1
 #define QUANTUM_COEF 2
-#define SCHEDULER_ADDRESS 0x60000
+#define SCHEDULER_ADDRESS (scheduler_ADT) 0x60000
 #define BUFFER_SIZE 128
 
 typedef struct scheduler_CDT
@@ -132,7 +132,7 @@ force_process(uint16_t pid)
 	}
 	p->status = READY;
 	scheduler->current_pid = pid;
-	asm_move_rsp(p->stack_pos);
+	asm_move_rsp((uint64_t) p->stack_pos);
 }
 
 linked_list_ADT
@@ -190,7 +190,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 		to_ret[j++] = ' ';
 	}
 
-	uint_to_base((char*)snapshot->stack_pos, aux_sp, 10);
+	uint_to_base((uint64_t) snapshot->stack_pos, aux_sp, 10);
 	memcpy((to_ret + j), aux_sp, strlen(aux_sp));
 	j += strlen(aux_sp);
 
@@ -198,7 +198,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 		to_ret[j++] = ' ';
 	}
 
-	uint_to_base((char*)snapshot->stack_base, aux_bp, 10);
+	uint_to_base((uint64_t) snapshot->stack_base, aux_bp, 10);
 	memcpy((to_ret + j), aux_bp, strlen(aux_bp));
 	j += strlen(aux_sp);
 

@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <syscalls.h>
+
+
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
@@ -61,8 +63,7 @@ gets(char* buff, uint32_t size, uint32_t color)
 		asm_free(fd);
 		return lens;
 	}
-	
-	
+	return -1;
 }
 
 uint8_t
@@ -88,11 +89,12 @@ getchar(uint8_t* state)
 		return -1;
 	}
 	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
-		int lens=asm_read_pipe(fd[READ], buff, 1);
+		asm_read_pipe(fd[READ], buff, 1);
 		*state=PRESSED;
 		asm_free(fd);
 		return buff[0];
 	}
+	return -1;
 }
 
 void
@@ -289,7 +291,7 @@ intToArray(int num, char* result)
 }
 
 int
-customAtoi(const char* str)
+customAtoi( char* str)
 {
 	int result = 0;
 	int sign = 1;  // Para manejar el signo positivo o negativo

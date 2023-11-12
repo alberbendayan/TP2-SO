@@ -79,7 +79,7 @@ initialize_pipe()
 	pipe* my_pipe = (pipe*)mm_malloc(sizeof(pipe));
 
 	if (my_pipe == NULL) {
-		return -1;
+		return NULL;
 	}
 
 	my_pipe->start_position = 0;

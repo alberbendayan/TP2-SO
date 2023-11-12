@@ -123,6 +123,8 @@ extern char* asm_get_snapshots_info();
 
 extern uint64_t sys_get_current_id();
 
+extern uint64_t asm_get_current_id();
+
 extern uint64_t asm_block_process(int pid);
 
 extern uint64_t asm_unblock_process(int pid);
@@ -155,6 +157,8 @@ extern uint64_t asm_write_pipe(uint64_t pid, uint64_t fd, char *source_buffer, u
 extern uint64_t asm_waiting_for_pid(uint32_t my_id,uint32_t id);
 
 extern uint64_t asm_wait_pid(uint32_t my_id);
+
+extern uint64_t asm_get_last_free_pipe();
 
 extern int* asm_get_fds();
 

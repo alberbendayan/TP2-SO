@@ -83,5 +83,5 @@ my_wait(int64_t pid)
 
 int64_t
 my_malloc(int64_t size){
-	return asm_malloc(size);
+	return (int64_t) asm_malloc(size);
 }

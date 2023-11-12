@@ -29,7 +29,8 @@
         "array": "c",
         "span": "c",
         "vector": "c",
-        "string": "c"
+        "string": "c",
+        "tests.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
 }
