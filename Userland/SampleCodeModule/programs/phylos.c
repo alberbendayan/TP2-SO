@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-#define MAX_QTY 15
+#define MAX_QTY 8
 #define MIN_QTY 3
 #define MUTEX_SEM_ID 42
 #define MAX_PHILO_NUMBER_BUFFER 3

@@ -687,7 +687,9 @@ wc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 static int
 phylos(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
-	return create_process(args, fd, "phylos", 0, 4, &run_philosophers, foreground);
+	int pid = create_process(args, fd, "phylos", 0, 4, &run_philosophers, foreground);
+	asm_wait_pid(pid);
+	return pid;
 }
 
 static int
