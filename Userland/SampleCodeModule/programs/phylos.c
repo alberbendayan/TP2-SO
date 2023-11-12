@@ -145,6 +145,9 @@ run_philosophers(int argc, char** argv)
 		}
 	}
 	asm_sem_close(MUTEX_SEM_ID);
+	for(int i=0;i<qty_philosophers;i++){
+		asm_sem_close(MUTEX_SEM_ID+1+i);
+	}
 	asm_kill_current_process(0);
 	return 0;
 }

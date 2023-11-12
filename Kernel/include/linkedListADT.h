@@ -21,5 +21,6 @@ int has_next(linked_list_ADT list);
 void *next(linked_list_ADT list);
 void free_linked_list_ADT_deep(linked_list_ADT list);
 int get_length(linked_list_ADT list);
+void *remove_node_by_data(linked_list_ADT list, void *data);
 
 #endif

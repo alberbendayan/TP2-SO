@@ -96,6 +96,25 @@ void *remove_node(linked_list_ADT list, node *node) {
     return data;
 }
 
+void *remove_node_by_data(linked_list_ADT list, void *data) {
+    if (list == NULL || data == NULL)
+        return NULL;
+
+    node *current = list->first;
+
+    while (current != NULL) {
+        if (current->data == data) {
+            void *removed_data = remove_node(list, current);
+            mm_free(current);
+            return removed_data;
+        }
+        current = current->next;
+    }
+
+    return NULL; // El dato no fue encontrado en la lista
+}
+
+
 void begin(linked_list_ADT list) {
     if (list == NULL)
         return;

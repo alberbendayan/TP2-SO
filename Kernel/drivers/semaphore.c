@@ -100,8 +100,9 @@ sem_close(uint32_t id)
 		return 0;
 	}
 
-	remove_node(sem_adt->semaphores, (node *) sem_to_close);
+	remove_node_by_data(sem_adt->semaphores, sem_to_close);
 	mm_free((void*)sem_to_close);
+	
 	return 0;
 }
 
