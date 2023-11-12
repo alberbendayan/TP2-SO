@@ -1,5 +1,5 @@
 #include "my_syscall.h"
-
+#include <stdlib.h>
 #include <stdint.h>
 
 
@@ -86,7 +86,7 @@ endless_loop_print(uint64_t wait)
 	while (1) {
 		char c[100];
 		uint_to_base(pid, c, 10);
-		puts(c);
+		puts(c,0xff00f0);
 
 		bussy_wait(wait);
 	}

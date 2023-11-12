@@ -1,6 +1,6 @@
 #include "my_syscall.h"
 #include "test_util.h"
-
+#include <stdlib.h>
 #include <tests.h>
 
 enum State
@@ -42,7 +42,7 @@ test_processes(uint64_t argc, char* argv[])
 			p_rqs[rq].pid = my_create_process(endless_loop, 0, argvAux);
 
 			if (p_rqs[rq].pid == -1) {
-				puts("test_processes: ERROR creating process\n");
+				puts("test_processes: ERROR creating process\n", 0xff0000);
 				return -1;
 			} else {
 				p_rqs[rq].state = RUNNING;
@@ -83,7 +83,7 @@ test_processes(uint64_t argc, char* argv[])
 			for (rq = 0; rq < max_processes; rq++)
 				if (p_rqs[rq].state == BLOCKED && GetUniform(100) % 2) {
 					if (my_unblock(p_rqs[rq].pid) == -1) {
-						puts("test_processes: ERROR unblocking process\n");
+						puts("test_processes: ERROR unblocking process\n", 0xff0000);
 						return -1;
 					}
 					p_rqs[rq].state = RUNNING;

@@ -15,5 +15,6 @@ int64_t my_sem_post(uint32_t sem_id);
 int64_t my_sem_close(uint32_t sem_id);
 int64_t my_yield();
 int64_t my_wait(int64_t pid);
+int64_t my_malloc(int64_t size);
 
 #endif

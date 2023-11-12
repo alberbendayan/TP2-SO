@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <tests.h>
+#include <stdlib.h>
 
 #define MINOR_WAIT 1000000  // TODO: Change this value to prevent a process from flooding the screen
 #define WAIT \
@@ -22,8 +23,7 @@ test_prio()
 	char* argv[] = { 0 };
 	uint64_t i;
 
-	char c[10];
-
+	
 	for (i = 0; i < TOTAL_PROCESSES; i++) {
 		pids[i] = my_create_process(endless_loop_print, 0, argv);
 

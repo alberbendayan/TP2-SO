@@ -220,7 +220,8 @@ process_input(char* buff, int size)
 		
 		int left=process_commands(args, pipe_pos, foreground, fd_left);
 		asm_wait_pid(left);
-		process_commands(args + pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right);
+		//process_commands(args+pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right); // tira warnings
+		process_commands(&args[pipe_pos + 1], args_len - pipe_pos - 1, foreground, fd_right);
 		return -1;
 	}
 }
