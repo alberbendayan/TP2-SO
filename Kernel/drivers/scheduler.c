@@ -363,10 +363,11 @@ keyboard_interruption()
 	scheduler_ADT scheduler = get_address();
 	process *p, *p2;
 	uint8_t flag = 1, flag_p = 1;
-	for (int i = 2; i < scheduler->max_pid; i++) {
+	for (int i = 2; i <= scheduler->max_pid; i++) {
 		if (scheduler->processes[i] != NULL) {
 			p = (process*)scheduler->processes[i]->data;
-			for (int j = 2; j < scheduler->max_pid; j++) {
+			//tx_put_word(p->name,0x00ff00);
+			for (int j = 2; j <= scheduler->max_pid; j++) {
 				if (scheduler->processes[j] != NULL) {
 					p2 = (process*)scheduler->processes[j]->data;
 					if (process_is_waiting(p, p2->pid)) {
