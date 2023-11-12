@@ -25,7 +25,7 @@ int32_t kill_current_process(int32_t ret_value);
 
 int8_t change_FD(uint16_t pid, uint8_t old_fd, int16_t new_fd);
 
-int32_t kill_process(uint16_t pid, int32_t ret_value);
+int32_t kill_process(int pid, int32_t ret_value);
 
 process_status get_process_status(uint16_t pid);
 

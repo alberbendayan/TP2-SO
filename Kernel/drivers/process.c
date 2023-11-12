@@ -40,7 +40,7 @@ init_process(process* proc,
              char** args,
              char* name,
              uint8_t priority,
-             int file_descriptors[],
+             int *file_descriptors,
              uint8_t unkillable)
 {
 	proc->pid = pid;
@@ -55,10 +55,12 @@ init_process(process* proc,
 	proc->stack_pos = asm_initialize_stack(&process_wrapper, code, stack_end, (void*)proc->argv);
 	proc->status = READY;
 	proc->unkillable = unkillable;
+	proc->pointer_fd_to_free=file_descriptors;
 
 	assign_file_descriptor(proc, STDIN, file_descriptors[STDIN], READ);
 	assign_file_descriptor(proc, STDOUT, file_descriptors[STDOUT], WRITE);
 	assign_file_descriptor(proc, STDERR, file_descriptors[STDERR], WRITE);
+	
 }
 
 static void
@@ -76,6 +78,7 @@ close_file_descriptors(process* proc)
 	close_file_descriptor(proc->pid, proc->file_descriptors[STDIN]);   // esta en el .h
 	close_file_descriptor(proc->pid, proc->file_descriptors[STDOUT]);  // esta en el .h
 	close_file_descriptor(proc->pid, proc->file_descriptors[STDERR]);  // esta en el .h
+	//mm_free(proc->pointer_fd_to_free);
 }
 
 static void

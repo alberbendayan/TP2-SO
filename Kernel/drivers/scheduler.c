@@ -26,6 +26,7 @@ typedef struct scheduler_CDT
 	uint16_t qty_processes;
 	int8_t remaining_quantum;
 	int8_t kill_fg_process;
+	int max_pid;
 } scheduler_CDT;
 
 static scheduler_ADT
@@ -48,6 +49,7 @@ create_scheduler()
 	scheduler->next_unused_pid = 0;
 	scheduler->kill_fg_process = 0;
 	scheduler->qty_processes = 0;
+	scheduler->max_pid=-1;
 	return scheduler;
 }
 
@@ -55,7 +57,7 @@ static process*
 get_process_by_pid(uint32_t pid)
 {
 	scheduler_ADT scheduler = get_address();
-	for (int8_t i = 0; i < scheduler->qty_processes; i++) {
+	for (int8_t i = 0; i <= scheduler->max_pid && i<=MAX_PROCESSES; i++) {
 		process* proc = (process*)scheduler->processes[i]->data;
 		if (pid == proc->pid) {
 			return proc;
@@ -97,6 +99,9 @@ create_process(process_initialization* data)
 	}
 
 	scheduler->qty_processes++;
+	if(proc->pid>scheduler->max_pid){
+		scheduler->max_pid=proc->pid;
+	}
 	return proc->pid;
 }
 
@@ -364,6 +369,7 @@ keyboard_interruption()
 		// 	unblock_process(p->pid);
 		// }
 		if ((p->file_descriptors[STDIN] == STDIN && (p->status == READY || p->status == RUNNING))) {
+			unblock_process(p->pid);
 			flag = 0;
 		}
 	}
@@ -456,7 +462,7 @@ kill_current_process(int32_t ret_value)
 }
 
 int32_t
-kill_process(uint16_t pid, int32_t ret_value)
+kill_process(int pid, int32_t ret_value)
 {
 	scheduler_ADT scheduler = get_address();
 	node* process_to_kill_node = scheduler->processes[pid];
@@ -470,7 +476,6 @@ kill_process(uint16_t pid, int32_t ret_value)
 	if (process_to_kill->unkillable) {
 		return -1;
 	}
-
 	close_file_descriptors(process_to_kill);
 
 	uint8_t priority_index = process_to_kill->status != BLOCKED ? process_to_kill->priority : BLOCKED_INDEX;

@@ -174,8 +174,9 @@ add_philosopher(int index)
 {
 	asm_sem_wait(MUTEX_SEM_ID);
 	char philo_number_buffer[MAX_PHILO_NUMBER_BUFFER] = { 0 };
-	if (asm_sem_open(philosopher_semaphore(index), 0) == -1)
+	if (asm_sem_open(philosopher_semaphore(index), 0) == -1) {
 		return -1;
+	}
 	my_int_to_array(index, philo_number_buffer, 10);
 	char* params[] = { "philosopher", philo_number_buffer, NULL };
 	int file_descriptors[] = { -1, 1, 2 };
@@ -190,8 +191,9 @@ add_philosopher(int index)
 	p.unkillable = 0;
 
 	philosopher_pids[index] = asm_init_process(&p);
-	if (philosopher_pids[index] != -1)
+	if (philosopher_pids[index] != -1) {
 		qty_philosophers++;
+	}
 	render();
 	asm_sem_post(MUTEX_SEM_ID);
 	return -1 * !(philosopher_pids[index] + 1);
@@ -213,6 +215,7 @@ remove_philosopher(int index)
 	}
 
 	asm_kill_process(philosopher_pids[index], 0);
+
 	asm_wait_pid(philosopher_pids[index]);
 	asm_sem_close(philosopher_semaphore(index));
 	philosopher_pids[index] = -1;

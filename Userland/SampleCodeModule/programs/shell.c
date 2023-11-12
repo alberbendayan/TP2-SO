@@ -218,16 +218,6 @@ process_input(char* buff, int size)
 		int fd_left[3] = { STDIN, pipe_id, STDERR };
 		int fd_right[3] = { pipe_id, STDOUT, STDERR };
 		
-		for (int i = 0; i < pipe_pos; i++) {
-			puts(args[i], 0xffffff);
-			puts(" ", 0xffffff);
-		}
-		puts("\n", 0xffffff);
-		for (int i = 0; i < args_len - pipe_pos - 1; i++) {
-			puts(args[pipe_pos + 1 + i], 0xffffff);
-			puts(" ", 0xffffff);
-		}
-		puts("\n", 0xffffff);
 		int left=process_commands(args, pipe_pos, foreground, fd_left);
 		asm_wait_pid(left);
 		process_commands(args + pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right);
@@ -253,7 +243,7 @@ process_commands(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[
 static void
 prompt(int32_t status)
 {
-	asm_sleep(6);
+	asm_sleep(9);
 	puts(">>>", color.prompt);
 	puts(" ", color.fg);
 	// asm_block_process(1);
@@ -678,6 +668,7 @@ func_wc(char argc, char** argv)
 			count++;
 		}
 		state=0;
+		putchar(buffer,color.output);
 	}
 	putchar('\n', color.output);
 	puts("Cantidad de lineas: ", color.output);

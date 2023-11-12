@@ -62,7 +62,6 @@ test_processes(uint64_t argc, char* argv[])
 								puts("test_processes: ERROR killing process\n", 0xff0000);
 								return -1;
 							}
-							puts("Proceso muerto\n", 0xff0000);
 							p_rqs[rq].state = KILLED;
 							alive--;
 						}
@@ -74,7 +73,6 @@ test_processes(uint64_t argc, char* argv[])
 								puts("test_processes: ERROR blocking process\n", 0xff0000);
 								return -1;
 							}
-							puts("Proceso bloqueado\n", 0xff0000);
 							p_rqs[rq].state = BLOCKED;
 						}
 						break;

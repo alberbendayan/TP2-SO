@@ -35,6 +35,7 @@ typedef struct process
 	uint8_t priority;
 	process_status status;
 	int file_descriptors[BUILT_IN_DESCRIPTORS];
+	int *pointer_fd_to_free;
 	int32_t ret_value;
 } process;
 
