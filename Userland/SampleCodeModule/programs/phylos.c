@@ -119,6 +119,7 @@ run_philosophers(int argc, char** argv)
 	char command = '\0';
 	int aux;
 	while ((command = asm_getchar(&aux)) != COMMAND_QUIT) {
+		//asm_sleep(1);
 		if (aux == 0) {
 			continue;
 		}
@@ -214,7 +215,7 @@ remove_philosopher(int index)
 
 	asm_kill_process(philosopher_pids[index], 0);
 	
-	asm_wait_pid(philosopher_pids[index]);
+	//asm_wait_pid(philosopher_pids[index]);
 	asm_sem_close(philosopher_semaphore(index));
 	philosopher_pids[index] = -1;
 	philosopher_states[index] = NONE;
@@ -233,9 +234,9 @@ philosopher(int argc, char** argv)
 	puts("\n", 0xffffff);
 	philosopher_states[i] = THINKING;
 	while (1) {
-		asm_sleep(18 * THINK_TIME);
+		asm_sleep(5 * THINK_TIME);
 		take_forks(i);
-		asm_sleep(18 * EAT_TIME);
+		asm_sleep(5 * EAT_TIME);
 		put_forks(i);
 	}
 	return 0;
