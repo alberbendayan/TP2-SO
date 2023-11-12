@@ -141,11 +141,8 @@ run_philosophers(int argc, char** argv)
 				break;
 		}
 	}
-
-	for (int i = qty_philosophers - 1; i >= 0; i--) {
-		remove_philosopher(i);
-	}
 	asm_sem_close(MUTEX_SEM_ID);
+	asm_kill_current_process(0);
 	return 0;
 }
 
@@ -189,6 +186,7 @@ add_philosopher(int index)
 	p.file_descriptors = file_descriptors;
 	p.priority = 4;
 	p.unkillable = 0;
+	
 
 	philosopher_pids[index] = asm_init_process(&p);
 	if (philosopher_pids[index] != -1) {
@@ -215,7 +213,7 @@ remove_philosopher(int index)
 	}
 
 	asm_kill_process(philosopher_pids[index], 0);
-
+	
 	asm_wait_pid(philosopher_pids[index]);
 	asm_sem_close(philosopher_semaphore(index));
 	philosopher_pids[index] = -1;
