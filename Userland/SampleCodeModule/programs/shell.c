@@ -255,10 +255,7 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 {
 	process_initialization p;
 	p.args = args;
-	p.file_descriptors = asm_malloc(3 * sizeof(int));
-	for (int i = 0; i < 3; i++) {
-		p.file_descriptors[i] = fd[i];
-	}
+	p.file_descriptors = fd;
 	p.name = name;
 	p.unkillable = unkillable;
 	p.priority = priority;

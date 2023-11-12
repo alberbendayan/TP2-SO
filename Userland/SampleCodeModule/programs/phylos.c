@@ -108,14 +108,15 @@ run_philosophers(int argc, char** argv)
 	if (asm_sem_open(MUTEX_SEM_ID, 1) == -1) {
 		return -1;
 	}
-	
+
 	for (int i = 0; i < MAX_QTY; i++) {
 		philosopher_states[i] = NONE;
 		philosopher_pids[i] = -1;
 	}
 
-	for (int i = 0; i < MIN_QTY + 2; i++)
+	for (int i = 0; i < MIN_QTY + 2; i++) {
 		add_philosopher(i);
+	}
 
 	char command = '\0';
 	uint8_t aux;
@@ -163,10 +164,9 @@ render()
 			}
 		}
 	}
-	if (something_to_write) {
+	if (something_to_write)
 		putchar('\n', 0xfffff);
-	}
-	
+	// sleep(1);
 }
 
 static int8_t
@@ -179,16 +179,17 @@ add_philosopher(int index)
 	}
 	my_int_to_array(index, philo_number_buffer, 10);
 	char* params[] = { "philosopher", philo_number_buffer, NULL };
-	int file_descriptors[] = { -1, 1, 2 };
+	int file_descriptors[3] = { -1, 1, 2 };
 
-	process_initialization p;
-	p.code = philosopher;
-
+	process_initialization p;	
 	p.name = params[0];
 	p.args = params;
-	p.file_descriptors = file_descriptors;
+	
+	p.file_descriptors=file_descriptors;
+
 	p.priority = 4;
 	p.unkillable = 0;
+	p.code = philosopher;
 
 	philosopher_pids[index] = asm_init_process(&p);
 	if (philosopher_pids[index] != -1) {

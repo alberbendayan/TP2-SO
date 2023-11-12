@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <tests.h>
+#include <stdlib.h>
 
 #define NULL (void*)0
 #define SEM_ID 98
@@ -46,7 +47,7 @@ my_process_inc(uint64_t argc, char* argv[])
 
 	if (use_sem) {
 		if (!my_sem_open(SEM_ID, 1)) {
-			puts("test_sync: ERROR opening semaphore\n");
+			puts("test_sync: ERROR opening semaphore\n", 0xff0000);
 			return -1;
 		}
 	}

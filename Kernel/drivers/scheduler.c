@@ -14,7 +14,7 @@
 #define IDLE_PID 0
 #define SHELL_PID 1
 #define QUANTUM_COEF 2
-#define SCHEDULER_ADDRESS (scheduler_ADT) 0x60000
+#define SCHEDULER_ADDRESS (scheduler_ADT)0x60000
 #define BUFFER_SIZE 128
 
 typedef struct scheduler_CDT
@@ -49,7 +49,7 @@ create_scheduler()
 	scheduler->next_unused_pid = 0;
 	scheduler->kill_fg_process = 0;
 	scheduler->qty_processes = 0;
-	scheduler->max_pid=-1;
+	scheduler->max_pid = -1;
 	return scheduler;
 }
 
@@ -99,8 +99,8 @@ create_process(process_initialization* data)
 	}
 
 	scheduler->qty_processes++;
-	if(proc->pid>scheduler->max_pid){
-		scheduler->max_pid=proc->pid;
+	if (proc->pid > scheduler->max_pid) {
+		scheduler->max_pid = proc->pid;
 	}
 	return proc->pid;
 }
@@ -132,7 +132,7 @@ force_process(uint16_t pid)
 	}
 	p->status = READY;
 	scheduler->current_pid = pid;
-	asm_move_rsp((uint64_t) p->stack_pos);
+	asm_move_rsp((uint64_t)p->stack_pos);
 }
 
 linked_list_ADT
@@ -167,7 +167,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 	char aux_pri[14];
 	char aux_sp[8];
 	char aux_bp[8];
-	
+
 	j += strlen(snapshot->name);
 	memcpy(to_ret, snapshot->name, j);
 	while (j < 18) {
@@ -190,7 +190,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 		to_ret[j++] = ' ';
 	}
 
-	uint_to_base((uint64_t) snapshot->stack_pos, aux_sp, 10);
+	uint_to_base((uint64_t)snapshot->stack_pos, aux_sp, 10);
 	memcpy((to_ret + j), aux_sp, strlen(aux_sp));
 	j += strlen(aux_sp);
 
@@ -198,7 +198,7 @@ get_snapshot_info(process_snapshot* snapshot, char* to_ret)
 		to_ret[j++] = ' ';
 	}
 
-	uint_to_base((uint64_t) snapshot->stack_base, aux_bp, 10);
+	uint_to_base((uint64_t)snapshot->stack_base, aux_bp, 10);
 	memcpy((to_ret + j), aux_bp, strlen(aux_bp));
 	j += strlen(aux_sp);
 
@@ -361,33 +361,29 @@ void
 keyboard_interruption()
 {
 	scheduler_ADT scheduler = get_address();
-	process* p,*p2;
-	uint8_t flag = 1,flag_p=1;
+	process *p, *p2;
+	uint8_t flag = 1, flag_p = 1;
 	for (int i = 2; i < scheduler->max_pid; i++) {
-		if(scheduler->processes[i]!=NULL){
-			p=(process*) scheduler->processes[i]->data;
-			for(int j=2;j < scheduler->max_pid; j++)
-			{
-				if(scheduler->processes[j]!=NULL)
-				{
-					p2 =(process*) scheduler->processes[j]->data;
-					if(process_is_waiting(p,p2->pid)){
-						flag_p=0;
+		if (scheduler->processes[i] != NULL) {
+			p = (process*)scheduler->processes[i]->data;
+			for (int j = 2; j < scheduler->max_pid; j++) {
+				if (scheduler->processes[j] != NULL) {
+					p2 = (process*)scheduler->processes[j]->data;
+					if (process_is_waiting(p, p2->pid)) {
+						flag_p = 0;
 					}
-
 				}
 			}
-			if((flag_p && p->file_descriptors[STDIN] == STDIN)) 
-			{
+			if ((flag_p && p->file_descriptors[STDIN] == STDIN)) {
 				unblock_process(p->pid);
 				return;
 			}
 		}
-		if(process_is_waiting((process*) scheduler->processes[i]->data,p->pid)){
-			flag=0;
+		if (process_is_waiting((process*)scheduler->processes[i]->data, p->pid)) {
+			flag = 0;
 		}
 	}
-	if (flag ) {
+	if (flag) {
 		unblock_process(SHELL_PID);
 	}
 }
@@ -498,19 +494,20 @@ kill_process(int pid, int32_t ret_value)
 
 	process_to_kill->ret_value = ret_value;
 
-	node* parent_node = scheduler->processes[process_to_kill->parent_pid];
-	if (parent_node != NULL) {
-		process* parent = (process*)parent_node->data;
-		if (process_is_waiting(parent, process_to_kill->pid)) {
-			set_status(process_to_kill->parent_pid, READY);
-		}
-	}
 	process* p_aux;
 	int cant = scheduler->qty_processes;
 	for (int k = 0; k < cant; k++) {
 		p_aux = scheduler->processes[k]->data;
 		if (p_aux->parent_pid == pid) {
 			kill_process(p_aux->pid, ret_value);
+		}
+	}
+
+	node* parent_node = scheduler->processes[process_to_kill->parent_pid];
+	if (parent_node != NULL) {
+		process* parent = (process*)parent_node->data;
+		if (process_is_waiting(parent, process_to_kill->pid)) {
+			set_status(process_to_kill->parent_pid, READY);
 		}
 	}
 
@@ -590,15 +587,16 @@ waitpid(uint16_t pid)
 	return 1;
 }
 
-
-int * get_file_descriptors(){
-	process *p = get_process_by_pid(get_pid());
-	if(p==NULL){
+int*
+get_file_descriptors()
+{
+	process* p = get_process_by_pid(get_pid());
+	if (p == NULL) {
 		return NULL;
 	}
-	int* to_ret =  mm_malloc(3 *sizeof(int));
-	for(int i = 0;i<3;i++){
-		to_ret[i]=p->file_descriptors[i];
+	int* to_ret = mm_malloc(3 * sizeof(int));
+	for (int i = 0; i < 3; i++) {
+		to_ret[i] = p->file_descriptors[i];
 	}
 	return to_ret;
 }

@@ -1,11 +1,10 @@
-#include "my_syscall.h"
-#include "test_util.h"
-
 #include <stdint.h>
 //#include <string.h>
 #include <tests.h>
 #include <my_syscall.h>
 #include <stdlib.h>
+#include <test_util.h>
+#include <syscalls.h>
 
 #define MAX_BLOCKS 128
 
