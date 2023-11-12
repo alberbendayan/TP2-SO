@@ -21,7 +21,7 @@ typedef struct process_initialization
  * Devuelve el caracter presionado por teclado y su estado
  * (presionado o soltado).
  */
-uint8_t getchar(uint8_t* state);
+int16_t getchar(uint8_t* state);
 
 /*
  * Carga en buff los caracteres recibidos por teclado y los

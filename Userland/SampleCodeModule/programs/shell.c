@@ -6,7 +6,6 @@
 #include <syscalls.h>
 #include <tests.h>
 
-
 #define MAX_COMMANDS 30
 #define MAX_ARGS 8
 #define INPUT_SIZE 200
@@ -22,7 +21,7 @@
 #define STDOUT 1
 #define STDERR 2
 #define EOF -1
-#define	NO_PIPE  -1
+#define NO_PIPE -1
 
 #define NULL (void*)0
 typedef struct
@@ -30,9 +29,6 @@ typedef struct
 	int (*fn)();
 	char *name, *desc;
 } Command;
-
-
-
 
 enum fds_positions
 {
@@ -49,10 +45,7 @@ static uint8_t running = 1;
 static void load_commands();
 static void load_command(int (*fn)(), char* name, char* desc);
 static int32_t process_input(char* buff, int size);
-static int32_t process_commands(char* args[MAX_ARGS],
-                                int args_len,
-                                uint8_t foreground,
-                                int fd[3]);
+static int32_t process_commands(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static void prompt(int32_t status);
 
 static int
@@ -60,64 +53,31 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 
 // commands
 static int help(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
-static int datetime(char* args[MAX_ARGS],
-                         int args_len,
-                         uint8_t foreground,
-                         int fd[3]);
+static int datetime(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int exit();
-static int printreg(char* args[MAX_ARGS],
-                         int args_len,
-                         uint8_t foreground,
-                         int fd[3]);
+static int printreg(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int clear();
 static int testioe();
 static int testzde();
-static int setcolor(char* args[MAX_ARGS],
-                         int args_len,
-                         uint8_t foreground,
-                         int fd[3]);
+static int setcolor(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int switchcolors();
-static int memstatus(char* args[MAX_ARGS],
-                          int args_len,
-                          uint8_t foreground,
-                          int fd[3]);
+static int memstatus(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int ps(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int pid(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int kill(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int block(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
-static int unblock(char* args[MAX_ARGS],
-                        int args_len,
-                        uint8_t foreground,
-                        int fd[3]);
+static int unblock(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int nice(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int loop(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int cat(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
-static int filter(char* args[MAX_ARGS],
-                       int args_len,
-                       uint8_t foreground,
-                       int fd[3]);
+static int filter(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int wc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 static int yield();
-static int phylos(char* args[MAX_ARGS],
-                       int args_len,
-                       uint8_t foreground,
-                       int fd[3]);
-static int testmm(char* args[MAX_ARGS],
-                       int args_len,
-                       uint8_t foreground,
-                       int fd[3]);
-static int testprio(char* args[MAX_ARGS],
-                         int args_len,
-                         uint8_t foreground,
-                         int fd[3]);
-static int testproc(char* args[MAX_ARGS],
-                         int args_len,
-                         uint8_t foreground,
-                         int fd[3]);
-static int testsync(char* args[MAX_ARGS],
-                         int args_len,
-                         uint8_t foreground,
-                         int fd[3]);
+static int phylos(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
+static int testmm(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
+static int testprio(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
+static int testproc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
+static int testsync(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3]);
 
 uint32_t
 shell_init()
@@ -217,10 +177,10 @@ process_input(char* buff, int size)
 		int pipe_id = asm_get_last_free_pipe();
 		int fd_left[3] = { STDIN, pipe_id, STDERR };
 		int fd_right[3] = { pipe_id, STDOUT, STDERR };
-		
-		int left=process_commands(args, pipe_pos, foreground, fd_left);
+
+		int left = process_commands(args, pipe_pos, foreground, fd_left);
 		asm_wait_pid(left);
-		//process_commands(args+pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right); // tira warnings
+		// process_commands(args+pipe_pos + 1, args_len - pipe_pos - 1, foreground, fd_right); // tira warnings
 		process_commands(&args[pipe_pos + 1], args_len - pipe_pos - 1, foreground, fd_right);
 		return -1;
 	}
@@ -272,7 +232,7 @@ create_process(char** args, int* fd, char* name, int unkillable, int priority, v
 
 static int
 func_help(int args_len, char* args[MAX_ARGS])
-{	
+{
 	for (int i = 0; i < commands_len; i++) {
 		puts(commands[i].name, color.output);
 		puts(commands[i].desc, color.output);
@@ -285,8 +245,6 @@ static int
 help(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	return create_process(args, fd, "help", 0, 4, &func_help, foreground);
-
-	
 }
 
 static int
@@ -299,9 +257,7 @@ func_datetime(int args_len, char* args[MAX_ARGS])
 static int
 datetime(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
-	return  create_process(args, fd, "datetime", 0, 4, &func_datetime, foreground);
-
-	
+	return create_process(args, fd, "datetime", 0, 4, &func_datetime, foreground);
 }
 
 // el clear lo dejo como builtin de la shell
@@ -330,7 +286,7 @@ func_printreg(int args_len, char* args[MAX_ARGS])
 static int
 printreg(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
-	return  create_process(args, fd, "printreg", 0, 4, &func_printreg, foreground);
+	return create_process(args, fd, "printreg", 0, 4, &func_printreg, foreground);
 }
 
 // las excepciones las dejamos asi xq no son requisito del tp
@@ -435,7 +391,6 @@ static int
 memstatus(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	return create_process(args, fd, "memstatus", 0, 4, &func_memstatus, foreground);
-
 }
 
 static int
@@ -450,8 +405,7 @@ func_ps(int args_len, char* args[MAX_ARGS])
 static int
 ps(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
-	return  create_process(args, fd, "ps", 0, 4, &func_ps, foreground);
-
+	return create_process(args, fd, "ps", 0, 4, &func_ps, foreground);
 }
 
 static int
@@ -493,9 +447,7 @@ func_kill(int args_len, char* args[MAX_ARGS])
 static int
 kill(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
-	return  create_process(args, fd, "kill", 0, 4, &func_kill, foreground);
-
-	
+	return create_process(args, fd, "kill", 0, 4, &func_kill, foreground);
 }
 
 static int
@@ -586,41 +538,37 @@ func_loop(int args_len, char* args[MAX_ARGS])
 		puts("\n", color.bg);
 		asm_sleep(5 * 18);
 	}
-	return ;
+	return;
 }
 
 static int
 loop(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	return create_process(args, fd, "loop", 0, 4, &func_loop, foreground);
-
 }
 
 void
 func_cat(int args_len, char* args[MAX_ARGS])
 {
-	char buffer= 0 ;
-	uint8_t state;
+	char buffer[1024], val;
+	int len, state;
 
 	while (1) {
-		while (state != PRESSED) {
-			buffer = getchar(&state);
-		}
+		len = gets(buffer, 1024, color.fg);
 
-		if (buffer == EOF) {
-			putchar('\n', color.output);
+		if (buffer[len + 1] == EOF) {
+			puts("EOF desde cat\n", color.output);
 			return;
 		}
 
-		putchar(buffer, color.output);
-		state=0;
+		puts(buffer, color.output);
+		puts("\n", color.output);
 	}
 }
 static int
 cat(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	return create_process(args, fd, "cat", 0, 4, &func_cat, foreground);
-
 }
 
 void
@@ -639,7 +587,6 @@ func_filter(int args_len, char* args[MAX_ARGS])
 			return;
 		}
 
-		
 		if (!is_vocal(buffer)) {
 			putchar(buffer, color.output);
 		}
@@ -655,10 +602,10 @@ filter(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 void
 func_wc(char argc, char** argv)
 {
-	char buffer = 0 ;
+	char buffer = 0;
 	uint64_t count = 1;
 	uint8_t state;
-	
+
 	while (!(buffer == EOF)) {
 		while (state != PRESSED) {
 			buffer = getchar(&state);
@@ -666,14 +613,18 @@ func_wc(char argc, char** argv)
 		if (buffer == '\n') {
 			count++;
 		}
-		state=0;
-		putchar(buffer,color.output);
+		state = 0;
+		int *fd = asm_get_fds();
+		if (fd[READ]==STDIN) {
+			putchar(buffer, color.output);
+		}
+		asm_free(fd);
 	}
 	putchar('\n', color.output);
 	puts("Cantidad de lineas: ", color.output);
 	char aux[10];
-	uint_to_base(count,aux,10);
-	puts(aux,color.output);
+	uint_to_base(count, aux, 10);
+	puts(aux, color.output);
 	putchar('\n', color.output);
 	return;
 }
@@ -696,24 +647,20 @@ testmm(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	puts("Testeando el memory\n", 0xff0000);
 	return create_process(args, fd, "testmm", 0, 4, &test_mm, foreground);
-
 }
 static int
 testprio(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	return create_process(args, fd, "testprio", 0, 4, &test_prio, foreground);
-
 }
 static int
 testproc(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	return create_process(args, fd, "testproc", 0, 4, &test_processes, foreground);
-
 }
 static int
 testsync(char* args[MAX_ARGS], int args_len, uint8_t foreground, int fd[3])
 {
 	puts("Testeando sincronizacion\n", 0xff0000);
 	return create_process(args, fd, "test_sync", 0, 4, &test_sync, foreground);
-
 }

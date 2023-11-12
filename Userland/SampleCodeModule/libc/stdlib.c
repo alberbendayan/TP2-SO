@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
@@ -19,78 +18,75 @@
 uint32_t
 gets(char* buff, uint32_t size, uint32_t color)
 {
-	uint8_t c, state;
+	uint8_t state;
+	char c;
 	uint32_t len = 0;
 	int* fd;
-	fd=asm_get_fds();
+	fd = asm_get_fds();
 
-	if(fd[READ]==STDIN){
-		while (!((c = getchar(&state)) == '\n' && state == PRESSED)) {
-		if (c && state == PRESSED) {
-			if (c != '\b') {
-				if (len < size - 1) {
-					putchar(c, color);
-					buff[len++] = c;
-				}
-			} else if (len > 0 && c != '\n') {
-				if (buff[len - 1] == '\t')
-					for (int i = 0; i < 7; i++)
+	if (fd[READ] == STDIN) {
+		while (!(((c = getchar(&state)) == '\n' || c== EOF )&& state == PRESSED)) {
+			if (c && state == PRESSED) {
+				if (c != '\b') {
+					if (len < size - 1) {
 						putchar(c, color);
-				putchar(c, color);
-				len--;
+						buff[len++] = c;
+					}
+				} else if (len > 0 && c != '\n') {
+					if (buff[len - 1] == '\t')
+						for (int i = 0; i < 7; i++)
+							putchar(c, color);
+					putchar(c, color);
+					len--;
+				}
 			}
 		}
-	}
-	putchar('\n', color);
-	buff[len] = 0;
-	asm_free(fd);
-	return len;
-	}
-	else 	if (fd[READ] == DEV_NULL) 
-	{
+		putchar('\n', color);
+		if (c == EOF) {
+			buff[len] = 0;
+			buff[len+1]=EOF;
+		} else {
+			buff[len] = 0;
+		}
+		asm_free(fd);
+		return len;
+	} else if (fd[READ] == DEV_NULL) {
 		asm_free(fd);
 		buff[0] = EOF;
 		return 0;
-	}
-	else if (fd[READ] < DEV_NULL)
-	{
+	} else if (fd[READ] < DEV_NULL) {
 		asm_free(fd);
 		return -1;
-	}
-	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
-		int lens=asm_read_pipe(fd[READ], buff, size);
-		puts(buff,color);
+	} else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
+		int lens = asm_read_pipe(fd[READ], buff, size);
+		puts(buff, color);
 		asm_free(fd);
 		return lens;
 	}
 	return -1;
 }
 
-uint8_t
+int16_t
 getchar(uint8_t* state)
 {
 	int* fd;
-	fd=asm_get_fds();
+	fd = asm_get_fds();
 	char buff[2];
-	if(fd[READ]==STDIN){
-		char c= asm_getchar(state);
+	if (fd[READ] == STDIN) {
+		char c = asm_getchar(state);
+
 		asm_free(fd);
 		return c;
-	}
-		else 	if (fd[READ] == DEV_NULL) 
-	{
+	} else if (fd[READ] == DEV_NULL) {
 		asm_free(fd);
 		buff[0] = EOF;
 		return 0;
-	}
-	else if (fd[READ] < DEV_NULL)
-	{
+	} else if (fd[READ] < DEV_NULL) {
 		asm_free(fd);
 		return -1;
-	}
-	else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
+	} else if (fd[READ] >= BUILT_IN_DESCRIPTORS) {
 		asm_read_pipe(fd[READ], buff, 1);
-		*state=PRESSED;
+		*state = PRESSED;
 		asm_free(fd);
 		return buff[0];
 	}
@@ -102,15 +98,12 @@ puts(char* str, uint32_t color)
 {
 	uint64_t len = strlen(str);
 	int* fd;
-	fd=asm_get_fds();
-	if(fd[WRITE]==STDOUT || fd[WRITE]==STDERR){
+	fd = asm_get_fds();
+	if (fd[WRITE] == STDOUT || fd[WRITE] == STDERR) {
 		for (int i = 0; i < len; i++)
-		putchar(str[i], color);
-	}
-	else if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
-	{
+			putchar(str[i], color);
+	} else if (fd[WRITE] >= BUILT_IN_DESCRIPTORS) {
 		asm_write_pipe(asm_get_current_id(), fd[WRITE], str, len);
-		
 	}
 	asm_free(fd);
 }
@@ -119,15 +112,12 @@ void
 putchar(char c, uint32_t color)
 {
 	int* fd;
-	fd=asm_get_fds();
-	if(fd[WRITE]==STDOUT || fd[WRITE]==STDERR){
+	fd = asm_get_fds();
+	if (fd[WRITE] == STDOUT || fd[WRITE] == STDERR) {
 		asm_putchar(c, color);
-
 	}
-	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS)
-	{
+	if (fd[WRITE] >= BUILT_IN_DESCRIPTORS) {
 		asm_write_pipe(asm_get_current_id(), fd[WRITE], &c, 1);
-		
 	}
 	asm_free(fd);
 }
@@ -291,7 +281,7 @@ intToArray(int num, char* result)
 }
 
 int
-customAtoi( char* str)
+customAtoi(char* str)
 {
 	int result = 0;
 	int sign = 1;  // Para manejar el signo positivo o negativo
@@ -316,9 +306,7 @@ uint8_t
 is_vocal(char buf)
 {
 	return ((buf == 'a' || buf == 'e' || buf == 'i' || buf == 'o' || buf == 'u') ||
-		                      (buf == 'A' || buf == 'E' || buf == 'I' || buf== 'O' || buf == 'U'));
-			
-		
+	        (buf == 'A' || buf == 'E' || buf == 'I' || buf == 'O' || buf == 'U'));
 }
 
 void*
