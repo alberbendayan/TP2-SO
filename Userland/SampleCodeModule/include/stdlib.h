@@ -71,6 +71,6 @@ uint32_t hex_to_uint(char* code);
 
 uint8_t is_vocal(char buf);
 
-int customAtoi( char* str);
+int custom_atoi( char* str);
 
 #endif

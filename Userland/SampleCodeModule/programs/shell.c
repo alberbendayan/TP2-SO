@@ -1,3 +1,9 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <libasm.h>
 #include <phylos.h>
 #include <pong.h>
@@ -429,11 +435,11 @@ static int
 func_kill(int args_len, char* args[MAX_ARGS])
 {
 	if (args_len == 2) {
-		int arg = customAtoi(args[1]);
+		int arg = custom_atoi(args[1]);
 
 		asm_kill_process(arg, 0);
 	} else if (args_len == 3) {
-		asm_kill_process(customAtoi(args[1]), customAtoi(args[2]));  // los paso a int
+		asm_kill_process(custom_atoi(args[1]), custom_atoi(args[2]));  // los paso a int
 	} else {
 		char* usage = "USAGE: kill <pid> <ret value> or kill <pid>\n When leaving empty <pid> and <ret value> the "
 		              "current process will be killed\n When leaving empty <ret value> the return value will be 0\n";
@@ -454,7 +460,7 @@ static int
 func_block(int args_len, char* args[MAX_ARGS])
 {
 	if (args_len == 2) {
-		int arg = customAtoi(args[1]);
+		int arg = custom_atoi(args[1]);
 		asm_block_process(arg);
 		asm_unblock_process(1);
 		return asm_kill_current_process(0);
@@ -476,7 +482,7 @@ static void
 func_unblock(int args_len, char* args[MAX_ARGS])
 {
 	if (args_len == 2) {
-		int arg = customAtoi(args[1]);
+		int arg = custom_atoi(args[1]);
 		asm_unblock_process(arg);
 		asm_unblock_process(1);
 		asm_kill_current_process(0);
@@ -499,8 +505,8 @@ void
 func_nice(int args_len, char* args[MAX_ARGS])
 {
 	if (args_len == 3) {
-		int pid = customAtoi(args[1]);
-		int new_priority = customAtoi(args[2]);
+		int pid = custom_atoi(args[1]);
+		int new_priority = custom_atoi(args[2]);
 		asm_set_priority(pid, new_priority);
 		asm_unblock_process(1);
 		return;

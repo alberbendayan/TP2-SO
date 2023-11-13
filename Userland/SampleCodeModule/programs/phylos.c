@@ -1,3 +1,9 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <libasm.h>
 #include <phylos.h>
 #include <shell.h>
@@ -233,7 +239,7 @@ remove_philosopher(int index)
 static int
 philosopher(int argc, char** argv)
 {
-	int i = customAtoi(argv[1]);
+	int i = custom_atoi(argv[1]);
 	puts("Entre en el primer equipo del club atletico huracan: ", 0xff0000);
 	puts(philosopher_names[i], 0xff00ff);
 	puts("\n", 0xffffff);
