@@ -36,6 +36,7 @@ typedef struct process
 	process_status status;
 	int file_descriptors[BUILT_IN_DESCRIPTORS];
 	int32_t ret_value;
+	linked_list_ADT mallocs;
 } process;
 
 typedef int (*main_function)(int argc, char** args);
